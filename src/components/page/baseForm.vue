@@ -2,20 +2,13 @@
     <div ref="print">
         <div class="crumbs no-print">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item>
-                    <i class="el-icon-lx-calendar"></i> 表单
-                </el-breadcrumb-item>
+                <el-breadcrumb-item> <i class="el-icon-lx-calendar"></i> 表单 </el-breadcrumb-item>
                 <el-breadcrumb-item>基本表单</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
             <div class="form-box">
-                <el-form
-                    ref="dialogForm"
-                    :model="dialogForm"
-                    label-width="300px"
-                    :rules="dialogFormRules"
-                >
+                <el-form ref="dialogForm" :model="dialogForm" label-width="300px" :rules="dialogFormRules">
                     <el-form-item label="下拉树结构(插件封装，得到的是ID)">
                         <treeselect
                             size="small"
@@ -35,23 +28,18 @@
                             @change="getTreeeValue"
                             nodeKey="value"
                             v-model="dialogForm.treeValue"
-                            style="width: 300px;"
+                            style="width: 300px"
                         />
                     </el-form-item>
                     <el-form-item label="下拉树结构(不用封装)" prop="treeName">
                         <label slot="label">下拉树结构</label>
-                        <label slot="label" style="color:blue">(自己封装)</label>
+                        <label slot="label" style="color: blue">(自己封装)</label>
                         <label slot="label">
-                            <el-tooltip
-                                class="item"
-                                effect="light"
-                                :content="`你选中的数据是:${dialogForm.treeName}`"
-                                placement="top"
-                            >
+                            <el-tooltip class="item" effect="light" :content="`你选中的数据是:${dialogForm.treeName}`" placement="top">
                                 <i class="el-icon-info"></i>
                             </el-tooltip>
                         </label>
-                        <el-dropdown trigger="click" placement="bottom-start" style="border:0">
+                        <el-dropdown trigger="click" placement="bottom-start" style="border: 0">
                             <span class="el-dropdown-link">
                                 <el-input
                                     v-model="dialogForm.treeName"
@@ -59,11 +47,11 @@
                                     clearable
                                     @clear="cleartreeName"
                                     ref="inputWidth"
-                                    style="width: 300px;"
+                                    style="width: 300px"
                                 ></el-input>
                             </span>
                             <!-- :style="{ width: selectWidth } -->
-                            <el-dropdown-menu slot="dropdown" style="width: 300px;">
+                            <el-dropdown-menu slot="dropdown" style="width: 300px">
                                 <el-tree
                                     :data="treeData"
                                     ref="treeTypeSelect"
@@ -76,11 +64,11 @@
                         </el-dropdown>
                     </el-form-item>
                     <el-form-item label="下拉树结构(多选不用封装)">
-                        <el-dropdown trigger="click" placement="bottom-start" style="border:0">
+                        <el-dropdown trigger="click" placement="bottom-start" style="border: 0">
                             <span class="el-dropdown-link">
                                 <el-input v-model="dialogForm.treeCheckName" placeholder="请选择"></el-input>
                             </span>
-                            <el-dropdown-menu slot="dropdown" style="width:20%">
+                            <el-dropdown-menu slot="dropdown" style="width: 20%">
                                 <el-tree
                                     ref="treeCheckBox"
                                     show-checkbox
@@ -94,26 +82,15 @@
                         </el-dropdown>
                     </el-form-item>
                     <el-form-item label="菜单图标">
-                        <el-popover
-                            placement="bottom-start"
-                            width="450"
-                            trigger="click"
-                            @show="$refs['iconSelect'].reset()"
-                        >
+                        <el-popover placement="bottom-start" width="450" trigger="click" @show="$refs['iconSelect'].reset()">
                             <IconSelect ref="iconSelect" @selected="selected" />
-                            <el-input
-                                slot="reference"
-                                v-model="dialogForm.icon"
-                                style="width: 450px;"
-                                placeholder="点击选择图标"
-                                readonly
-                            >
+                            <el-input slot="reference" v-model="dialogForm.icon" style="width: 450px" placeholder="点击选择图标" readonly>
                                 <SvgIcon
                                     v-if="dialogForm.icon"
                                     slot="prefix"
                                     :icon-class="dialogForm.icon"
                                     class="el-input__icon"
-                                    style="height: 32px;width: 16px;"
+                                    style="height: 32px; width: 16px"
                                 />
                                 <i slot="prefix" class="el-icon-search el-input__icon" />
                             </el-input>
@@ -127,37 +104,29 @@
                                 v-model="dialogForm.date1"
                                 value-format="yyyy-MM-dd"
                                 format="yyyy-MM-dd"
-                                style="width: 100%;"
+                                style="width: 100%"
                             ></el-date-picker>
                         </el-col>
                         <el-col class="line" :span="2">-</el-col>
                         <el-col :span="11">
-                            <el-time-picker
-                                placeholder="选择时间"
-                                v-model="dialogForm.date2"
-                                style="width: 100%;"
-                            ></el-time-picker>
+                            <el-time-picker placeholder="选择时间" v-model="dialogForm.date2" style="width: 100%"></el-time-picker>
                         </el-col>
                     </el-form-item>
                     <el-form-item label="日期时间">
                         <el-date-picker
                             v-model="dialogForm.date"
-                            :default-time="['00:00:00','23:59:59']"
+                            :default-time="['00:00:00', '23:59:59']"
                             type="daterange"
                             range-separator=":"
                             size="small"
-                            style="width:200px;"
+                            style="width: 200px"
                             value-format="yyyy-MM-dd HH:mm:ss"
                             start-placeholder="开始日期"
                             end-placeholder="结束日期"
                         />
                     </el-form-item>
                     <el-form-item label="城市级联">
-                        <el-cascader
-                            :options="treeData"
-                            :props="{ checkStrictly: true }"
-                            v-model="dialogForm.cities"
-                        ></el-cascader>
+                        <el-cascader :options="treeData" :props="{ checkStrictly: true }" v-model="dialogForm.cities"></el-cascader>
                     </el-form-item>
                     <el-form-item label="输入框输入过滤">
                         <el-autocomplete
@@ -168,23 +137,13 @@
                         ></el-autocomplete>
                     </el-form-item>
                     <el-form-item label="全选功能">
-                        <el-select
-                            v-model="dialogForm.chooseData"
-                            multiple
-                            placeholder="请选择"
-                            class="height:100%"
-                            size="small"
-                        >
-                            <el-option
-                                label="全选"
-                                value="全选"
-                                :disabled="dialogForm.chooseData.length>1"
-                            ></el-option>
+                        <el-select v-model="dialogForm.chooseData" multiple placeholder="请选择" class="height:100%" size="small">
+                            <el-option label="全选" value="全选" :disabled="dialogForm.chooseData.length > 1"></el-option>
                             <el-option
                                 v-for="item in chooseData"
                                 :key="item.value"
                                 :label="item.label"
-                                :disabled="dialogForm.chooseData.join(',')=='全选'"
+                                :disabled="dialogForm.chooseData.join(',') == '全选'"
                                 :value="item.value"
                             ></el-option>
                         </el-select>
@@ -218,48 +177,30 @@
                                 <span class="custom-tree-node" slot-scope="{ node, data }">
                                     <span class="name">{{ node.label }}</span>
                                     <span class="btn">
-                                        <el-tooltip
-                                            class="item"
-                                            :open-delay="1000"
-                                            effect="light"
-                                            content="新增子节点"
-                                            placement="top"
-                                        >
+                                        <el-tooltip class="item" :open-delay="1000" effect="light" content="新增子节点" placement="top">
                                             <el-button
                                                 type="text"
                                                 icon="el-icon-plus"
                                                 size="mini"
-                                                @click="() => dialogOpen(data,'WebResMngrMenuAdd')"
+                                                @click="() => dialogOpen(data, 'WebResMngrMenuAdd')"
                                             >
                                                 <!-- 新增子节点 -->
                                             </el-button>
                                         </el-tooltip>
-                                        <el-tooltip
-                                            class="item"
-                                            :open-delay="1000"
-                                            effect="light"
-                                            content="编辑"
-                                            placement="top"
-                                        >
+                                        <el-tooltip class="item" :open-delay="1000" effect="light" content="编辑" placement="top">
                                             <el-button
                                                 type="text"
                                                 icon="el-icon-edit-outline"
                                                 size="mini"
-                                                @click="() => dialogOpen(data,'WebResMngrMenuMod')"
+                                                @click="() => dialogOpen(data, 'WebResMngrMenuMod')"
                                             >
                                                 <!-- 编辑 -->
                                             </el-button>
                                         </el-tooltip>
-                                        <el-tooltip
-                                            class="item"
-                                            :open-delay="1000"
-                                            effect="light"
-                                            content="删除"
-                                            placement="top"
-                                        >
+                                        <el-tooltip class="item" :open-delay="1000" effect="light" content="删除" placement="top">
                                             <el-button
                                                 type="text"
-                                                style="color:red"
+                                                style="color: red"
                                                 icon="el-icon-minus"
                                                 size="mini"
                                                 @click="() => dialogOpen(data)"
@@ -280,56 +221,43 @@
                         <el-button type="primary" @click="openStepDialog">step封装(全屏等待)</el-button>
                         <el-button type="primary" @click="printPage">打印页面</el-button>
                     </el-form-item>
-                    <el-form-item
-                        label="公交站显示屏"
-                    >嵌套三元表达式： :class="active==index?'yellow':item.state?'green':'gray'"</el-form-item>
+                    <el-form-item label="公交站显示屏"
+                        >嵌套三元表达式： :class="active==index?'yellow':item.state?'green':'gray'"</el-form-item
+                    >
                     <el-form-item label="审批流组件">
-                        <WorkFlowTable
-                            ref="WorkFlowTable"
-                            @print="printWorkFlowTable"
-                            :approvalCallBack="approvalCallBack"
-                        />
+                        <WorkFlowTable ref="WorkFlowTable" @print="printWorkFlowTable" :approvalCallBack="approvalCallBack" />
                     </el-form-item>
                     <el-form-item label="手风琴需要value与name值一样，才能展开,并且国家可以多选">
-                        <el-collapse
-                            v-for="(item, index) in dialogForm.classify"
-                            :key="index"
-                            class="country"
-                            :value="item.value"
-                        >
+                        <el-collapse v-for="(item, index) in dialogForm.classify" :key="index" class="country" :value="item.value">
                             <el-collapse-item :title="item.name" :name="item.value">
                                 <div class="category-box flex-h">
                                     <span
-                                        v-for="(subitem,subIndex) in item.list"
+                                        v-for="(subitem, subIndex) in item.list"
                                         :key="subitem.id"
-                                        :class="(index==1||index==2)&&item.checked === subitem.id ? 'on' : subitem.status?'on' :''"
+                                        :class="
+                                            (index == 1 || index == 2) && item.checked === subitem.id ? 'on' : subitem.status ? 'on' : ''
+                                        "
                                         class="category-item"
-                                        @click="classifyFn(item.value, subitem.id,subIndex,subitem.status)"
-                                    >{{ subitem.name }}</span>
+                                        @click="classifyFn(item.value, subitem.id, subIndex, subitem.status)"
+                                        >{{ subitem.name }}</span
+                                    >
                                     <span class="category-item">更多</span>
                                 </div>
                             </el-collapse-item>
                         </el-collapse>
                     </el-form-item>
-                    <el-form-item
-                        label="cron表达式(在具体的时间做什么事)"
-                        style="margin-top: -10px; margin-bottom:0px;"
-                    >
-                        <Cron
-                            v-if="showCronBox"
-                            v-model="dialogForm.cronExpression"
-                            @closeDialog="showCronBox=false"
-                        ></Cron>
-                        <span
-                            style="color: #E6A23C; font-size: 12px;"
-                        >corn从左到右（用空格隔开）：秒 分 小时 月份中的日期 月份 星期中的日期 年份</span>
+                    <el-form-item label="cron表达式(在具体的时间做什么事)" style="margin-top: -10px; margin-bottom: 0px">
+                        <Cron v-if="showCronBox" v-model="dialogForm.cronExpression" @closeDialog="showCronBox = false"></Cron>
+                        <span style="color: #e6a23c; font-size: 12px"
+                            >corn从左到右（用空格隔开）：秒 分 小时 月份中的日期 月份 星期中的日期 年份</span
+                        >
                     </el-form-item>
                     <el-form-item label="Cron">
                         <el-input v-model="dialogForm.cronExpression" auto-complete="off">
                             <el-button
                                 slot="append"
-                                :icon="showCronBox?'el-icon-arrow-up':'el-icon-arrow-down'"
-                                @click="showCronBox=!showCronBox"
+                                :icon="showCronBox ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
+                                @click="showCronBox = !showCronBox"
                                 title="打开图形配置"
                             ></el-button>
                         </el-input>
@@ -340,29 +268,18 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :page-size="10"
-                style="text-align:right;"
+                style="text-align: right"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
             ></el-pagination>
             <!-- 富文本框 -->
             <div>
-                <el-card style="height: 610px;">
-                    <quill-editor
-                        v-model="content"
-                        ref="myQuillEditor"
-                        style="height: 500px;"
-                        :options="editorOption"
-                    ></quill-editor>
+                <el-card style="height: 610px">
+                    <quill-editor v-model="content" ref="myQuillEditor" style="height: 500px" :options="editorOption"></quill-editor>
                 </el-card>
             </div>
 
-            <el-dialog
-                title="tab"
-                :visible.sync="dialogTabVisible"
-                width="80%"
-                :close-on-click-modal="false"
-                :before-close="handleClose"
-            >
+            <el-dialog title="tab" :visible.sync="dialogTabVisible" width="80%" :close-on-click-modal="false" :before-close="handleClose">
                 <TabDialog v-if="dialogTabVisible" ref="TabDialog" />
             </el-dialog>
             <el-dialog
@@ -401,12 +318,15 @@ export default {
     components: { treeselect, StepDialog, TabDialog, quillEditor, IconSelect, SvgIcon, SelectTree, WorkFlowTable, Cron },
     //弹框开着的时候阻止跳转
     beforeRouteLeave(to, from, next) {
-        //判断是否弹出框的状态和保存信息与否
         if (this.dialogStepVisible) {
-            alert('请保存信息后退出!');
-            next(false); //回到当前页面, 阻止页面跳转
+            const answer = window.confirm('页面尚未保存，是否离开本页？');
+            if (answer) {
+                next();
+            } else {
+                next(false);
+            }
         } else {
-            next(); //否则允许跳转
+            next();
         }
     },
     computed: {

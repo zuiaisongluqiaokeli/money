@@ -11,7 +11,7 @@
                 <!-- 全屏显示 -->
                 <div class="btn-fullscreen" @click="handleFullScreen">
                     <el-tooltip effect="dark" :content="fullscreen?`取消全屏`:`全屏`" placement="bottom">
-                        <i class="el-icon-rank"></i>
+                        <i class="el-icon-rank" :title="fullscreen?`取消全屏`:`全屏`"></i>
                     </el-tooltip>
                 </div>
                 <!-- 消息中心 -->

@@ -136,6 +136,8 @@
                             @select="handleSelect"
                         ></el-autocomplete>
                     </el-form-item>
+                    <el-form-item label="下拉里面的内容懒加载（详细看LazyLoadOption组件）">
+                    </el-form-item>
                     <el-form-item label="全选功能">
                         <el-select v-model="dialogForm.chooseData" multiple placeholder="请选择" class="height:100%" size="small">
                             <el-option label="全选" value="全选" :disabled="dialogForm.chooseData.length > 1"></el-option>
@@ -149,7 +151,15 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="只能输入两位小树">
-                        <el-input @input="inputNumber" v-model="dialogForm.inputNumber"></el-input>
+                        <el-input @input="inputNumberTofixed" v-model="dialogForm.inputNumberTofixed"></el-input>
+                    </el-form-item>
+                    <el-form-item label="属性" style="width:1000px">
+                        <el-row type="flex" justify="space-between" style="margin-bottom:10px;" v-for="(item,index) in dialogForm.addDynamicForm" :key="index">
+                            <el-col :span="10"><el-input v-model="item.name"></el-input></el-col>
+                            <el-col :span="10"><el-input v-model="item.value"></el-input></el-col>
+                            <el-col :span="2"><i class="el-icon-circle-plus-outline" @click="addDynamicForm"></i></el-col>
+                            <el-col :span="2"><i class="el-icon-remove-outline" @click="deleteDynamicForm(index)"></i></el-col>
+                        </el-row>
                     </el-form-item>
                     <el-form-item label="树结构(得到对象或ID)">
                         <el-card>
@@ -443,6 +453,7 @@ export default {
                 selectTree: ['changsha'],
                 chooseData: [],
                 inputSearch: '',
+                addDynamicForm:[{name:"",value:""}],
                 //手风琴标签数据
                 classify: [
                     {
@@ -572,8 +583,8 @@ export default {
         };
     },
     methods: {
-        inputNumber(value) {
-            this.dialogForm.inputNumber = this.$twoNumReg(value);
+        inputNumberTofixed(value) {
+            this.dialogForm.inputNumberTofixed = this.$twoNumReg(value);
         },
         treeNodeClick(data, node, template) {
             console.log(data, node, template);
@@ -619,6 +630,12 @@ export default {
             this.dialogForm.treeName = '';
             this.dialogForm.treeId = '';
             this.$refs.treeTypeSelect.setCheckedKeys([]);
+        },
+        addDynamicForm(){
+            this.dialogForm.addDynamicForm.push({name:"",value:""})
+        },
+        deleteDynamicForm(index){
+            this.dialogForm.addDynamicForm.splice(index,1)
         },
         getTypeSelectCheckTree(val) {
             let arr1 = [],

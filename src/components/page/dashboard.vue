@@ -4,7 +4,7 @@
             <el-col :span="8">
                 <el-card shadow="hover" class="mgb20" style="height:252px;" id="some-element1">
                     <div class="user-info">
-                        <img src="../../assets/img/img.jpg" class="user-avator" alt />
+                        <img v-lazy="imgUser" class="user-avator" :key="imgUser" alt />
                         <div class="user-info-cont">
                             <div class="user-info-name">{{name}}</div>
                             <div>{{role}}</div>
@@ -160,6 +160,7 @@ export default {
             roseType: 'radius'
         };
         return {
+            imgUser:require('../../assets/img/img.jpg'),
             name: localStorage.getItem('ms_username'),
             chartData: {
                 columns: ['日期', '访问用户', '下单用户'],

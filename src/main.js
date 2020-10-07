@@ -5,12 +5,47 @@ import ElementUI from 'element-ui';
 //支持翻译
 import VueI18n from 'vue-i18n';
 Vue.use(VueI18n);
+import {
+    messages
+} from './components/common/i18n';
 const i18n = new VueI18n({
     locale: 'zh',
     messages
 });
+//图片懒加载
+import VueLazyLoad from 'vue-lazyload'
+Vue.use(VueLazyLoad, {
+  preLoad: 1,
+  error: require('./assets/img/img.jpg'),
+  loading: require('./assets/img/img.jpg'),
+  attempt: 2,
+})
+//滚动到指定位置
+let options = {
+    container: "body", //滚动的容器
+    duration: 500, //滚动时间
+    easing: "ease", //缓动类型
+    offset: 0, //滚动时应应用的偏移量。此选项接受回调函数
+    force: true, //是否应执行滚动
+    cancelable: true,
+    onStart: false,
+    onDone: false,
+    onCancel: false,
+    x: false,
+    y: true
+};
+import VueScrollTo from "vue-scrollto";
+Vue.use(VueScrollTo, options);
+//标准金币
+import {VMoney} from 'v-money'
+Vue.directive('money',VMoney)
+//提示语
+import VTooltip from 'v-tooltip' 
+Vue.use(VTooltip)
+//点击元素波动效果
+import {ripple} from 'v-ripple'
+Vue.use(ripple)
 import store from './store'
-import { messages } from './components/common/i18n';
 import 'element-ui/lib/theme-chalk/index.css'; // 默认主题
 // import './assets/css/theme-green/index.css'; // 浅绿色主题
 import './assets/css/icon.css';
@@ -50,11 +85,11 @@ Vue.use(ElementUI, {
 import Driver from 'driver.js'
 import 'driver.js/dist/driver.min.css'
 Vue.prototype.$driver = new Driver({
-    doneBtnText: '完成',              // Text on the final button
-    closeBtnText: '关闭',            // Text on the close button for this step
-    stageBackground: 'salmon',       // Background color for the staged behind highlighted element
-    nextBtnText: '下一步',              // Next button text for this step
-    prevBtnText: '上一步',          // Previous button text for this step
+    doneBtnText: '完成', // Text on the final button
+    closeBtnText: '关闭', // Text on the close button for this step
+    stageBackground: 'salmon', // Background color for the staged behind highlighted element
+    nextBtnText: '下一步', // Next button text for this step
+    prevBtnText: '上一步', // Previous button text for this step
 })
 //使用钩子函数对路由进行权限跳转
 router.beforeEach((to, from, next) => {
@@ -109,13 +144,13 @@ Vue.filter('formatDate', function (value) {
     return y + "-" + MM + "-" + d
 })
 //百分数转化为小数
-function toPoint(percent) {
+Vue.prototype.$toPoint = function (percent) {
     var str = percent.replace("%", "");
     str = str / 100;
     return str;
 }
 //小数转化为百分数
-function toPercent(point) {
+Vue.prototype.$toPercent = function (point) {
     var str = Number(point * 100).toFixed(1);
     str += "%";
     return str;

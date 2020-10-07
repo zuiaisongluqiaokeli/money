@@ -3,20 +3,21 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                    <i class="el-icon-lx-cascades"></i> 基础表格(只管一行数据,N行是框架自己循环的; item.label item.prop scope.$index scope.row scope.row[item.prop])
+                    <i class="el-icon-lx-cascades"></i> 基础表格(只管一行数据,N行是框架自己循环的; item.label item.prop scope.$index
+                    scope.row scope.row[item.prop])
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
 
         <div class="container">
-            <div
-                style="height:80px;line-height:80px;color: #409EFF;"
-            >动态表格（可以拖拽,单点切换选中效果,展示不同的框需要判断,vxe直接点击的时候可以设置）</div>
-            <div style="margin-bottom:20px;">
+            <div style="height: 80px; line-height: 80px; color: #409eff">
+                动态表格（可以拖拽,单点切换选中效果,展示不同的框需要判断,vxe直接点击的时候可以设置）
+            </div>
+            <div style="margin-bottom: 20px">
                 <el-input
                     v-model="addTableColVal"
                     ref="addTableColVal"
-                    style="display:inline-block;width:150px;padding-right:20px;"
+                    style="display: inline-block; width: 150px; padding-right: 20px"
                     placeholder="输入列名"
                 ></el-input>
                 <el-button type="primary" @click="addTableCol()">增加动态列(只有封装为循环才可以动态添加)</el-button>
@@ -49,37 +50,24 @@
                             <span class="approval"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="item.label"
-                        v-for="(item,index) in tableData.col"
-                        :key="index"
-                        align="center"
-                    >
+                    <el-table-column :label="item.label" v-for="(item, index) in tableData.col" :key="index" align="center">
                         <template slot-scope="scope">
                             <!-- 表格验证加红点标题 -->
                             <template slot="header">
                                 <span class="star">*</span>
-                                <span class="starName">{{item.label}}</span>
+                                <span class="starName">{{ item.label }}</span>
                             </template>
                             <!-- 是输入类型才需要验证 -->
                             <!-- <template v-if="item.type!='input'" align="center">
                                 <span>{{scope.row[item.prop]}}</span>
                             </template>-->
                             <template align="center">
-                                <el-form-item
-                                    :prop="'data.'+scope.$index+'.'+item.prop"
-                                    :rules="tableDataRules.input"
-                                >
-                                    <el-tooltip
-                                        effect="light"
-                                        content="ddddddd"
-                                        placement="top-Center"
-                                    >
-                                        <el-input
-                                            v-model="scope.row[item.prop]"
-                                            suffix-icon="el-icon-edit"
-                                        ></el-input>
-                                    </el-tooltip>
+                                <el-form-item :prop="'data.' + scope.$index + '.' + item.prop" :rules="tableDataRules.input">
+                                    <el-input
+                                        v-tooltip="{ content: scope.row[item.prop], pos: 'top' }"
+                                        v-model="scope.row[item.prop]"
+                                        suffix-icon="el-icon-edit"
+                                    ></el-input>
                                 </el-form-item>
                             </template>
                             <!-- <template slot-scope='scope'>
@@ -97,50 +85,28 @@
         </div>
         <!-- 每天都要吃香香 -->
         <div class="container">
-            <div style="color: #409EFF;">item.prop代表属性名，scope.row[item.prop]代表属性值</div>
-            <div style="height:80px;line-height:80px;">每天都要吃香香</div>
+            <div style="color: #409eff">item.prop代表属性名，scope.row[item.prop]代表属性值</div>
+            <div style="height: 80px; line-height: 80px">每天都要吃香香</div>
             <el-table :data="daysTable" border style="width: 95%" class="daysClass">
-                <el-table-column
-                    align="center"
-                    label="餐次/星期"
-                    prop="week"
-                    :render-header="titleChange"
-                ></el-table-column>
-                <el-table-column
-                    :label="item.label"
-                    v-for="(item,index) in daysColumn"
-                    :key="index"
-                    align="center"
-                >
+                <el-table-column align="center" label="餐次/星期" prop="week" :render-header="titleChange"></el-table-column>
+                <el-table-column :label="item.label" v-for="(item, index) in daysColumn" :key="index" align="center">
                     <template slot-scope="scope">
                         <div v-if="scope.row[item.prop]">
-                            <el-button
-                                type="text"
-                                @click="openDialog(scope.$index,item.prop,scope.row[item.prop])"
-                            >
-                                {{scope.row[item.prop]}}
+                            <el-button type="text" @click="openDialog(scope.$index, item.prop, scope.row[item.prop])">
+                                {{ scope.row[item.prop] }}
                                 <i class="el-icon-edit el-icon--right"></i>
                             </el-button>
                         </div>
                         <div v-else>
-                            <el-button
-                                type="primary"
-                                @click="openDialog(scope.$index,item.prop)"
-                            >选择食物</el-button>
+                            <el-button type="primary" @click="openDialog(scope.$index, item.prop)">选择食物</el-button>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <el-dialog
-            title="每天都要吃香香"
-            :visible.sync="dialogShow"
-            v-if="dialogShow"
-            width="80%"
-            :close-on-click-modal="false"
-        >
+        <el-dialog title="每天都要吃香香" :visible.sync="dialogShow" v-if="dialogShow" width="80%" :close-on-click-modal="false">
             <el-transfer
-                style="display:flex;justify-content:center;"
+                style="display: flex; justify-content: center"
                 v-if="dialogShow"
                 v-model="daysCheckedFood"
                 :data="daysAllFood"
@@ -151,24 +117,20 @@
                     hasChecked: '${checked}/${total}'
                 }"
             ></el-transfer>
-            <el-row style="text-align:center;margin-top:30px;">
+            <el-row style="text-align: center; margin-top: 30px">
                 <el-button type="primary" @click="dialogSave()">确定</el-button>
-                <el-button type="primary" @click="dialogShow=false">取消</el-button>
+                <el-button type="primary" @click="dialogShow = false">取消</el-button>
             </el-row>
         </el-dialog>
 
-        <div class="container" style="display:flex;justify-content: space-between;">
+        <div class="container" style="display: flex; justify-content: space-between">
             <div>
-                <div style="color: #409EFF;">分页勾选(已勾选的与弹窗当前数据比对，取消传出上一次确定勾选的)</div>
+                <div style="color: #409eff">分页勾选(已勾选的与弹窗当前数据比对，取消传出上一次确定勾选的)</div>
                 <el-table :data="toggleTable" border>
                     <el-table-column label="个数" prop="number" align="center"></el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
-                            <el-button
-                                type="primary"
-                                icon="el-icon-edit"
-                                @click="editToggleTable(scope.$index)"
-                            >修改个数</el-button>
+                            <el-button type="primary" icon="el-icon-edit" @click="editToggleTable(scope.$index)">修改个数</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -180,26 +142,20 @@
                 width="40%"
                 :close-on-click-modal="false"
             >
-                <el-table
-                    :data="toggleTable"
-                    ref="toggleTable"
-                    border
-                    style="width: 100%"
-                    @selection-change="toggleTableSelection"
-                >
+                <el-table :data="toggleTable" ref="toggleTable" border style="width: 100%" @selection-change="toggleTableSelection">
                     <el-table-column type="selection" width="45" align="center"></el-table-column>
                     <el-table-column label="兜兜" prop="doudou" align="center"></el-table-column>
                 </el-table>
-                <el-row style="text-align:center;margin-top:30px;">
+                <el-row style="text-align: center; margin-top: 30px">
                     <el-button type="primary" @click="dialogToggleTable()">确定</el-button>
                     <el-button type="primary" @click="dialogToggleTableCancel">取消</el-button>
                 </el-row>
             </el-dialog>
-            <div style="width:40px;"></div>
+            <div style="width: 40px"></div>
             <div>
-                <div
-                    style="color: #409EFF;"
-                >深度监听表格的研究(1.递归监听报错只有一种情况：一次循环中被设置的元素设置了两次以上不同的值2.修改绑定值的时候不监听3.不用所有行都被监听)</div>
+                <div style="color: #409eff">
+                    深度监听表格的研究(1.递归监听报错只有一种情况：一次循环中被设置的元素设置了两次以上不同的值2.修改绑定值的时候不监听3.不用所有行都被监听)
+                </div>
                 <el-table :data="watchDeepTable" border ref="watchDeepTable">
                     <el-table-column label="买卖状态" prop="state" align="center"></el-table-column>
                     <el-table-column label="数量" align="center">
@@ -218,17 +174,17 @@
         </div>
 
         <div class="container">
-            <div style="height:80px;line-height:80px;">表格下拉树结构(自己封装组件)</div>
+            <div style="height: 80px; line-height: 80px">表格下拉树结构(自己封装组件)</div>
             <TreeTable :data="treeTable" :columns="columns" border @emitDetail="emitDetail"></TreeTable>
         </div>
 
         <div class="container">
-            <div style="height:80px;line-height:80px;">研发项目预算报告(不会竖着写show-summary的写法,着重表格合并写法)</div>
+            <div style="height: 80px; line-height: 80px">研发项目预算报告(不会竖着写show-summary的写法,着重表格合并写法)</div>
             <vxe-table
                 border
                 :span-method="mergeRowMethod"
                 size="medium"
-                :edit-config="{trigger: 'click', mode: 'cell'}"
+                :edit-config="{ trigger: 'click', mode: 'cell' }"
                 :data="reportData"
             >
                 <vxe-table-column field="rowNum" title="rowNum" width="150" align="center"></vxe-table-column>
@@ -237,27 +193,27 @@
                     title="address"
                     width="250"
                     align="center"
-                    :edit-render="{name: '$input', props: {disabled: true}}"
+                    :edit-render="{ name: '$input', props: { disabled: true } }"
                 ></vxe-table-column>
                 <vxe-table-column
                     field="name"
                     align="center"
                     title="name"
                     width="250"
-                    :edit-render="{name: 'input', props: {type: 'float', digits: 2}}"
+                    :edit-render="{ name: 'input', props: { type: 'float', digits: 2 } }"
                 ></vxe-table-column>
                 <vxe-table-column
                     field="weather"
                     title="weather"
                     align="center"
                     width="250"
-                    :edit-render="{name: 'input', props: {type: 'float', digits: 2}}"
+                    :edit-render="{ name: 'input', props: { type: 'float', digits: 2 } }"
                 ></vxe-table-column>
                 <vxe-table-column
                     field="other"
                     align="center"
                     title="other"
-                    :edit-render="{name: 'input', props: {type: 'float', digits: 2}}"
+                    :edit-render="{ name: 'input', props: { type: 'float', digits: 2 } }"
                 ></vxe-table-column>
                 <vxe-table-column field="totalNumber" align="center" title="总计"></vxe-table-column>
             </vxe-table>

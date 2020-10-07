@@ -9,7 +9,7 @@
         <div class="container">
             <div class="form-box">
                 <el-form ref="dialogForm" :model="dialogForm" label-width="300px" :rules="dialogFormRules">
-                    <el-form-item label="下拉树结构(插件封装，得到的是ID)">
+                    <el-form-item label="下拉树结构(插件封装，得到的是ID)" id="firstForm">
                         <treeselect
                             size="small"
                             noResultsText="暂无数据"
@@ -136,8 +136,7 @@
                             @select="handleSelect"
                         ></el-autocomplete>
                     </el-form-item>
-                    <el-form-item label="下拉里面的内容懒加载（详细看LazyLoadOption组件）">
-                    </el-form-item>
+                    <el-form-item label="下拉里面的内容懒加载（详细看LazyLoadOption组件）"> </el-form-item>
                     <el-form-item label="全选功能">
                         <el-select v-model="dialogForm.chooseData" multiple placeholder="请选择" class="height:100%" size="small">
                             <el-option label="全选" value="全选" :disabled="dialogForm.chooseData.length > 1"></el-option>
@@ -153,8 +152,17 @@
                     <el-form-item label="只能输入两位小树">
                         <el-input @input="inputNumberTofixed" v-model="dialogForm.inputNumberTofixed"></el-input>
                     </el-form-item>
-                    <el-form-item label="属性" style="width:1000px">
-                        <el-row type="flex" justify="space-between" style="margin-bottom:10px;" v-for="(item,index) in dialogForm.addDynamicForm" :key="index">
+                    <el-form-item label="自动写入标准金额">
+                        <el-input v-model.lazy="dialogForm.standardMonsy" v-money="standardMonsy"></el-input>
+                    </el-form-item>
+                    <el-form-item label="属性" style="width: 1000px">
+                        <el-row
+                            type="flex"
+                            justify="space-between"
+                            style="margin-bottom: 10px"
+                            v-for="(item, index) in dialogForm.addDynamicForm"
+                            :key="index"
+                        >
                             <el-col :span="10"><el-input v-model="item.name"></el-input></el-col>
                             <el-col :span="10"><el-input v-model="item.value"></el-input></el-col>
                             <el-col :span="2"><i class="el-icon-circle-plus-outline" @click="addDynamicForm"></i></el-col>
@@ -263,7 +271,7 @@
                         >
                     </el-form-item>
                     <el-form-item label="Cron">
-                        <el-input v-model="dialogForm.cronExpression" auto-complete="off">
+                        <el-input v-model="dialogForm.cronExpression" auto-complete="off" @focus="showCronBox = !showCronBox">
                             <el-button
                                 slot="append"
                                 :icon="showCronBox ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
@@ -271,6 +279,9 @@
                                 title="打开图形配置"
                             ></el-button>
                         </el-input>
+                    </el-form-item>
+                    <el-form-item label="采用指令跳转到第一个">
+                        <el-button v-scroll-to="'#firstForm'" v-ripple>点我</el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -363,6 +374,14 @@ export default {
             dialogTabVisible: false,
             content: null,
             editorOption: {},
+            standardMonsy: {
+                decimal: ',',
+                thousands: '.',
+                prefix: 'R$ ',
+                suffix: ' #',
+                precision: 2,
+                masked: false
+            },
             dialogFormRules: {
                 treeName: [{ required: true, trigger: 'change', message: '请选择' }]
             },
@@ -453,7 +472,8 @@ export default {
                 selectTree: ['changsha'],
                 chooseData: [],
                 inputSearch: '',
-                addDynamicForm:[{name:"",value:""}],
+                standardMonsy: '',
+                addDynamicForm: [{ name: '', value: '' }],
                 //手风琴标签数据
                 classify: [
                     {
@@ -631,11 +651,11 @@ export default {
             this.dialogForm.treeId = '';
             this.$refs.treeTypeSelect.setCheckedKeys([]);
         },
-        addDynamicForm(){
-            this.dialogForm.addDynamicForm.push({name:"",value:""})
+        addDynamicForm() {
+            this.dialogForm.addDynamicForm.push({ name: '', value: '' });
         },
-        deleteDynamicForm(index){
-            this.dialogForm.addDynamicForm.splice(index,1)
+        deleteDynamicForm(index) {
+            this.dialogForm.addDynamicForm.splice(index, 1);
         },
         getTypeSelectCheckTree(val) {
             let arr1 = [],
@@ -711,7 +731,7 @@ export default {
                 case 'country':
                     if (this.dialogForm.classify[0].list[subIndex].status) this.dialogForm.classify[0].list[subIndex].status = false;
                     else {
-                        this.dialogForm.classify[0].list[subIndex].status = ture;
+                        this.dialogForm.classify[0].list[subIndex].status = true;
                     }
                     break;
                 case 'library':

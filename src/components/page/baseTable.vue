@@ -64,7 +64,7 @@
                             <template align="center">
                                 <el-form-item :prop="'data.' + scope.$index + '.' + item.prop" :rules="tableDataRules.input">
                                     <el-input
-                                        v-tooltip="{ content: scope.row[item.prop], pos: 'top' }"
+                                        v-tooltip="{ content: scope.row[item.prop], color:'#fff', bgColor: 'black',pos: 'top' }"
                                         v-model="scope.row[item.prop]"
                                         suffix-icon="el-icon-edit"
                                     ></el-input>

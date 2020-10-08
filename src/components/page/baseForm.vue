@@ -377,8 +377,8 @@ export default {
             standardMonsy: {
                 decimal: ',',
                 thousands: '.',
-                prefix: 'R$ ',
-                suffix: ' #',
+                prefix: '$',
+                suffix: '%',
                 precision: 2,
                 masked: false
             },

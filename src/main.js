@@ -43,8 +43,10 @@ Vue.directive('money',VMoney)
 import VTooltip from 'v-tooltip' 
 Vue.use(VTooltip)
 //点击元素波动效果
-import {ripple} from 'v-ripple'
-Vue.use(ripple)
+import Ripple from 'vue-ripple-directive'
+Vue.directive('ripple', Ripple);
+Ripple.color = 'rgba(0, 0, 0, 0.2)'; //自定义水波纹颜色
+
 import store from './store'
 import 'element-ui/lib/theme-chalk/index.css'; // 默认主题
 // import './assets/css/theme-green/index.css'; // 浅绿色主题

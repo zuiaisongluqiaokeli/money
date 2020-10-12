@@ -62,13 +62,13 @@ export default {
                     title: '系统首页'
                 },
                 {
-                    icon: 'el-icon-lx-cascades',
+                    icon: 'el-icon-chicken',
                     index: 'table',
                     title: '基础表格'
                 },
 
                 {
-                    icon: 'el-icon-lx-cascades',
+                    icon: 'el-icon-fork-spoon',
                     index: '2',
                     title: 'vxe表格',
                     subs: [
@@ -83,7 +83,7 @@ export default {
                     ]
                 },
                 {
-                    icon: 'el-icon-lx-calendar',
+                    icon: 'el-icon-sugar',
                     index: '3',
                     title: '表单相关',
                     subs: [
@@ -106,23 +106,23 @@ export default {
                     ]
                 },
                 {
-                    icon: 'el-icon-pie-chart',
+                    icon: 'el-icon-dessert',
                     index: 'scharts',
                     title: 'schart图表'
                 },
                 {
-                    icon: 'el-icon-document',
+                    icon: 'el-icon-ice-cream',
                     index: 'workFlowTable',
                     title: '审批流组件'
                 },
                 {
-                    icon: 'el-icon-rank',
+                    icon: 'el-icon-cold-drink',
                     index: '6',
                     title: '拖拽组件',
                     subs: [
                         {
                             index: 'drag',
-                            title: '拖拽列表'
+                            title: '拖拽穿梭框'
                         },
                         {
                             index: 'dragTable',
@@ -131,33 +131,38 @@ export default {
                     ]
                 },
                 {
-                    icon: 'el-icon-lx-newsfill',
+                    icon: 'el-icon-location-information',
+                    index: 'G6地铁',
+                    title: 'G6地铁'
+                },
+                {
+                    icon: 'el-icon-hot-water',
                     index: 'MenuControl',
                     title: '菜单权限'
                 },
 
                 {
-                    icon: 'el-icon-lx-emoji',
+                    icon: 'el-icon-goblet-full',
                     index: 'icon',
                     title: '自定义图标'
                 },
                 {
-                    icon: 'el-icon-lx-emoji',
+                    icon: 'el-icon-refrigerator',
                     index: 'editor',
                     title: '富文本编辑器'
                 },
                 {
-                    icon: 'el-icon-lx-emoji',
+                    icon: 'el-icon-grape',
                     index: 'markdown',
                     title: 'markdown编辑器'
                 },
                 {
-                    icon: 'el-icon-lx-global',
+                    icon: 'el-icon-watermelon',
                     index: 'i18n',
                     title: '国际化功能'
                 },
                 {
-                    icon: 'el-icon-lx-warn',
+                    icon: 'el-icon-cherry',
                     index: '7',
                     title: '错误处理',
                     subs: [

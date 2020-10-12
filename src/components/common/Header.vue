@@ -10,17 +10,13 @@
             <div class="header-user-con">
                 <!-- 全屏显示 -->
                 <div class="btn-fullscreen" @click="handleFullScreen">
-                    <el-tooltip effect="dark" :content="fullscreen?`取消全屏`:`全屏`" placement="bottom">
-                        <i class="el-icon-rank" :title="fullscreen?`取消全屏`:`全屏`"></i>
+                    <el-tooltip effect="dark" :content="fullscreen ? `取消全屏` : `全屏`" placement="bottom">
+                        <i class="el-icon-rank" :title="fullscreen ? `取消全屏` : `全屏`"></i>
                     </el-tooltip>
                 </div>
                 <!-- 消息中心 -->
                 <div class="btn-bell">
-                    <el-tooltip
-                        effect="dark"
-                        :content="message?`有${message}条未读消息`:`消息中心`"
-                        placement="bottom"
-                    >
+                    <el-tooltip effect="dark" :content="message ? `有${message}条未读消息` : `消息中心`" placement="bottom">
                         <router-link to="/tabs">
                             <i class="el-icon-bell"></i>
                         </router-link>
@@ -29,12 +25,12 @@
                 </div>
                 <!-- 用户头像 -->
                 <div class="user-avator">
-                    <img src="../../assets/img/img.jpg" />
+                    <el-image style="width: 40px; height: 40px" :src="imgSrc"  :preview-src-list="srcList"> </el-image>
                 </div>
                 <!-- 用户名下拉菜单 -->
                 <el-dropdown class="user-name" @command="handleCommand" :hide-timeout="500">
                     <span class="el-dropdown-link">
-                        {{username}}
+                        {{ username }}
                         <i class="el-icon-caret-bottom"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
@@ -54,11 +50,13 @@ import bus from '../common/bus';
 export default {
     data() {
         return {
+            imgSrc:require('../../assets/img/img.jpg'),
+            srcList: ['https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg'],
             collapse: false,
             fullscreen: false,
             name: '陈憨憨与臭兜兜',
             message: 2,
-            loginState:false,
+            loginState: false
         };
     },
     computed: {
@@ -70,13 +68,13 @@ export default {
     methods: {
         // 用户名下拉菜单选择事件
         handleCommand(command) {
-            if(command=='loginin'){
+            if (command == 'loginin') {
                 //找到数组中最小的时候，判断与现在的时间是否大于24小时，大于就重置数据，否则正常调接口
                 // this.logininData = new Data()
                 // if(Number(new Data().getTime() - this.logininData.getTime())/60/60 >24){
                 //     this.loginState = false
                 // }
-                this.loginState = true
+                this.loginState = true;
             }
             if (command == 'loginout') {
                 localStorage.removeItem('ms_username'); //或者localStorage.clear() 清除所有
@@ -186,12 +184,7 @@ export default {
 .user-avator {
     margin-left: 20px;
 }
-.user-avator img {
-    display: block;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-}
+
 .el-dropdown-link {
     color: #fff;
     cursor: pointer;

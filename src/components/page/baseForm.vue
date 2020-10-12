@@ -31,9 +31,9 @@
                             style="width: 300px"
                         />
                     </el-form-item>
-                    <el-form-item label="下拉树结构(不用封装)" prop="treeName">
+                    <el-form-item label="下拉树结构(dropdown)" prop="treeName">
                         <label slot="label">下拉树结构</label>
-                        <label slot="label" style="color: blue">(自己封装)</label>
+                        <label slot="label" style="color: blue">(dropdown)</label>
                         <label slot="label">
                             <el-tooltip class="item" effect="light" :content="`你选中的数据是:${dialogForm.treeName}`" placement="top">
                                 <i class="el-icon-info"></i>
@@ -63,7 +63,7 @@
                             </el-dropdown-menu>
                         </el-dropdown>
                     </el-form-item>
-                    <el-form-item label="下拉树结构(多选不用封装)">
+                    <el-form-item label="下拉树结构(dropdown)">
                         <el-dropdown trigger="click" placement="bottom-start" style="border: 0">
                             <span class="el-dropdown-link">
                                 <el-input v-model="dialogForm.treeCheckName" placeholder="请选择"></el-input>
@@ -80,6 +80,33 @@
                                 ></el-tree>
                             </el-dropdown-menu>
                         </el-dropdown>
+                    </el-form-item>
+                    <el-form-item label="下拉树结构">
+                        <el-select
+                            v-model="dialogForm.downtree"
+                            filterable
+                            clearable
+                            :filter-method="selectTreeFilterNode"
+                            placeholder="请选择"
+                            @visible-change="selectTreeBlur"
+                            @clear="clearSortParent"
+                        >
+                        <!-- 有了这句话才能插入树 -->
+                            <el-option :value="0" class="hidden" />
+                            <template>
+                                <el-tree
+                                    ref="downtree"
+                                    :filter-node-method="filterNode"
+                                    accordion
+                                    highlight-current
+                                    :data="treeData"
+                                    :props="treeProps"
+                                    node-key="id"
+                                    @node-click="nodeClick"
+                                />
+                            </template>
+                            <template slot="empty"> 暂时没有数据 </template>
+                        </el-select>
                     </el-form-item>
                     <el-form-item label="菜单图标">
                         <el-popover placement="bottom-start" width="450" trigger="click" @show="$refs['iconSelect'].reset()">
@@ -169,7 +196,13 @@
                             <el-col :span="2"><i class="el-icon-remove-outline" @click="deleteDynamicForm(index)"></i></el-col>
                         </el-row>
                     </el-form-item>
-                    <el-form-item label="树结构(得到对象或ID)">
+                    <el-form-item label="树结构">
+                        <label slot="label">树结构</label>
+                        <label slot="label">
+                            <el-tooltip class="item" effect="light" content="新增复制节点和拖拽功能" placement="top">
+                                <i class="el-icon-info"></i>
+                            </el-tooltip>
+                        </label>
                         <el-card>
                             <el-tree
                                 :data="tree"
@@ -191,6 +224,7 @@
                                 node-key="id"
                                 :props="defaultProps"
                                 :expand-on-click-node="false"
+                                @node-drag-end="dragNodeEnd"
                             >
                                 <span class="custom-tree-node" slot-scope="{ node, data }">
                                     <span class="name">{{ node.label }}</span>
@@ -245,7 +279,7 @@
                     <el-form-item label="审批流组件">
                         <WorkFlowTable ref="WorkFlowTable" @print="printWorkFlowTable" :approvalCallBack="approvalCallBack" />
                     </el-form-item>
-                    <el-form-item label="手风琴需要value与name值一样，才能展开,并且国家可以多选">
+                    <el-form-item label="一个折叠一个内容，并且国家可以多选">
                         <el-collapse v-for="(item, index) in dialogForm.classify" :key="index" class="country" :value="item.value">
                             <el-collapse-item :title="item.name" :name="item.value">
                                 <div class="category-box flex-h">
@@ -466,6 +500,7 @@ export default {
                 treeValue: '',
                 treeName: '',
                 treeCheckName: '',
+                downtree: '',
                 treeCheckId: '',
                 treeId: '',
                 treeLabel: '',
@@ -606,6 +641,27 @@ export default {
         inputNumberTofixed(value) {
             this.dialogForm.inputNumberTofixed = this.$twoNumReg(value);
         },
+        //下拉树
+        selectTreeFilterNode(value) {
+            this.$refs.downtree && this.$refs.downtree.filter(value);
+        },
+        nodeClick(data) {
+            this.downtree = data.id;
+            let name = data.name;
+        },
+        filterNode(value, data) {
+            if (!value) return true;
+            return data.name.indexOf(value) !== -1;
+        },
+        selectTreeBlur(show) {
+            // 下拉框隐藏时，取消过滤
+            show || (this.$refs.downtree && this.$refs.downtree.filter());
+        },
+        clearSortParent() {
+            this.sort.parentId = '';
+            this.sort.parentsName = '';
+        },
+        //。。。。。
         treeNodeClick(data, node, template) {
             console.log(data, node, template);
         },
@@ -746,6 +802,18 @@ export default {
             this.dialogTabVisible = false;
             this.dialogStepVisible = false;
         },
+        //树结构拖拽
+        dragNodeEnd(node, area) {
+            if (node.data.id === area.data.id) {
+                return;
+            }
+            // sortManage.moveNodeCategory(node.data.id, area.data.id).then((res) => {
+            //     if (res.status === 200) {
+            //         this.$message.success('移动分类成功');
+            //         this.getData();
+            //     }
+            // });
+        },
         getCheckedNodes() {
             console.log(this.$refs.tree.getCheckedNodes);
         },
@@ -785,6 +853,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.hidden {
+  display: none;
+}
 form.el-form {
     margin: auto;
 }

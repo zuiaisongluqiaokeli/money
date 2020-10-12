@@ -68,13 +68,19 @@ export default new Router({
                     // 拖拽列表组件
                     path: '/drag',
                     component: () => import('../components/page/dragList.vue'),
-                    meta: { title: '拖拽列表' }
+                    meta: { title: '拖拽穿梭框' }
                 },
                 {
                     // 拖拽Dialog组件
                     path: '/dragTable',
                     component: () => import('../components/page/dragTable.vue'),
                     meta: { title: '拖拽弹框' }
+                },
+                {
+                    // 拖拽Dialog组件
+                    path: '/G6地铁',
+                    component: () => import('../components/page/G6地铁.vue'),
+                    meta: { title: 'G6地铁' }
                 },
                 {
                     path: '/drakMagicTime',

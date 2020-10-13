@@ -91,7 +91,7 @@
                             @visible-change="selectTreeBlur"
                             @clear="clearSortParent"
                         >
-                        <!-- 有了这句话才能插入树 -->
+                            <!-- 有了这句话才能插入树 -->
                             <el-option :value="0" class="hidden" />
                             <template>
                                 <el-tree
@@ -182,18 +182,13 @@
                     <el-form-item label="自动写入标准金额">
                         <el-input v-model.lazy="dialogForm.standardMonsy" v-money="standardMonsy"></el-input>
                     </el-form-item>
-                    <el-form-item label="属性" style="width: 1000px">
-                        <el-row
-                            type="flex"
-                            justify="space-between"
-                            style="margin-bottom: 10px"
-                            v-for="(item, index) in dialogForm.addDynamicForm"
-                            :key="index"
-                        >
-                            <el-col :span="10"><el-input v-model="item.name"></el-input></el-col>
-                            <el-col :span="10"><el-input v-model="item.value"></el-input></el-col>
-                            <el-col :span="2"><i class="el-icon-circle-plus-outline" @click="addDynamicForm"></i></el-col>
-                            <el-col :span="2"><i class="el-icon-remove-outline" @click="deleteDynamicForm(index)"></i></el-col>
+                    <el-form-item label="属性">
+                        <el-row v-for="(item, index) in dialogForm.addDynamicForm" :key="index" style="margin-bottom: 10px">
+                            <el-col :span="20"><el-input v-model="item.name"></el-input><el-input v-model="item.value"></el-input></el-col>
+                            <el-col :span="4" style="font-size: 25px; text-align: center"
+                                ><i class="el-icon-circle-plus-outline" @click="addDynamicForm"></i>
+                                <i class="el-icon-remove-outline" @click="deleteDynamicForm(index)"></i
+                            ></el-col>
                         </el-row>
                     </el-form-item>
                     <el-form-item label="树结构">
@@ -854,7 +849,7 @@ export default {
 
 <style scoped lang="scss">
 .hidden {
-  display: none;
+    display: none;
 }
 form.el-form {
     margin: auto;

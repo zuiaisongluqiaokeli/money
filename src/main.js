@@ -71,6 +71,9 @@ Vue.use(VXETable)
 //进度条
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+//cesium
+import VueCesium from 'vue-cesium'
+Vue.use(VueCesium)
 // import VueAMap from 'vue-amap' // 引入高德地图
 // // 高德地图初始化
 // Vue.use(VueAMap);

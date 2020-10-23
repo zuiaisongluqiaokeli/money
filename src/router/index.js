@@ -83,6 +83,12 @@ export default new Router({
                     meta: { title: 'G6地铁' }
                 },
                 {
+                    // 拖拽Dialog组件
+                    path: '/cesium',
+                    component: () => import('../components/page/cesium.vue'),
+                    meta: { title: 'cesium' }
+                },
+                {
                     path: '/drakMagicTime',
                     component: () => import('../components/page/drakMagicTime.vue'),
                     meta: { title: '黑暗魔法时间' }

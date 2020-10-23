@@ -136,6 +136,11 @@ export default {
                     title: 'G6地铁'
                 },
                 {
+                    icon: 'el-icon-basketball',
+                    index: 'cesium',
+                    title: 'cesium'
+                },
+                {
                     icon: 'el-icon-hot-water',
                     index: 'MenuControl',
                     title: '菜单权限'

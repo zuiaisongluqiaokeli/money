@@ -73,6 +73,8 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 //cesium
 import VueCesium from 'vue-cesium'
+//G6
+import G6 from '@antv/g6'
 Vue.use(VueCesium)
 // import VueAMap from 'vue-amap' // 引入高德地图
 // // 高德地图初始化

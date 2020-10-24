@@ -3,6 +3,7 @@ import Router from 'vue-router';
 
 Vue.use(Router);
 //一开始打开的路由，登录路由，layout路由，页面匹配不到404路由
+//路由可以随便配（都会带上基础路径），但是函数式得写完整路径
 export default new Router({
     mode: 'history',
     base: '/',

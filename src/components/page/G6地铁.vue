@@ -1,3 +1,11 @@
+// （节点/边）数据，全局配置，渲染
+// 在图实例 graph 上监听
+// graph.on('元素类型:事件名', e => {
+//   // do something
+// });
+// updateLayout(params)：布局方法或参数的切换
+// changeData()：数据的切换
+// graph.setMode('edit');
 <template>
     <div>
         <div id="container"></div>

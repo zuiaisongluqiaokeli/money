@@ -1,5 +1,6 @@
 <template>
-  <div class="viewer" ref="viewerContainer">
+  <div v-if="loading" :loading="loading" element-loading-text="请耐心等待"></div>
+  <div v-else class="viewer" ref="viewerContainer">
     <vc-viewer
       ref="vcViewer"
       :animation="animation"
@@ -36,6 +37,7 @@
   export default {
     data() {
       return {
+        loading: true,
         animation: true,
         timeline: true,
         baseLayerPicker: false,
@@ -73,6 +75,7 @@
             style: Cesium.LabelStyle.FILL
           })
         })
+        this.loading = false 
       }
     }
   }

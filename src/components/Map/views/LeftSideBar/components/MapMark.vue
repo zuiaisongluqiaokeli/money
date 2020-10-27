@@ -1,0 +1,608 @@
+<template>
+    <div class="map-mark">
+        <el-tabs class="tabs" v-model="activeTabName">
+            <el-tab-pane label="力量编制" name="group"></el-tab-pane>
+            <el-tab-pane label="部署设施" name="deployment"></el-tab-pane>
+        </el-tabs>
+        <div class="content">
+            <!-- 力量编制 -->
+            <div class="group" v-if="activeTabName === 'group'">
+                <div
+                    v-for="(child, index) in groupData"
+                    :key="index"
+                    class="child"
+                    :title="child.groupType"
+                    @click="handleMarkClick(child)"
+                >
+                    <img class="img" :src="child.image" :alt="child.groupType" />
+                    <div class="description">
+                        {{ child.groupType }}
+                    </div>
+                </div>
+            </div>
+            <!-- 部署设施 -->
+            <div class="deployment" v-if="activeTabName === 'deployment'">
+                <!-- 搜索框 -->
+                <div class="search">
+                    <el-input placeholder="请输入内容" prefix-icon="el-icon-search" clearable v-model="markSearchString"> </el-input>
+                </div>
+                <!-- 分类过滤 -->
+                <div class="filter">
+                    <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange"> 全选 </el-checkbox>
+                    <el-checkbox-group v-model="checkboxGroup" @change="handleCheckboxChange">
+                        <el-checkbox v-for="(item, index) in markData" :label="item.type" :key="index" class="button">
+                            {{ item.name }}
+                        </el-checkbox>
+                    </el-checkbox-group>
+                </div>
+                <!--索引 -->
+                <div class="index">
+                    <PinyinIndex :data="filterMarkData" :default-props="defaultProps" class="pinyin-index">
+                        <template slot-scope="{ children }">
+                            <template v-if="children.length">
+                                <div
+                                    v-for="(child, index) in children"
+                                    :key="index"
+                                    class="child"
+                                    :title="child.type"
+                                    @click="handleMarkClick(child)"
+                                >
+                                    <img class="img" :src="child.image" :alt="child.type" />
+                                    <div class="description">
+                                        {{ child.type }}
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+                    </PinyinIndex>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+import PinyinIndex from '../../PinyinIndex';
+import { findTargetLegend } from '../../../src/Methods';
+import { emitter, EventType } from '../../../src/EventEmitter';
+
+export default {
+    components: { PinyinIndex },
+
+    directives: {},
+
+    props: {
+        clickMethod: {
+            type: Function,
+            default: null
+        }
+    },
+
+    data() {
+        return {
+            defaultProps: {
+                label: 'type'
+            },
+            tabsMap: ['group', 'deployment'],
+            activeTabName: '',
+            markSearchString: '',
+            groupData: [],
+            markData: [], //所有勾选框
+            filterMarkData: [], //已勾选的
+            checkAll: false,
+            checkboxGroup: []
+        };
+    },
+
+    computed: {
+        ...mapState('graphInfo', ['name']),
+        isIndeterminate() {
+            const { length } = this.checkboxGroup;
+
+            return length > 0 && length < this.markData.length;
+        }
+    },
+
+    watch: {
+        markSearchString(newValue) {
+            this.filterMarkNode(newValue);
+        },
+        checkboxGroup() {
+            this.checkAll = this.checkboxGroup.length === this.markData.length;
+            this.handleCheckboxChange();
+        }
+    },
+
+    async created() {
+        this.activeTabName = this.tabsMap[0];
+        await this.getAllData();
+    },
+
+    methods: {
+        ...mapActions('3dMap', ['setMeasureType', 'setInfoPanelEditStatus']),
+        /**
+         * 得到所有数据
+         */
+        async getAllData() {
+            this.groupData = ['雷达', '机场', '支援部队', '基地'];
+            this.markData = [
+                {
+                    children: [
+                        { id: 224, name: '其他', type: '飞机' },
+                        { id: 225, name: '战斗机', type: '飞机' },
+                        { id: 226, name: '多用途（战斗/攻击）', type: '飞机' },
+                        { id: 227, name: '反卫星武器 （反卫星武器）', type: '飞机' },
+                        { id: 228, name: '机载激光平台', type: '飞机' },
+                        { id: 229, name: '攻击机', type: '飞机' },
+                        { id: 230, name: '野鼬鼠 （防空压制）', type: '飞机' },
+                        { id: 231, name: '轰炸机', type: '飞机' },
+                        { id: 232, name: '战场空中拦截（BAI/ CAS）', type: '飞机' },
+                        { id: 233, name: '电子战', type: '飞机' },
+                        { id: 234, name: '早期空中预警 （AEW）', type: '飞机' },
+                        { id: 235, name: '机载指挥站 （ACP）', type: '飞机' },
+                        { id: 236, name: '搜索及救援 （SAR）', type: '飞机' },
+                        { id: 237, name: '反水雷舰 （MCM）', type: '飞机' },
+                        { id: 238, name: '反潜作战 （ASW）', type: '飞机' },
+                        { id: 239, name: '海上巡逻机 （MPA）', type: '飞机' },
+                        { id: 240, name: '前进观察员', type: '飞机' },
+                        { id: 241, name: '区域监视', type: '飞机' },
+                        { id: 242, name: '侦察', type: '飞机' },
+                        { id: 243, name: '电子情报收集 （ELINT）', type: '飞机' },
+                        { id: 244, name: '信号情报收集 （SIGINT）', type: '飞机' },
+                        { id: 245, name: '运输机', type: '飞机' },
+                        { id: 246, name: '货机', type: '飞机' },
+                        { id: 247, name: '商业飞机', type: '飞机' },
+                        { id: 248, name: '民用飞机', type: '飞机' },
+                        { id: 249, name: ' 通用直升机', type: '飞机' },
+                        { id: 250, name: ' 海军通用直升机', type: '飞机' },
+                        { id: 251, name: '加油机 （空中加油）', type: '飞机' },
+                        { id: 252, name: '教练机', type: '飞机' },
+                        { id: 253, name: '牵引机', type: '飞机' },
+                        { id: 254, name: '靶机', type: '飞机' },
+                        { id: 255, name: '无人机（UAV）', type: '飞机' },
+                        { id: 256, name: '无人作战飞行器（UCAV）', type: '飞机' },
+                        { id: 257, name: '飞艇', type: '飞机' },
+                        { id: 258, name: '航空器', type: '飞机' }
+                    ],
+                    id: 1,
+                    name: '飞机',
+                    type: '飞机'
+                },
+                {
+                    children: [
+                        { id: 35, name: '其他', type: '地面兵力与设施' },
+                        { id: 36, name: '跑道', type: '地面兵力与设施' },
+                        { id: 37, name: '滑行道(可做临时跑道)', type: '地面兵力与设施' },
+                        { id: 38, name: '跑道人口', type: '地面兵力与设施' },
+                        { id: 39, name: '建筑物(地表)', type: '地面兵力与设施' },
+                        { id: 40, name: '建筑物(混凝土)', type: '地面兵力与设施' },
+                        { id: 41, name: '建筑物(地堡)', type: '地面兵力与设施' },
+                        { id: 42, name: '建筑物(地下)', type: '地面兵力与设施' },
+                        { id: 43, name: '建筑结构(开放)', type: '地面兵力与设施' },
+                        { id: 44, name: '建筑结构(混凝土)', type: '地面兵力与设施' },
+                        { id: 45, name: '水下', type: '地面兵力与设施' },
+                        { id: 46, name: '陆军分队', type: '地面兵力与设施' },
+                        { id: 47, name: '火箭军导弹分队', type: '地面兵力与设施' },
+                        { id: 48, name: '地防导弹分队', type: '地面兵力与设施' },
+                        { id: 49, name: '雷达分队', type: '地面兵力与设施' },
+                        { id: 50, name: '移动人员', type: '地面兵力与设施' },
+                        { id: 51, name: '航空器系泊设备', type: '地面兵力与设施' },
+                        { id: 52, name: '通信中心', type: '地面兵力与设施' },
+                        { id: 53, name: '空军基地', type: '地面兵力与设施' }
+                    ],
+                    id: 3,
+                    name: '地面兵力与设施',
+                    type: '地面兵力与设施'
+                },
+                {
+                    children: [
+                        { id: 54, name: '其他', type: '水面舰艇' },
+                        { id: 55, name: 'CV - 航空母舰', type: '水面舰艇' },
+                        { id: 56, name: 'CVA - 攻击型航空母舰', type: '水面舰艇' },
+                        { id: 57, name: 'CVB - 大型航空母舰', type: '水面舰艇' },
+                        { id: 58, name: 'CVE - 护航航空母舰', type: '水面舰艇' },
+                        { id: 59, name: 'CVGH - 导弹直升机航母', type: '水面舰艇' },
+                        { id: 60, name: 'CVH - 直升机航母', type: '水面舰艇' },
+                        { id: 61, name: 'CVL - 轻型航空母舰', type: '水面舰艇' },
+                        { id: 62, name: 'CVN -核动力航空母舰', type: '水面舰艇' },
+                        { id: 63, name: 'CVS - 水上飞机母舰', type: '水面舰艇' },
+                        { id: 64, name: 'CVS - 反潜航空母舰', type: '水面舰艇' },
+                        { id: 65, name: 'B - 战列舰', type: '水面舰艇' },
+                        { id: 66, name: 'BB - 战列舰', type: '水面舰艇' },
+                        { id: 67, name: 'BBC - 指挥战列舰', type: '水面舰艇' },
+                        { id: 68, name: 'BBG - 导弹战列舰', type: '水面舰艇' },
+                        { id: 69, name: 'BBH - 直升机战列舰', type: '水面舰艇' },
+                        { id: 70, name: 'BCGN - 核动力导弹战列巡洋舰', type: '水面舰艇' },
+                        { id: 71, name: 'BM - 小型浅水重炮舰', type: '水面舰艇' },
+                        { id: 72, name: 'C - 巡洋舰', type: '水面舰艇' },
+                        { id: 73, name: 'CA - 重型巡洋舰', type: '水面舰艇' },
+                        { id: 74, name: 'CAG - 重型导弹巡洋舰', type: '水面舰艇' },
+                        { id: 75, name: 'CB - 大型巡洋舰', type: '水面舰艇' },
+                        { id: 76, name: 'CBG - 大型导弹巡洋舰', type: '水面舰艇' },
+                        { id: 77, name: 'CG - 导弹巡洋舰', type: '水面舰艇' },
+                        { id: 78, name: 'CGH - 导弹直升机巡洋舰', type: '水面舰艇' },
+                        { id: 79, name: 'CGN - 核动力导弹巡洋舰', type: '水面舰艇' },
+                        { id: 80, name: 'CL - 轻型巡洋舰', type: '水面舰艇' },
+                        { id: 81, name: 'CLAA - 轻型防空巡洋舰', type: '水面舰艇' },
+                        { id: 82, name: 'CLC - 轻型指挥巡洋舰', type: '水面舰艇' },
+                        { id: 83, name: 'CLG - 轻型导弹巡洋舰', type: '水面舰艇' },
+                        { id: 84, name: 'CLH - 轻型直升机巡洋舰', type: '水面舰艇' },
+                        { id: 85, name: 'CS - 侦查巡洋舰', type: '水面舰艇' },
+                        { id: 86, name: 'D - 驱逐舰', type: '水面舰艇' },
+                        { id: 87, name: 'DD - 驱逐舰', type: '水面舰艇' },
+                        { id: 88, name: 'DDG - 导弹驱逐舰', type: '水面舰艇' },
+                        { id: 89, name: 'DDH - 直升机驱逐舰', type: '水面舰艇' },
+                        { id: 90, name: 'DDK - 反潜艇驱逐舰', type: '水面舰艇' },
+                        { id: 91, name: 'DDR - 雷达警戒驱逐舰', type: '水面舰艇' },
+                        { id: 92, name: 'DE - 护航驱逐舰', type: '水面舰艇' },
+                        { id: 93, name: 'DEG - 导弹护航驱逐舰', type: '水面舰艇' },
+                        { id: 94, name: 'DER - 雷达警戒护航驱逐舰', type: '水面舰艇' },
+                        { id: 95, name: 'DL - 驱逐舰', type: '水面舰艇' },
+                        { id: 96, name: 'DLG - 导弹驱逐舰', type: '水面舰艇' },
+                        { id: 97, name: 'DM - 布雷驱逐舰（改装自驱逐舰）', type: '水面舰艇' },
+                        { id: 98, name: 'F - 护卫舰', type: '水面舰艇' },
+                        { id: 99, name: 'FF - 护卫舰', type: '水面舰艇' },
+                        { id: 100, name: 'FFG - 导弹护卫舰', type: '水面舰艇' },
+                        { id: 101, name: 'FFG - 轻型护卫舰', type: '水面舰艇' },
+                        { id: 102, name: 'PF - 巡逻护卫舰', type: '水面舰艇' },
+                        { id: 103, name: 'LCS - 濒海战斗舰', type: '水面舰艇' },
+                        { id: 104, name: 'OPV - 海洋巡逻艇', type: '水面舰艇' },
+                        { id: 105, name: 'PB - 巡逻艇', type: '水面舰艇' },
+                        { id: 106, name: 'PC1 - 海岸巡逻艇', type: '水面舰艇' },
+                        { id: 107, name: 'PC2 - 猎潜艇', type: '水面舰艇' },
+                        { id: 108, name: 'PCE - 猎潜护航艇', type: '水面舰艇' },
+                        { id: 109, name: 'PCF - 快速巡逻艇', type: '水面舰艇' },
+                        { id: 110, name: 'PCFG - 快速导弹巡逻艇', type: '水面舰艇' },
+                        { id: 111, name: 'PG1 - 巡逻舰', type: '水面舰艇' },
+                        { id: 112, name: 'PG2 - 轻型护卫舰', type: '水面舰艇' },
+                        { id: 113, name: 'PGM - 导弹炮舰', type: '水面舰艇' },
+                        { id: 114, name: 'PH - 水翼炮艇', type: '水面舰艇' },
+                        { id: 115, name: 'PHM - 导弹水翼船', type: '水面舰艇' },
+                        { id: 116, name: 'PHT - 水翼鱼雷快艇', type: '水面舰艇' },
+                        { id: 117, name: 'PT - 巡逻鱼雷艇', type: '水面舰艇' },
+                        { id: 118, name: 'PTS - 小型鱼雷巡逻艇', type: '水面舰艇' },
+                        { id: 119, name: 'MTB - 鱼雷摩托艇', type: '水面舰艇' },
+                        { id: 120, name: 'WHEC - 海岸警卫队高续航快艇', type: '水面舰艇' },
+                        { id: 121, name: 'WMEC - 海岸警卫队中续航快艇', type: '水面舰艇' },
+                        { id: 122, name: 'WPB - 海岸警卫队巡逻船', type: '水面舰艇' },
+                        { id: 123, name: 'WPG - 海岸警卫队巡逻炮艇', type: '水面舰艇' },
+                        { id: 124, name: 'MCDV - 海事海防船', type: '水面舰艇' },
+                        { id: 125, name: 'AGF1 - 指挥舰', type: '水面舰艇' },
+                        { id: 126, name: 'AGC - 两栖舰队旗舰', type: '水面舰艇' },
+                        { id: 127, name: 'LCAC - 气垫登陆艇', type: '水面舰艇' },
+                        { id: 128, name: 'LCC - 两栖指挥舰', type: '水面舰艇' },
+                        { id: 129, name: 'LCM - 机械化登陆艇', type: '水面舰艇' },
+                        { id: 130, name: 'LCP- 人员登陆艇', type: '水面舰艇' },
+                        { id: 131, name: 'LCT - 坦克登陆艇', type: '水面舰艇' },
+                        { id: 132, name: 'LCU - 通用登陆艇', type: '水面舰艇' },
+                        { id: 133, name: 'LCVP - 车辆及人员登陆艇', type: '水面舰艇' },
+                        { id: 134, name: 'LFR - 近岸火力支援船', type: '水面舰艇' },
+                        { id: 135, name: 'LHA - 通用两栖攻击舰', type: '水面舰艇' },
+                        { id: 136, name: 'LHD - 多用途两栖攻击舰', type: '水面舰艇' },
+                        { id: 137, name: 'LKA - 两栖货舰', type: '水面舰艇' },
+                        { id: 138, name: 'LPD - 两栖船坞运输舰', type: '水面舰艇' },
+                        { id: 139, name: 'LPH - 两栖攻击直升机航母', type: '水面舰艇' },
+                        { id: 140, name: 'LSD - 船坞登陆舰', type: '水面舰艇' },
+                        { id: 141, name: 'LSH - 未知！英国型号！', type: '水面舰艇' },
+                        { id: 142, name: 'LSL - 后勤登陆舰', type: '水面舰艇' },
+                        { id: 143, name: 'LSM - 中型登陆舰', type: '水面舰艇' },
+                        { id: 144, name: 'LSM(R) - 中型火箭登陆舰', type: '水面舰艇' },
+                        { id: 145, name: 'LST - 坦克登陆舰', type: '水面舰艇' },
+                        { id: 146, name: 'LSU - 通用登陆舰', type: '水面舰艇' },
+                        { id: 147, name: 'LSV - 车辆登陆舰', type: '水面舰艇' },
+                        { id: 148, name: 'LCI - 步兵登陆舰', type: '水面舰艇' },
+                        { id: 149, name: 'LSDV - 半潜水快艇', type: '水面舰艇' },
+                        { id: 150, name: 'LCPA - 气垫式人员登陆舰', type: '水面舰艇' },
+                        { id: 151, name: 'EPF - 远征快速运输舰', type: '水面舰艇' },
+                        { id: 152, name: 'ESD - 远征转运码头舰', type: '水面舰艇' },
+                        { id: 153, name: 'ESB - 远征移动基地舰', type: '水面舰艇' },
+                        { id: 154, name: 'A - 辅助船', type: '水面舰艇' },
+                        { id: 155, name: 'AD - 驱逐舰供应舰', type: '水面舰艇' },
+                        { id: 156, name: 'AE - 弹药船', type: '水面舰艇' },
+                        { id: 157, name: 'AF - 冷藏储运船', type: '水面舰艇' },
+                        { id: 158, name: 'AFS - 军需品储运船', type: '水面舰艇' },
+                        { id: 159, name: 'AG - 通用辅助船', type: '水面舰艇' },
+                        { id: 160, name: 'AGB - 重型破冰船', type: '水面舰艇' },
+                        { id: 161, name: 'AGF2 - 指挥舰', type: '水面舰艇' },
+                        { id: 162, name: 'AGI - 情报收集舰', type: '水面舰艇' },
+                        { id: 163, name: 'AGMR - 通信中继船', type: '水面舰艇' },
+                        { id: 164, name: 'AGOR - 海洋科学考察船', type: '水面舰艇' },
+                        { id: 165, name: 'AGOS - 海洋监测船', type: '水面舰艇' },
+                        { id: 166, name: 'AGR - 雷达警戒（改装自货船）', type: '水面舰艇' },
+                        { id: 167, name: 'AGS - 测量船', type: '水面舰艇' },
+                        { id: 168, name: 'AGTR - 技术考察船', type: '水面舰艇' },
+                        { id: 169, name: 'AH - 医疗船', type: '水面舰艇' },
+                        { id: 170, name: 'AK - 货船', type: '水面舰艇' },
+                        { id: 171, name: 'AKA - 武装货船', type: '水面舰艇' },
+                        { id: 172, name: 'AKE - 干货船', type: '水面舰艇' },
+                        { id: 173, name: 'AKR - 滚装船', type: '水面舰艇' },
+                        { id: 174, name: 'AKS - 通用存运船', type: '水面舰艇' },
+                        { id: 175, name: 'AO - 舰队油船', type: '水面舰艇' },
+                        { id: 176, name: 'AOE - 快速战斗支援舰', type: '水面舰艇' },
+                        { id: 177, name: 'AOL - 小型油船', type: '水面舰艇' },
+                        { id: 178, name: 'AOR - 补给油船', type: '水面舰艇' },
+                        { id: 179, name: 'AOT - 运油船', type: '水面舰艇' },
+                        { id: 180, name: 'APA - 攻击型人员运输舰', type: '水面舰艇' },
+                        { id: 181, name: 'APD - 运兵船（高速）', type: '水面舰艇' },
+                        { id: 182, name: 'AR - 修理船', type: '水面舰艇' },
+                        { id: 183, name: 'AS - 潜艇供应舰', type: '水面舰艇' },
+                        { id: 184, name: 'ATC - 武装运兵船 (靶船)', type: '水面舰艇' },
+                        { id: 185, name: 'ATA - 辅助远洋拖船', type: '水面舰艇' },
+                        { id: 186, name: 'ATS - 救助拖船', type: '水面舰艇' },
+                        { id: 187, name: 'AV - 水上飞机供应舰', type: '水面舰艇' },
+                        { id: 188, name: 'AX - 训练舰', type: '水面舰艇' },
+                        { id: 189, name: 'ASR - 潜艇救援舰', type: '水面舰艇' },
+                        { id: 190, name: 'AP - 人员运输舰', type: '水面舰艇' },
+                        { id: 191, name: 'DSV - 潜水支援船/深潜车', type: '水面舰艇' },
+                        { id: 192, name: 'AGM - 导弹射程测量船', type: '水面舰艇' },
+                        { id: 193, name: 'T-AGOS - MSC (军事海运司令部) 海洋监测船', type: '水面舰艇' },
+                        { id: 194, name: 'T-AH  - MSC (军事海运司令部) 医疗船', type: '水面舰艇' },
+                        { id: 195, name: 'T-AK - MSC (军事海运司令部)货船', type: '水面舰艇' },
+                        { id: 196, name: 'T-AKE - MSC (军事海运司令部) 干货船', type: '水面舰艇' },
+                        { id: 197, name: 'T-AKR - MSC (军事海运司令部) 滚装船', type: '水面舰艇' },
+                        { id: 198, name: 'T-AO - MSC (军事海运司令部) 舰队油船', type: '水面舰艇' },
+                        { id: 199, name: 'T-AO - MSC (军事海运司令部) 运油船', type: '水面舰艇' },
+                        { id: 200, name: 'T-MLP - MSC (军事海运司令部) 移动登陆平台', type: '水面舰艇' },
+                        { id: 201, name: 'MCD - 反水雷无人机', type: '水面舰艇' },
+                        { id: 202, name: 'MCM - 反水雷舰', type: '水面舰艇' },
+                        { id: 203, name: 'MCS - 反水雷支援舰', type: '水面舰艇' },
+                        { id: 204, name: 'MHC - 沿岸猎雷艇', type: '水面舰艇' },
+                        { id: 205, name: 'ML - 布雷艇 ', type: '水面舰艇' },
+                        { id: 206, name: 'MSC - 沿海扫雷舰', type: '水面舰艇' },
+                        { id: 207, name: 'MSF - 钢壳舰队扫雷舰', type: '水面舰艇' },
+                        { id: 208, name: 'MSI - 近岸扫雷舰', type: '水面舰艇' },
+                        { id: 209, name: 'MSO - 远洋扫雷舰', type: '水面舰艇' },
+                        { id: 210, name: 'MST - 扫雷舰支援舰', type: '水面舰艇' },
+                        { id: 211, name: 'MHI - 近岸猎雷舰', type: '水面舰艇' },
+                        { id: 212, name: 'MM - 雷区养护舰', type: '水面舰艇' },
+                        { id: 213, name: 'YAG - 各类勤务船', type: '水面舰艇' },
+                        { id: 214, name: 'YRT - 鱼雷回收船', type: '水面舰艇' },
+                        { id: 215, name: 'YRM - 导弹回收船', type: '水面舰艇' },
+                        { id: 216, name: '民用船只', type: '水面舰艇' },
+                        { id: 217, name: '贸易船只', type: '水面舰艇' },
+                        { id: 218, name: '平底驳船/海上钻井平台', type: '水面舰艇' },
+                        { id: 219, name: 'NGS - 国家大地测量局浮标', type: '水面舰艇' },
+                        { id: 220, name: '底部固定阵列声纳', type: '水面舰艇' },
+                        { id: 221, name: '系泊声纳浮标', type: '水面舰艇' },
+                        { id: 222, name: '特殊（地面单位/卫星）', type: '水面舰艇' },
+                        { id: 223, name: 'MOB 移动式近海基地', type: '水面舰艇' }
+                    ],
+                    id: 10,
+                    name: '水面舰艇',
+                    type: '水面舰艇'
+                },
+                {
+                    children: [
+                        { id: 16, name: '其他', type: '潜艇' },
+                        { id: 17, name: 'AGSS - 辅助/实验潜艇', type: '潜艇' },
+                        { id: 18, name: 'APSS - 辅助货运潜艇', type: '潜艇' },
+                        { id: 19, name: 'SS - 攻击/舰队型潜艇', type: '潜艇' },
+                        { id: 20, name: 'SSB - 弹道导弹潜艇', type: '潜艇' },
+                        { id: 21, name: 'SSBN - 核动力弹道导弹潜艇', type: '潜艇' },
+                        { id: 22, name: 'SSG - 导弹攻击型潜艇', type: '潜艇' },
+                        { id: 23, name: 'SSGN - 核动力导弹攻击型潜艇', type: '潜艇' },
+                        { id: 24, name: 'SSK - 猎杀潜艇', type: '潜艇' },
+                        { id: 25, name: 'SSM - 小型潜水艇', type: '潜艇' },
+                        { id: 26, name: 'SSN - 核动力攻击型潜艇', type: '潜艇' },
+                        { id: 27, name: 'SSP - 运输潜艇', type: '潜艇' },
+                        { id: 28, name: 'SSR - 雷达预警潜艇', type: '潜艇' },
+                        { id: 29, name: 'SSRN - 核动力雷达预警潜艇', type: '潜艇' },
+                        { id: 30, name: 'SDV - 蛙人运送艇', type: '潜艇' },
+                        { id: 31, name: 'ROV - 遥控载具', type: '潜艇' },
+                        { id: 32, name: 'UUV - 无人水下航行器', type: '潜艇' },
+                        { id: 33, name: '生物', type: '潜艇' },
+                        { id: 34, name: '假目标', type: '潜艇' }
+                    ],
+                    id: 11,
+                    name: '潜艇',
+                    type: '潜艇'
+                }
+            ];
+            this.filterMarkData = this.generateLegendData(this.markData); //字母查找的
+            this.checkboxGroup = this.markData.map((item) => item.type);
+        },
+        async getGroup() {
+            const res = await geoNodeFindGroup(this.name);
+            const { data } = res;
+            const { object, success, msg } = data;
+            if (!success) {
+                this.$message.error(msg);
+            }
+            if (object) {
+                //依据分组名称查找分组对象
+                return object.map((name) => {
+                    const targetLegend = findTargetLegend(name);
+                    const { image } = targetLegend;
+                    return {
+                        image: image,
+                        groupCategory: name,
+                        groupType: name,
+                        group: name
+                    };
+                });
+            }
+            return [];
+        },
+        /**
+         * 获取类别数据
+         */
+        async getCategory() {
+            const res = await enumCategoryQuery();
+            const { data } = res;
+            const { object, success, msg } = data;
+
+            if (!success) {
+                this.$message.error(msg);
+            }
+
+            if (object) {
+                return object;
+            }
+
+            return [];
+        },
+        /**
+         * 生成标记图例能用的数据
+         */
+        generateLegendData(arr) {
+            const cloneArray = JSON.parse(JSON.stringify(arr));
+            const array = [];
+
+            cloneArray.forEach((parent) => {
+                const { children, type } = parent;
+                const targetLegend = findTargetLegend(type);
+                const { image, markType } = targetLegend;
+
+                if (children) {
+                    children.forEach((child) => {
+                        const { name } = child;
+
+                        child = {
+                            image: image,
+                            category: markType,
+                            type: name
+                        };
+
+                        array.push(child);
+                    });
+                }
+            });
+
+            return array;
+        },
+        /**
+         * 过滤标记图例节点
+         */
+        filterMarkNode(value) {
+            const target = this.getCurrentAvailableMarkData(); //拿到勾选了的数据
+            const cloneArray = this.generateLegendData(target);
+
+            if (!value) {
+                this.filterMarkData = cloneArray;
+            } else {
+                this.filterMarkData = cloneArray.filter((item) => item.type.toLowerCase().includes(value.toLowerCase()));
+            }
+        },
+        /**
+         * 选择测量类型
+         */
+        handleMarkClick(item) {
+            const { group } = item;
+
+            if (typeof this.clickMethod === 'function') {
+                this.clickMethod({ ...item });
+            } else {
+                emitter.emit(EventType.SET_MEASURE_TYPE, { ...item }); //进去到PointDrawer里面的startDrawPoint
+            }
+
+            this.$emit('before-close');
+        },
+        /**
+         * 多选框更新事件
+         */
+        handleCheckboxChange() {
+            const target = this.getCurrentAvailableMarkData();
+
+            this.filterMarkData = this.generateLegendData(target);
+            this.filterMarkNode(this.markSearchString);
+        },
+        /**
+         * 得到当前有效数据
+         */
+        getCurrentAvailableMarkData() {
+            return this.markData.filter((item) => this.checkboxGroup.includes(item.type));
+        },
+        /**
+         * 全选框事件
+         */
+        handleCheckAllChange(checkAll) {
+            if (checkAll) {
+                this.checkboxGroup = this.markData.map(({ type }) => type);
+            } else {
+                this.checkboxGroup = [];
+            }
+        }
+    }
+};
+</script>
+
+<style lang="scss" scoped>
+.map-mark {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+
+    .tabs {
+        padding-left: 8px;
+    }
+
+    .content {
+        height: 100%;
+    }
+
+    .group {
+    }
+
+    .deployment {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .search {
+        padding: 8px;
+    }
+
+    .filter {
+        padding: 8px;
+        margin-bottom: 8px;
+
+        .button {
+            margin-top: 4px;
+
+            /deep/ .el-checkbox-button__inner {
+                border: 1px solid var(--border-color-base);
+                margin-left: -1px;
+            }
+        }
+    }
+
+    .index {
+        position: relative;
+        flex: 1;
+
+        .pinyin-index {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding-bottom: 8px;
+        }
+    }
+
+    .child {
+        display: flex;
+        align-items: center;
+        margin: 4px 8px;
+        background-color: var(--background-color-item);
+        border-radius: 4px;
+        color: var(--color-text-regular);
+        cursor: pointer;
+
+        &:hover {
+            color: var(--color-text-primary);
+            background-color: var(--background-color-item-light);
+        }
+
+        .img {
+            width: 24px;
+            margin: 0 4px;
+        }
+
+        .description {
+        }
+    }
+}
+</style>

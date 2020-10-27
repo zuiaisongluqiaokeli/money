@@ -72,6 +72,8 @@ Vue.use(VXETable)
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 //cesium
+// import Cesium from 'cesium/Build/Cesium'
+// Vue.use(Cesium)
 import VueCesium from 'vue-cesium'
 //G6
 import G6 from '@antv/g6'

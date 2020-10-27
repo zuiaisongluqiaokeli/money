@@ -1,0 +1,203 @@
+<template>
+  <div class="left-side-bar">
+    <SideBar :data="listMap" />
+  </div>
+</template>
+
+<script>
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import SideBar from "./components/SideBar";
+import MapSceneMode from "./components/MapSceneMode";
+import MapImagery from "./components/MapImagery";
+import LegendShader from './components/LegendShader'
+import Setting from './components/Setting'
+import MapMark from './components/MapMark'
+import MapSearchAdd from './components/MapSearchAdd'
+import MapSwitch from './components/MapSwitch'
+
+export default {
+  name: "LeftSideBar",
+  components: { SideBar, MapImagery, MapSceneMode,Setting,MapSwitch,LegendShader,MapMark,MapSearchAdd},
+
+  data() {
+    return {
+      listMap: [
+        {
+          label: "主页",
+          type: "home",
+          name: "",
+          icon: "iconfont icon-fanhuishouye"
+        },
+        {
+          label: "地形",
+          type: "imagery",
+          name: "MapImagery",
+          icon: "iconfont icon-map",
+          component: MapImagery,
+          tip: true,
+          placement: "right-start"
+        },
+        {
+          label: "模式",
+          type: "mode",
+          name: "MapSceneMode",
+          icon: "iconfont icon-information-attribute",
+          component: MapSceneMode,
+          tip: true,
+          placement: "right-start"
+        },
+        {
+          label: "清空",
+          type: "delete",
+          name: "MapDelete",
+          icon: "iconfont icon-tool-delete-circle",
+          component: "",
+          tip: false,
+          placement: "right"
+        },
+        {
+          label: "设置",
+          type: "switch",
+          name: "switch",
+          icon: "iconfont icon-home-tool",
+          component: MapSwitch,
+          tip: false,
+          placement: "right"
+        },
+        {
+          label: "标记",
+          type: "mark",
+          name: "mark",
+          icon: "iconfont icon-shoucangbiaoji",
+          component: MapMark,
+          tip: false,
+          placement: "right"
+        },
+        {
+          label: "分类",
+          type: "category",
+          name: "category",
+          icon: "iconfont icon-tubiaozhizuomoban",
+          component: MapSearchAdd,
+          tip: false,
+          placement: "right"
+        },
+        {
+          label: "着色",
+          type: "LegendShader",
+          name: "LegendShader",
+          icon: "el-icon-magic-stick",
+          component: LegendShader,
+          tip: false,
+          placement: "right"
+        },
+        {
+          label: "规则展示",
+          type: "setting",
+          name: "setting",
+          icon: "iconfont icon-tool-setting",
+          component: Setting,
+          tip: false,
+          placement: "right"
+        }
+      ],
+      drawerTitle: "",
+      drawerVisible: false,
+      componentVisible: false,
+      drawerComponent: null
+      // component: null
+    };
+  },
+
+  computed: {
+    // ...mapGetters("3dMap", ["leftSideBarComponent"])
+  },
+
+  watch: {
+    // leftSideBarComponent(newValue) {
+    //   if (newValue) {
+    //     const target = this.listMap.find(({ name }) => name === newValue);
+    //     this.handleSideBarClick(target);
+    //   }
+    // }
+  },
+
+  methods: {
+    /**
+     * 点击某一项
+     */
+    // handleSideBarClick(item) {
+    //   const { component, drawerComponent, label } = item;
+    //   console.log(item)
+    //   if(label === '清空'){
+    //     console.log('清空')
+    //     return gisvis.viewer.entities.removeAll()
+    //   }
+    //   if (component) {
+    //     this.component = component;
+    //     this.componentVisible = true;
+    //   } else if (drawerComponent) {
+    //     this.drawerTitle = label;
+    //     this.drawerComponent = drawerComponent;
+    //     this.drawerVisible = true;
+    //   }
+    // },
+    /**
+     * 关闭抽屉
+     */
+    closeDrawer() {
+      this.drawerVisible = false;
+      this.drawerComponent = null;
+    },
+    /**
+     * 关闭组件
+     */
+    closeComponent() {
+      this.componentVisible = false;
+      this.component = null;
+    },
+    /**
+     * 处理传来的关闭抽屉事件
+     */
+    handleDrawerBeforeClose() {
+      this.closeDrawer();
+    },
+    /**
+     * 处理组件传来的关闭事件
+     */
+    handleComponentBeforeClose() {
+      this.closeComponent();
+    }
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.left-side-bar {
+  height: calc(100vh - 3.58rem);
+  position: fixed;
+  top: 3.58rem;
+
+  .title {
+    color: #fafafa;
+    font-size: 16px;
+  }
+  /deep/ .left-side-bar-drawer.drawer {
+    top: 3.58rem;
+  }
+}
+</style>
+
+<style lang="scss">
+.left-side-bar-drawer.drawer {
+  &,
+  *,
+  *:focus {
+    outline: none;
+  }
+
+  .el-drawer__body {
+    position: relative;
+  }
+}
+</style>

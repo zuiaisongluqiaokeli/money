@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import bus from '@/components/common/bus';
+import bus from '@/components/Layout/bus';
 export default {
     data() {
         return {};

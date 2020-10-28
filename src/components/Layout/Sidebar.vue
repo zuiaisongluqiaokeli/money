@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import bus from '../common/bus';
+import bus from '../Layout/bus';
 export default {
     data() {
         return {
@@ -134,6 +134,11 @@ export default {
                     icon: 'el-icon-location-information',
                     index: 'G6地铁',
                     title: 'G6地铁'
+                },
+                {
+                    icon: 'el-icon-location-information',
+                    index: 'G6node-edge',
+                    title: 'G6node-edge'
                 },
                 {
                     icon: 'el-icon-basketball',

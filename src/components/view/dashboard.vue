@@ -149,7 +149,7 @@
 //require('echarts/lib/component/title')
 import Schart from 'vue-schart';
 import driverStep from '@/utils/driver';
-import bus from '../common/bus';
+import bus from '../Layout/bus';
 export default {
     name: 'dashboard',
     data() {

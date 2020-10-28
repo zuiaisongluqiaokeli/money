@@ -7,7 +7,7 @@ import VueI18n from 'vue-i18n';
 Vue.use(VueI18n);
 import {
     messages
-} from './components/common/i18n';
+} from './components/Layout/i18n';
 const i18n = new VueI18n({
     locale: 'zh',
     messages
@@ -51,7 +51,7 @@ import store from './store'
 import 'element-ui/lib/theme-chalk/index.css'; // 默认主题
 // import './assets/css/theme-green/index.css'; // 浅绿色主题
 import './assets/css/icon.css';
-import './components/common/directives';
+import './components/Layout/directives';
 import VCharts from 'v-charts'
 import 'babel-polyfill';
 // import echarts from 'echarts'

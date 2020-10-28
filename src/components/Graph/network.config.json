@@ -1,0 +1,104 @@
+{
+  "safe": false,
+  "node": {
+    "color": "#7dd0fc",
+    "radius": 16,
+    "radius-scale-extent": [
+      1,
+      2
+    ],
+    "icon": {
+      "enable": true,
+      "default": "./img/default.png"
+    },
+    "avatar": true,
+    "label": {
+      "enable": true,
+      "color": "#000000",
+      "font-size": 12,
+      "capacity": 13,
+      "position": "bottom",
+      "offset": 10,
+      "min-font-size": 3
+    },
+    "hide-little-node": false,
+    "weight-thresholds": 0,
+    "auto-drag": true
+  },
+  "edge": {
+    "color": "#526C79",
+    "weight": 1,
+    "size": 1,
+    "lazy": 5,
+    "label": {
+      "enable": false,
+      "color": "#B0B2B2",
+      "font-size": 12,
+      "capacity": 12
+    }
+  },
+  "cluster": {
+    "enable": true
+  },
+  "tree": {
+    "color": "#185a9a",
+    "weight": 10,
+    "radius": 32,
+    "iterations": 1,
+    "max-level": 0,
+    "expand-level": 1,
+    "lazy": 50,
+    "fixed-color": false,
+    "colors": [
+      "#d6d1a2",
+      "#6d51f9",
+      "#6d51f9",
+      "#26dae8",
+      "#22b08e",
+      "#84e4a3",
+      "#b8e23e",
+      "#d1e171",
+      "#b0a650",
+      "#9aa298"
+    ],
+    "tooltip": {
+      "font-size": 13
+    },
+    "label-level": 5
+  },
+  "layout": {
+    "type": "simulation",
+    "force": {
+      "static": true,
+      "alphaMin": 0.05,
+      "velocityDecay": 0.1,
+      "charge": {
+        "strength": -450,
+        "theta": 0.9,
+        "distanceMin": 1,
+        "distanceMax": 350
+      },
+      "collide": {
+        "strength": 0.5,
+        "iterations": 2
+      },
+      "link": {
+        "distance": 200,
+        "iterations": 0.1,
+        "strength": 0.9,
+        "virtual-distance": 200,
+        "virtual-strength": 0.3,
+        "cluster-overlap-distance": 150,
+        "cluster-overlap-strength": 0.6,
+        "cluster-none-overlap-distance": 100,
+        "cluster-none-overlap-strength": 1
+      }
+    },
+    "circularDivision": {
+      "division": 3
+    },
+    "horizontal": {
+      "direction": "right"
+    }
+  }
+}

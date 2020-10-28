@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@antv/g6": "^3.8.1",
+    "@dataexa/sati-engine": "^0.3.89",
     "@riophae/vue-treeselect": "^0.4.0",
     "axios": "^0.18.0",
     "babel-polyfill": "^6.26.0",
@@ -20,6 +21,7 @@
     "element-ui": "^2.11.0",
     "mavon-editor": "^2.6.17",
     "mitt": "^2.1.0",
+    "moment": "^2.29.1",
     "node-sass": "^4.14.1",
     "nodejs-websocket": "^1.7.2",
     "nprogress": "^0.2.0",

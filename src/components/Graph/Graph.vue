@@ -27,6 +27,7 @@ export default {
             type: Boolean,
             default: false
         },
+        //掉不同数据
         vertexId: {
             type: [String, Number],
             required: true
@@ -35,6 +36,7 @@ export default {
             type: String,
             required: true
         },
+        //生成不同画布
         id: {
             type: String,
             default: 'graph-default'
@@ -65,25 +67,8 @@ export default {
             edgeInfoVisible: false,
             nodeInfo: null,
             edgeInfo: null,
-            isFirst: true
         };
     },
-
-    watch: {
-        visible: {
-            immediate: true,
-            handler(value) {
-                if (value && this.isFirst) {
-                    this.isFirst = false;
-                    this.$nextTick(() => {
-                        this.initCanvas();
-                        this.renderInformationGraph();
-                    });
-                }
-            }
-        }
-    },
-
     mounted() {
         this.initCanvas();
         this.renderInformationGraph();
@@ -94,7 +79,7 @@ export default {
          * 图谱初始化
          */
         initCanvas() {
-            this.graph = Main.network('#' + this.id, networkConfigJson);
+            this.graph = Main.network('#' + this.id, networkConfigJson); //配置图谱信息
             this.graph
                 // 节点点击
                 .on('click/node', ({ node }) => {

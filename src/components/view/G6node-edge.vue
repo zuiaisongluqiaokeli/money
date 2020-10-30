@@ -1,5 +1,7 @@
 <template>
-    <Graph :vertex-id="vertexId" :graph-name="graphName" :infoData="infoData" ref="Graph"></Graph>
+    <div>
+        <Graph :vertexId="vertexId" :graphName="graphName" :infoData="infoData" ref="Graph"></Graph>
+    </div>
 </template>
 <script>
 import Graph from '@/components/Graph';

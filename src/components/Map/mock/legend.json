@@ -1,0 +1,66 @@
+[
+  {
+    "image": "images/facility.png",
+    "description": "Facility",
+    "markType": "地面兵力与设施",
+    "width": 20,
+    "height": 24,
+    "areaColor": "#900"
+  },
+  {
+    "image": "images/aircraft.png",
+    "description": "Aircraft",
+    "markType": "飞机",
+    "width": 20,
+    "height": 24,
+    "areaColor": "#ff4040"
+  },
+  {
+    "image": "images/ship.png",
+    "description": "Ship",
+    "markType": "水面舰艇",
+    "width": 20,
+    "height": 24,
+    "areaColor": "#ff7400"
+  },
+  {
+    "image": "images/submarine.png",
+    "description": "Submarine",
+    "markType": "潜艇",
+    "width": 20,
+    "height": 24,
+    "areaColor": "#cd0074"
+  },
+  {
+    "image": "images/facility.png",
+    "description": "空军基地",
+    "markType": "基地",
+    "width": 20,
+    "height": 24,
+    "areaColor": "#cd0074"
+  },
+  {
+    "image": "images/facility.png",
+    "description": "兵营",
+    "markType": "支援部队",
+    "width": 20,
+    "height": 24,
+    "areaColor": "#cd0074"
+  },
+  {
+    "image": "images/facility.png",
+    "description": "导弹营",
+    "markType": "机场",
+    "width": 20,
+    "height": 24,
+    "areaColor": "#cd0074"
+  },
+  {
+    "image": "images/facility.png",
+    "description": "防空导弹营",
+    "markType": "雷达",
+    "width": 20,
+    "height": 24,
+    "areaColor": "#cd0074"
+  }
+]

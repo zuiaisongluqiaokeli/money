@@ -1,0 +1,9 @@
+{
+  "ps": "标记组件中的分组列表",
+  "code": null,
+  "columnsHeader": {},
+  "errorMsg": "",
+  "msg": "操作成功!",
+  "object": ["支援部队", "雷达", "机场"],
+  "success": true
+}

@@ -325,7 +325,7 @@ export default {
   components: {},
   computed: {
     ...mapState("map", ["gisEntities"]),
-    ...mapGetters("map", ["allLabels", "allProperties"])
+    ...mapGetters("map", ["allLabels", "allProperties"]) //所有实体标签/属性
   },
   watch: {
     show(n) {
@@ -367,10 +367,12 @@ export default {
     getFilters(vertices, filters) {
       // 标签过滤节点
       let verticeByLabel = [];
+      //找被包含的标签的数据
       verticeByLabel = vertices.filter(v =>
         filters.labels.some(l => v.labels.includes(l))
       );
       let length = filters.props.length;
+      //筛选条件
       let verticeByProp = vertices.filter(vertice => {
         let flag = false;
 
@@ -401,9 +403,9 @@ export default {
     },
     //重置或修改样式
     showVertice() {
-      this.updateInitTack(true)
+      this.updateInitTack(true) //这是干什么的
       if(this.reset){
-        //拿当前有id值的进行改造
+        //拿地图上的重置，设置头像/偏移量/比例等等
         this.gisEntities.filter(item=>gisvis.viewer.entities.getById(item.id)).forEach(e=>{
           gisvis.viewer.entities.getById(e.id).billboard && (gisvis.viewer.entities.getById(e.id).billboard.scale = 1)
           gisvis.viewer.entities.getById(
@@ -419,7 +421,6 @@ export default {
           gisvis.viewer.entities.getById(e.id).ellipse = undefined
         })
       }
-      console.log(1111)
       let entities = this.getFilters(this.gisEntities, this.verticeFilter);
       entities.forEach(e => {
         gisvis.viewer.entities.getById(

@@ -29,7 +29,7 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import PinyinIndex from "../../PinyinIndex";
-// import { dictionaryQuery, categoryQuery } from "@/assets/api/map";
+import { dictionaryQuery, categoryQuery } from "@/assets/api/map";
 
 export default {
   components: { PinyinIndex },

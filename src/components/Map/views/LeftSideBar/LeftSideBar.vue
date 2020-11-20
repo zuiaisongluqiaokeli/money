@@ -9,15 +9,29 @@ import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import SideBar from "./components/SideBar";
 import MapSceneMode from "./components/MapSceneMode";
 import MapImagery from "./components/MapImagery";
-import LegendShader from './components/LegendShader'
-import Setting from './components/Setting'
-import MapMark from './components/MapMark'
-import MapSearchAdd from './components/MapSearchAdd'
-import MapSwitch from './components/MapSwitch'
+import MapDelete from "./components/MapDelete";
+import MapClassifySearch from "./components/MapClassifySearch";
+import chartView from "../chartView";
+import LegendShader from "./components/LegendShader";
+import Setting from "./components/Setting";
+import MapMark from "./components/MapMark";
+import MapSearchAdd from "./components/MapSearchAdd";
+import MapSwitch from "./components/MapSwitch";
 
 export default {
   name: "LeftSideBar",
-  components: { SideBar, MapImagery, MapSceneMode,Setting,MapSwitch,LegendShader,MapMark,MapSearchAdd},
+  components: {
+    SideBar,
+    MapImagery,
+    MapSceneMode,
+    MapDelete,
+    chartView,
+    Setting,
+    MapSwitch,
+    LegendShader,
+    MapMark,
+    MapSearchAdd,
+  },
 
   data() {
     return {
@@ -26,7 +40,7 @@ export default {
           label: "主页",
           type: "home",
           name: "",
-          icon: "iconfont icon-fanhuishouye"
+          icon: "iconfont icon-fanhuishouye",
         },
         {
           label: "地形",
@@ -34,18 +48,18 @@ export default {
           name: "MapImagery",
           icon: "iconfont icon-map",
           component: MapImagery,
-          tip: true,
-          placement: "right-start"
+          tip: false,
+          placement: "right-start",
         },
-        {
-          label: "模式",
-          type: "mode",
-          name: "MapSceneMode",
-          icon: "iconfont icon-information-attribute",
-          component: MapSceneMode,
-          tip: true,
-          placement: "right-start"
-        },
+        // {
+        //   label: "模式",
+        //   type: "mode",
+        //   name: "MapSceneMode",
+        //   icon: "iconfont icon-information-attribute",
+        //   component: MapSceneMode,
+        //   tip: true,
+        //   placement: "right-start"
+        // },
         {
           label: "清空",
           type: "delete",
@@ -53,8 +67,18 @@ export default {
           icon: "iconfont icon-tool-delete-circle",
           component: "",
           tip: false,
-          placement: "right"
+          placement: "right",
         },
+        // 丐版,不配拥有这个功能
+        // {
+        //   label: "分类搜索",
+        //   type: "classifySearch",
+        //   name: "MapClassifySearch",
+        //   icon: "iconfont icon-gaojisousuo",
+        //   component: MapClassifySearch,
+        //   tip: true,
+        //   placement: "right"
+        // },
         {
           label: "设置",
           type: "switch",
@@ -62,26 +86,44 @@ export default {
           icon: "iconfont icon-home-tool",
           component: MapSwitch,
           tip: false,
-          placement: "right"
+          placement: "right",
         },
+        // {
+        //   label: "图表配置",
+        //   type: "chartOption",
+        //   name: "chartView",
+        //   icon: "iconfont icon-timeline",
+        //   component: chartView,
+        //   tip: false,
+        //   placement: "right"
+        // },
         {
           label: "标记",
           type: "mark",
           name: "mark",
-          icon: "iconfont icon-shoucangbiaoji",
+          icon: "el-icon-circle-plus-outline",
           component: MapMark,
           tip: false,
-          placement: "right"
+          placement: "right",
         },
         {
-          label: "分类",
+          label: "设置关系",
           type: "category",
           name: "category",
           icon: "iconfont icon-tubiaozhizuomoban",
           component: MapSearchAdd,
           tip: false,
-          placement: "right"
+          placement: "right",
         },
+        // {
+        //   label: "规则展示",
+        //   type: "setting",
+        //   name: "setting",
+        //   icon: "iconfont icon-tool-setting",
+        //   component: Setting,
+        //   tip: false,
+        //   placement: "right",
+        // },
         {
           label: "着色",
           type: "LegendShader",
@@ -89,22 +131,13 @@ export default {
           icon: "el-icon-magic-stick",
           component: LegendShader,
           tip: false,
-          placement: "right"
+          placement: "right",
         },
-        {
-          label: "规则展示",
-          type: "setting",
-          name: "setting",
-          icon: "iconfont icon-tool-setting",
-          component: Setting,
-          tip: false,
-          placement: "right"
-        }
       ],
       drawerTitle: "",
       drawerVisible: false,
       componentVisible: false,
-      drawerComponent: null
+      drawerComponent: null,
       // component: null
     };
   },
@@ -167,8 +200,8 @@ export default {
      */
     handleComponentBeforeClose() {
       this.closeComponent();
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -188,7 +221,7 @@ export default {
 }
 </style>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .left-side-bar-drawer.drawer {
   &,
   *,

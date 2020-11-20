@@ -13,7 +13,6 @@ import { emitter, EventType } from "../../src/EventEmitter";
 
 export default {
   name: "Popper",
-
   data() {
     return {
       position: {
@@ -30,13 +29,10 @@ export default {
 
   watch: {
     position(newValue) {},
-    text(value) {
-      console.log("text -> value", value);
-    }
+    text(value) {}
   },
 
   beforeDestroy() {
-    console.log("Popper beforeDestroy");
     this.$el.parentNode.removeChild(this.$el);
   },
 

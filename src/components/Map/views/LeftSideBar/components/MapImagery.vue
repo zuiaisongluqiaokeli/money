@@ -53,6 +53,13 @@ export default {
     handlerImagery (command) {
       this.$store.commit('map/setMapType',command)
       window.mapType=command
+      // this.gisEntities.forEach(e=>{
+      //   const entity=gisvis.viewer.entities.getById(e.id)
+      //   if(entity.ellipse){
+      //     ellipse[e.id]=entity.ellipse
+      //   }
+      //   gisvis.viewer.entities.removeById(e.id)
+      // })
       this.command = command
       let index = this.imageryOptions.findIndex(i => i.command === command)
       var layers = viewer.imageryLayers
@@ -61,6 +68,13 @@ export default {
       layers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
         url: this.imageryOptions[index].url
       }))
+      // gisvis.emitter.emit(EventType.RENDER_DATA,{entities:this.gisEntities,labelShow:true})
+      //   Object.keys(ellipse).forEach(id=>{
+      //   const entity= gisvis.viewer.entities.getById(e.id)
+      //   if(entity){
+      //     entity.ellipse=ellipse[id]
+      //   }
+      // })
       gisvis.viewer.entities.values.forEach(e=>{
         e.label.fillColor=Cesium.Color.fromCssColorString(window.mapType==='satellite'?"#ffffff":"#000000")
         e.label.outlineColor=Cesium.Color.fromCssColorString(window.mapType==='satellite'?"#000000":"#ffffff")

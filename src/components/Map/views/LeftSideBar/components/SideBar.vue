@@ -9,8 +9,11 @@
         @click="handleClick(item)"
       >
         <i class="tip iconfont icon-triangle" v-show="item.tip"></i>
-        <div v-if="item.name === 'category' || item.name === 'mark'">
-          <i :class="item.icon" class="icon" @click="open(item.name)"></i>
+        <div
+          v-if="item.name === 'category' || item.name === 'mark'"
+          @click="open(item.name)"
+        >
+          <i :class="item.icon" class="icon"></i>
         </div>
         <el-popover
           v-else
@@ -23,78 +26,181 @@
         </el-popover>
       </li>
     </ul>
-    <!-- 分类 -->
-    <MapSearchAdd
-      v-if="showMapSearchAdd"
+    <!-- 图表 -->
+    <chart-view
+      v-if="showChartView"
+      :return-callback="onCloseChartView"
+    ></chart-view>
+    <!-- 旧的分类 -->
+    <!-- <MapSearchAdd
+      v-if="setRelationship"
       @before-close="closeDialog"
-    ></MapSearchAdd>
-    <!-- 标记 -->
-      <el-dialog
-        title="标记"
-        class="dialog"
-        :visible.sync="showMapMark"
-        append-to-body
-      >
-        <div class="dialog-body">
-          <MapMark @before-close="closeDialog"></MapMark>
-        </div>
-      </el-dialog>
+    ></MapSearchAdd> -->
+    <!-- 旧的标记 -->
+    <!-- <el-dialog
+      title="标记"
+      class="dialog"
+      :visible.sync="showMapMark"
+      append-to-body
+    >
+      <div class="dialog-body">
+        <MapMark @before-close="closeDialog"></MapMark>
+      </div>
+    </el-dialog> -->
+    <!-- 新的标记 -->
+    <GisInfoPanelAdd
+      v-if="addEntityDialog"
+      @before-close="closeDialog"
+      :dialogTattle="dialogTitle"
+      :entityInfo="entityInfo"
+      ref="entityDialog"
+      @changeEntity="changeEntity"
+    ></GisInfoPanelAdd>
+    <!-- 关联关系 -->
+    <Relationship
+      v-if="setRelationship"
+      @before-close="closeDialog"
+      :dialogTattle="dialogTitle"
+      :edge-info="edgeInfo"
+      ref="relationship"
+    ></Relationship>
   </div>
 </template>
 
 <script>
-import MapSearchAdd from "./MapSearchAdd";
-import MapMark from "./MapMark";
-import { mapMutations } from "vuex";
-
+import { emitter, EventType } from "../../../src/EventEmitter";
+import GisInfoPanelAdd from "./GisInfoPanelAdd";
+import Relationship from "./Relationship";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import * as graphVerticesDetail from "@/services/graph-vertices-detail";
 export default {
-  components: {MapSearchAdd, MapMark },
+  computed: {
+    ...mapState("graphInfo", ["id", "graphType", "name"]),
+    ...mapState("map", ["selectedVertices"]),
+  },
+  components: {
+    GisInfoPanelAdd,
+    Relationship,
+  },
   props: {
     placement: {
       type: String,
-      default: "left"
+      default: "left",
     },
     data: {
       type: Array,
       default() {
         return [];
-      }
-    }
+      },
+    },
   },
 
   data() {
     return {
-      showMapSearchAdd: false,
-      showMapMark: false
+      showChartView: false,
+      setRelationship: false,
+      showMapMark: false,
+      addEntityDialog: false,
+      dialogTitle: "",
+      entityInfo: {},
+      edgeInfo: {},
     };
   },
-
+  created() {
+    emitter.on(EventType.CLICK_ENTITY, this.setSelectedEntity, this);
+    emitter.on(EventType.RIGHT_EDIT, this.editEntity, this);
+  },
+  beforeDestroy() {
+    emitter.off(EventType.CLICK_ENTITY, this.setSelectedEntity);
+  },
   methods: {
+    ...mapMutations("map", [
+      "setallEntityBackEnd",
+      "removeEntityBackEnd",
+      "removeallEntityBackEnd",
+    ]),
+    setSelectedEntity(val) {
+      console.log("左键实体", val);
+      this.temEntity = val;
+      if (val.id.entityId === "") {
+        this.entityInfo.longitude = val.id.properties.getValue().lng;
+        this.entityInfo.latitude = val.id.properties.getValue().lat;
+        setTimeout(() => {
+          this.addEntityDialog = true;
+          this.dialogTitle = "新增实体";
+        }, 2000);
+      }
+    },
+    editEntity(id) {
+      this.addEntityDialog = true;
+      this.dialogTitle = "编辑实体";
+      this.$nextTick(() => {
+        this.$refs.entityDialog.editEntity(id);
+      });
+    },
     /**
      * 点击某一项
      */
     handleClick(item) {
       // this.$emit("click", item);
       if (item.label === "主页") {
-        console.log("重置视角为初始态");
         window.viewer.camera.flyHome();
       } else if (item.label === "清空") {
-        this.updateGisEntities([]);
-        this.updateGisLines([]);
+        this.removeallEntityBackEnd();
         gisvis.viewer.entities.removeAll();
+        gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, []);
+        emitter.emit(EventType.POPPER_REMOVE);
+        emitter.emit(EventType.CONTEXT_MENU_REMOVE);
+        emitter.emit(EventType.CLICK_BLANK);
       }
     },
-    open(val) {
-      val == "category"
-        ? (this.showMapSearchAdd = true)
-        : (this.showMapMark = true);
+    //打开标记或者关系
+    async open(val) {
+      if (val == "category") {
+        if (this.selectedVertices.length == 2) {
+          console.log("连续选择两项的数据", this.selectedVertices);
+          this.dialogTitle = "设置关系";
+          this.setRelationship = true;
+        } else {
+          this.$message.error("请连续选择两项");
+        }
+      } else {
+        //startDrawPoint drawEntities //drawEntities RENDER_DATA
+        emitter.emit(EventType.SET_MEASURE_TYPE, {
+          group: "基地",
+          groupCategory: "基地",
+          groupType: "基地",
+          image: "images/facility.png",
+        });
+        this.$message.success("已成功创建标记点");
+      }
+    },
+    //val 代表ID ，entity代表返回的结果,新增需要重绘/修改不用
+    changeEntity({ val, state, entity }) {
+      entity.properties.latitude = entity.properties.纬度;
+      entity.properties.longitude = entity.properties.经度;
+      if (state === -1) {
+        gisvis.viewer.entities.removeById(this.temEntity.id.id);
+        emitter.emit(EventType.POPPER_REMOVE);
+        emitter.emit(EventType.RENDER_DATA, {
+          entities: [entity],
+          labelShow: true,
+        });
+      } else {
+        //修改的时候重新生成分组数据
+        emitter.emit(EventType.LEGEND_DATA_CHANGE, [entity]);
+      }
+    },
+    onCloseChartView() {
+      this.showChartView = false;
     },
     closeDialog() {
-      this.showMapSearchAdd = false;
+      this.setRelationship = false;
       this.showMapMark = false;
+      this.addEntityDialog = false;
     },
-    ...mapMutations("map", ["updateGisEntities", "updateGisLines"])
-  }
+    ...mapMutations("map", ["updateGisEntities", "updateGisLines"]),
+  },
 };
 </script>
 
@@ -124,6 +230,7 @@ export default {
   .list {
     margin: 0;
     padding: 0;
+    cursor: pointer;
     .item {
       position: relative;
       text-align: center;

@@ -1,4 +1,5 @@
 import PointDrawer from "./src/PointDrawer";
+import unknownlocationDrawer from "./src/unknownlocationDrawer"
 import { emitter, EventType } from "../../src/EventEmitter";
 
 class MeasureTool {
@@ -6,6 +7,7 @@ class MeasureTool {
     this.viewer = viewer;
     this.options = options;
     this.pointDrawer = null;
+    this.unknownlocationDrawer = null
     this.drawing = false;
     // this.setDefaultOptions();
 
@@ -27,7 +29,14 @@ class MeasureTool {
 
     return this.pointDrawer;
   }
+  //未知位置绘制点
+  unknownlocationPoint(options = {}, callback) {
+    options = Object.assign(options, this.options);
+    this.unknownlocationDrawer = new unknownlocationDrawer(this.viewer, options);
+    this.unknownlocationDrawer.startDrawPoint(callback);
 
+    return this.unknownlocationDrawer;
+  }
   setDefaultOptions() {
     const { width, height } = this.options;
 

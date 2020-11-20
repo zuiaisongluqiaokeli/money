@@ -1,7 +1,4 @@
 import Popper from "../../Popper";
-import { getTransferredKeys, findTargetLegend } from "../../../src/Methods";
-import { emitter, EventType } from "../../../src/EventEmitter";
-
 class PointDrawer {
   constructor(viewer, options) {
     this.viewer = viewer;
@@ -69,6 +66,7 @@ class PointDrawer {
       this.handler = null;
       this.popper.destroy();
       this.popper = null;
+      //Map.mutations.updateGisEntities([].concat([this.entity], Map.state.gisEntities))
       // 相机飞往该点
       let center = Cesium.Cartesian3.fromDegrees(
         longitude,
@@ -105,36 +103,43 @@ class PointDrawer {
       const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
       const longitude = Cesium.Math.toDegrees(cartographic.longitude);
       const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+      const alt = Math.abs(cartographic.height)*100;
       const cartesian3 = Cesium.Cartesian3.fromDegrees(longitude, latitude);
 
       this.position = cartesian3;
 
-      if (this.entity === null) {  
+      if (this.entity === null) {
         this.createPoint();
       } else {
-        const values = this.entity.properties.getValue();
-        const { id } = values;
+        // const values = this.entity.properties.getValue();
+        // const { id } = values;
 
         this.entity.position.setValue(cartesian3);
 
         // 有id的时候发送 
-        if (id) {
-          emitter.emit(EventType.UPDATE_SELECTED_ENTITY, {
-            lng: longitude,
-            lat: latitude
-          });
-        }
+        // if (id) {
+        //   emitter.emit(EventType.UPDATE_SELECTED_ENTITY, {
+        //     lng: longitude,
+        //     lat: latitude
+        //   });
+        // }
       }
 
       // 画布中的鼠标坐标
       const popperPosition = this.scene.cartesianToCanvasCoordinates(cartesian);
-      const { x, y } = popperPosition;
+      const { x, y, z } = popperPosition;
 
       this.entity.properties.lng = longitude;
       this.entity.properties.lat = latitude;
-      this.popper.instance.position = { top: y + "px", left: x + "px" };
-      this.popper.instance.text = `经度:${longitude} \n\t 纬度:${latitude}`;
+      this.popper.instance.position = { top: y + 50 + "px", left: x + "px" };
+      this.popper.instance.text = `经度: ${longitude} \n\t 纬度: ${latitude}\n\t高度: ${alt} `;
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    // 鼠标移动的时候
+    this.handler.setInputAction(event => {
+
+      this.cancelDraw();
+
+    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
   }
   /**
    * 绘制一个新点
@@ -146,11 +151,10 @@ class PointDrawer {
       groupType,
       category,
       type,
-      group
+      group,
+      name
     } = this.options;
     const realCategory = group ? groupCategory : category;
-    const targetLegend = findTargetLegend(realCategory);
-    const { width, height } = targetLegend;
     const properties = {
       id: "",
       name: "",
@@ -174,24 +178,61 @@ class PointDrawer {
           membership: {}
         }
     );
-
+    //如果是未知位置的标记，需要带上后端的id，实体id，状态
+    let mapId
+    if (this.options.hasOwnProperty('id')) {
+      mapId = this.options.id
+    } else {
+      mapId = performance.now()
+    }
+    let entityId
+    if (this.options.hasOwnProperty('id')) {
+      entityId = this.options.id
+    } else {
+      entityId = ""
+    }
+    let location
+    if (this.options.hasOwnProperty('state')) {
+      location = this.options.state
+    } else {
+      location = ""
+    }
     const point = this.viewer.entities.add({
-      id: performance.now(),
-      entityId: "",
-      position: this.position,
+      id: mapId,
+      entityId: entityId,
+      location: location,
+      position: this.position,//null
       billboard: {
-        image: image,
-        width: width,
-        height: height
+        image: "img/location.png",
+        width: 40,
+        height: 40
       },
-      ellipse: {
-        show: false,
-        semiMajorAxis: 0,
-        semiMinorAxis: 0
+      label: {
+        show: true,
+        text: this.options.hasOwnProperty('name') && this.options.name || '暂无名称',
+        pixelOffset: new Cesium.Cartesian2(0, 24),
+        font: "25px sans-serif",
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        fillColor: Cesium.Color.fromCssColorString(window.mapType === 'satellite' ? "#000000" : "#ffffff"),
+        // outlineColor:Cesium.Color.fromCssColorString(window.mapType==='satellite'?"#000000":"#ffffff"),
+        // outlineWidth:2,
+        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+        scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+        pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+          1e2,
+          3,
+          9.0e6,
+          0.0
+        )
       },
+      // ellipse: {
+      //   show: false,
+      //   semiMajorAxis: 0,
+      //   semiMinorAxis: 0
+      // },
+      // properties: { properties: { ...properties }, id: entityId, avatar: image, name: groupCategory }
       properties: properties
     });
-
     this.entity = point;
   }
   /**

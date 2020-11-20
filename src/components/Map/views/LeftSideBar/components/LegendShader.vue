@@ -9,14 +9,13 @@
             :predefine="predefineColors"
           ></el-color-picker>
           <div class="input">
-            <el-select v-model="item.country" placeholder="">
-              <el-option
-                :value="country"
-                v-for="country in countries"
-                :key="country"
-              >
-              </el-option>
-            </el-select>
+            <select-tree
+              v-model="item.typeName"
+              :data="treeData"
+              @change="selectedItems($event, item)"
+              :propSet="{ children: 'children', label: 'label' }"
+              placeholder="请选择分类名称"
+            />
           </div>
           <div class="delete" title="清除此项" @click="deleteItem(item)">
             <i class="icon el-icon-close"></i>
@@ -27,7 +26,7 @@
         <el-button type="text" @click="addNew">+ 新增着色</el-button>
       </div>
       <div class="btn">
-        <el-button type="primary" class="submit" @click="submit"
+        <el-button type="primary" class="submit" @click="dialogSave"
           >确 定</el-button
         >
         <el-button type="plain" class="cancel" @click="cancel">取 消</el-button>
@@ -38,69 +37,87 @@
 
 <script>
 import colorControl from "../../../src/ColorControl";
-
-let main = null;
-
+import * as sortManage from "@/services/sort-manage";
+import { emitter, EventType } from "../../../src/EventEmitter";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import SelectTree from "@/components/SelectTree";
 export default {
   name: "LegendShader",
 
   inject: ["provide"],
-
-  components: {},
+  components: {
+    SelectTree,
+  },
+  computed: {
+    ...mapState("graphInfo", ["id", "graphType"]),
+    ...mapState("map", ["allEntityBackEnd"]),
+  },
 
   data() {
     return {
       shaderList: [], //循环列表
-      countries: [],
       shaderTemplate: {
         //暂存数据
-        country: "",
+        typeName: "",
         color: "",
+        value: "",
       },
       predefineColors: [], //预定义颜色
+      treeData: [],
     };
   },
 
-  computed: {},
-
-  watch: {},
-
   created() {
-    ({ main } = this.provide());
-    // this.predefineColors = this.getPredefineColors();
+    setTimeout(() => {
+      this.getCategory();
+      this.addNew();
+    }, 2000);
+    // ({ gisvis } = this.provide());
+    //this.predefineColors = this.getPredefineColors();
     // this.shaderList = this.getShaderList();
-    // this.countries = this.getCountries();
   },
 
-  mounted() {},
-
   methods: {
-    /**
-     * 获取已有的着色列表（结果就是数组对象包含国家和颜色）
-     */
-    getShaderList() {
-      const shaderMap = colorControl.getShaderMap();
-
-      return Object.entries(shaderMap).map(([country, color]) => {
-        return {
-          country,
-          color,
-        };
-      });
-    },
-    /**
-     * 获取已有的国家列表
-     */
-    getCountries() {
-      const legendData = main.getLegendData();
-
-      if (legendData) {
-        const { entitiesCountryCollection } = legendData;
-
-        return Object.keys(entitiesCountryCollection).map((key) => key);
+    async getCategory() {
+      const res = await sortManage.nodeCategoryQuery(this.id);
+      let data = res.data;
+      let treeData = [];
+      for (const item of data) {
+        if (item.parentId === 0) {
+          treeData.push({
+            id: item.id,
+            label: item.name,
+            children: [],
+            ...item,
+          });
+        }
       }
+      this.formatTree(treeData, data);
+      this.treeData = [
+        {
+          id: -1,
+          label: "所有",
+          children: treeData,
+          parentsName: "",
+        },
+      ];
+    },
 
-      return [];
+    // 递归返回的数据，形成树结构
+    formatTree(treeData, data) {
+      for (const item of treeData) {
+        for (const item2 of data) {
+          if (item.id === item2.parentId) {
+            item.children.push({
+              id: item2.id,
+              label: item2.name,
+              children: [],
+              ...item2,
+            });
+          }
+        }
+        this.formatTree(item.children, data);
+      }
     },
     /**
      * 获取预定义颜色
@@ -126,22 +143,43 @@ export default {
       temp.color = color;
       this.shaderList.push(temp);
     },
-    /**
-     * 确定
-     */
-    submit() {
-      const color = this.shaderList.reduce((previous, current) => {
-        const { country, color } = current;
-
-        if (country && color) {
-          previous[country] = color;
+    selectedItems(event, item) {
+      item.value = event.label;
+    },
+    dialogSave() {
+      this.shaderList.forEach((item, index) => {
+        if (!item.value) {
+          this.shaderList.splice(index, 1);
         }
-
-        return previous;
-      }, {});
-
-      this.$emit("before-close");
-      colorControl.addShader(color);
+      });
+      this.shaderList.filter((item, index, arr) => {
+        let arrIds = arr.map((ele) => ele.value);
+        return arrIds.indexOf(item.value) == index;
+      });
+      this.shaderList.forEach((ele) => {
+        this.allEntityBackEnd
+          .filter((item) => item.properties.实体分类 == ele.value)
+          .forEach((item) => {
+            if (gisvis.viewer.entities.getById(item.id).ellipse) {
+              gisvis.viewer.entities.getById(
+                item.id
+              ).ellipse.material = Cesium.Color.fromCssColorString(
+                ele.color
+              ).withAlpha(0.08);
+              gisvis.viewer.entities.getById(item.id).ellipse.show = true;
+              // gisvis.viewer.entities.getById(item.id).polyline.material.color.setValue(ele.color.withAlpha(1));
+            } else {
+              let params = {
+                entities: [{ id: item.id }],
+                radius: 250,
+                color: ele.color,
+              };
+              gisvis.emitter.emit("gis-scope-render", params);
+            }
+            item.attackRange = true;
+          });
+      });
+      gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, []);
     },
     /**
      * 取消
@@ -154,6 +192,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.hidden {
+  display: none;
+}
 .tool-tag {
   max-height: 426px;
   margin: -12px 0;

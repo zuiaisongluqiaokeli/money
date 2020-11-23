@@ -57,7 +57,7 @@ class MeasureTool {
   movePoint(entity, options = {}, callback) {
     Object.assign(options, this.options);
     this.pointDrawer = new PointDrawer(this.viewer, options);
-    this.pointDrawer.entity = entity;
+    this.pointDrawer.entity = entity; //有实体不用初始化
     this.pointDrawer.startDrawPoint(callback);
 
     return this.pointDrawer;

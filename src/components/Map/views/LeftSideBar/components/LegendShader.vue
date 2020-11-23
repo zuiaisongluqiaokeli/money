@@ -71,7 +71,7 @@ export default {
     setTimeout(() => {
       this.getCategory();
       this.addNew();
-    }, 2000);
+    }, 4000);
     // ({ gisvis } = this.provide());
     //this.predefineColors = this.getPredefineColors();
     // this.shaderList = this.getShaderList();

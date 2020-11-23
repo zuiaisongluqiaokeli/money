@@ -45,10 +45,6 @@ class ScreenSpaceEvent {
       // }
 
       const { id: entity } = currentEntity;
-      const { properties } = entity;
-      const values = properties.getValue();
-      const { name } = values;
-
       // console.log("左键选择实体：", currentEntity, values);
       // // 设置选中实体
       // emitter.emit(EventType.SELECTED_ENTITY, entity);
@@ -60,9 +56,9 @@ class ScreenSpaceEvent {
 
       emitter.emit(EventType.POPPER_SHOW, {
         position,
-        name,
+        name:currentEntity.id.label.text.getValue(),
         canMove: true,
-        create: false
+        create: true
       });
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }

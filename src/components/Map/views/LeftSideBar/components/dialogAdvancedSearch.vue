@@ -115,8 +115,13 @@
                 @selection-change="handleSelectChange"
                 :header-cell-style="{ 'text-align': 'left' }"
                 :cell-style="{ 'text-align': 'left' }"
+                row-key="id"
               >
-                <el-table-column type="selection" width="30"></el-table-column>
+                <el-table-column
+                  type="selection"
+                  width="30"
+                  :reserve-selection="true"
+                ></el-table-column>
                 <el-table-column
                   label="实体名称"
                   width="150"
@@ -374,7 +379,7 @@ export default {
       verticesListData: [],
       selectRows: [],
       node: {},
-      totalSelection: "",
+      totalSelection: 0,
       reFresh: true,
       listQuery1: {
         //实体列表的分页器
@@ -680,49 +685,30 @@ export default {
           }
         );
 
-        let res = await sortManage
-          .verticesNeo4jSeniorQuery(
-            this.listQuery1.page - 1,
-            this.listQuery1.size,
-            conditionsDTO
-          )
-          .catch(() => {
-            this.$message({
-              type: "error",
-              message: "获取数据请求失败",
-            });
-          });
-        if (res.status === 200) {
-          this.verticesListData = res.data.data;
-          this.$nextTick(() => {
-            this.verticesListData.forEach((item) => {
-              if (
-                item.properties.hasOwnProperty("经度") &&
-                item.properties.hasOwnProperty("纬度")
-              ) {
-                item.longitude = item.properties.经度; //给表格用
-                item.latitude = item.properties.纬度;
-                item.properties.longitude = item.properties.经度; //绘图用
-                item.properties.latitude = item.properties.纬度;
-              } else {
-                item.longitude = "暂无";
-                item.latitude = "暂无";
-                item.properties.longitude = undefined;
-                item.properties.latitude = undefined;
-              }
-              if (
-                item.fullCategoryName == "" ||
-                item.fullCategoryName == "null"
-              )
-                item.fullCategoryName = "暂未分类";
-              item.properties.实体分类 = item.fullCategoryName; //分类用
-              item.properties.name = item.properties.名称
-              this.$refs.table.toggleRowSelection(item);
-              this.totalSelection = this.verticesListData.length;
-            });
-          });
-          this.listQuery1.total = res.data.totalCounts || 0;
-        }
+        let res = await sortManage.verticesNeo4jSeniorQuery(
+          this.listQuery1.page - 1,
+          this.listQuery1.size,
+          conditionsDTO
+        );
+        this.verticesListData = res.data.data;
+        this.verticesListData.forEach((item) => {
+          if (item.properties.hasOwnProperty("经度") && item.properties.经度) {
+            item.longitude = item.properties.经度; //给表格用
+            item.latitude = item.properties.纬度;
+            item.properties.longitude = item.properties.经度; //绘图用
+            item.properties.latitude = item.properties.纬度;
+          } else {
+            item.longitude = "暂无";
+            item.latitude = "暂无";
+            item.properties.longitude = undefined;
+            item.properties.latitude = undefined;
+          }
+          if (item.fullCategoryName == "" || item.fullCategoryName == "null")
+            item.fullCategoryName = "暂未分类";
+          item.properties.实体分类 = item.fullCategoryName; //分类用
+          // this.$refs.table.toggleRowSelection(item);
+        });
+        this.listQuery1.total = res.data.totalCounts || 0;
         this.verticesListLoading = false;
       }
     },
@@ -803,42 +789,26 @@ export default {
           });
           // this.verticesListLoading = false;
         });
-      if (!res.data.success) {
-        this.$message({
-          type: "error",
-          message: res.data.msg,
-        });
-        // this.verticesListLoading = false;
-        return;
-      } else if (res.data.success) {
-        this.verticesListData = res.data.object.data;
-        this.$nextTick(() => {
-          this.verticesListData.forEach((item) => {
-            if (
-              item.properties.hasOwnProperty("经度") &&
-              item.properties.hasOwnProperty("纬度")
-            ) {
-              item.longitude = item.properties.经度; //给表格用
-              item.latitude = item.properties.纬度;
-              item.properties.longitude = item.properties.经度; //绘图用
-              item.properties.latitude = item.properties.纬度;
-            } else {
-              item.longitude = "暂无";
-              item.latitude = "暂无";
-              item.properties.longitude = undefined;
-              item.properties.latitude = undefined;
-            }
-            if (item.fullCategoryName == "" || item.fullCategoryName == "null")
-              item.fullCategoryName = "暂未分类";
-            item.properties.name = item.properties.名称
-            item.properties.实体分类 = item.fullCategoryName; //分类用
-            this.$refs.table.toggleRowSelection(item);
-            this.totalSelection = this.verticesListData.length;
-          });
-        });
-        this.listQuery1.total = res.data.object.totalCounts || 0;
-        // this.verticesListLoading = false;
-      }
+      this.verticesListData = res.data.object.data;
+      this.verticesListData.forEach((item) => {
+        if (item.properties.hasOwnProperty("经度") && item.properties.经度) {
+          item.longitude = item.properties.经度; //给表格用
+          item.latitude = item.properties.纬度;
+          item.properties.longitude = item.properties.经度; //绘图用
+          item.properties.latitude = item.properties.纬度;
+        } else {
+          item.longitude = "暂无";
+          item.latitude = "暂无";
+          item.properties.longitude = undefined;
+          item.properties.latitude = undefined;
+        }
+        if (item.fullCategoryName == "" || item.fullCategoryName == "null")
+          item.fullCategoryName = "暂未分类";
+        item.properties.实体分类 = item.fullCategoryName; //分类用
+        // this.$refs.table.toggleRowSelection(item);
+      });
+      this.listQuery1.total = res.data.object.totalCounts || 0;
+      // this.verticesListLoading = false;
       this.verticesListLoading = false;
     },
     async previewMethod(url) {

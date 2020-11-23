@@ -140,10 +140,11 @@
       class="map-info-panel-dialog detail-dialog"
       :title="detailDialogTitle"
       :visible.sync="detailDialogVisible"
+      width="500px"
     >
       <el-form
         class="dialog-form"
-        label-width="100px"
+        label-width="40px"
         v-if="
           detailDialogTitle == '部署装备' || detailDialogTitle == '详细属性'
         "
@@ -315,52 +316,48 @@ export default {
       this.entityId = val.id.entityId;
       if (val.id.entityId !== "") {
         // 如果没有经纬度的话 拿之前的数据然后保存替换在查看
-        if (val.id.location == "未知位置") {
-          let result = await graphVerticesDetail.vertexDetailView(
-            val.id.entityId,
-            this.id
-          );
-          let propertiesJson = result.data.object.propsList.map((item) => ({
-            name: item.key,
-            value: item.value,
-            primary: false,
-          }));
-          propertiesJson.forEach((item) => {
-            if (item.name == "name" || item.name == "名称") {
-              item.primary = true;
-            }
-          });
-          propertiesJson.push({
-            name: "纬度",
-            value: val.id.properties.getValue().lat,
-            primary: false,
-          });
-          propertiesJson.push({
-            name: "经度",
-            value: val.id.properties.getValue().lng,
-            primary: false,
-          });
-          let newResult = await graphVerticesDetail.verticesUpdate({
-            atlasId: parseInt(this.id),
-            id: val.id.entityId,
-            name: this.graphName,
-            propertiesJson: JSON.stringify(propertiesJson),
-            labelStr: result.data.object.labelsList.toString(),
-            type: this.newVerticesData.type,
-            graphType: this.graphType,
-          });
-          newResult.data.object.properties.latitude =
-            newResult.data.object.properties.纬度;
-          newResult.data.object.properties.longitude =
-            newResult.data.object.properties.经度;
-          newResult.data.object.properties.实体分类 =
-            (newResult.data.object.properties.hasOwnProperty("实体分类") &&
-              newResult.data.object.properties.实体分类) ||
-            "暂未分类";
-          emitter.emit(EventType.LEGEND_DATA_CHANGE, [newResult.data.object]);
-          gisvis.viewer.entities.getById(val.id.id).location='已知位置'
-          this.$message.success("成功移入已知位置")
-        }
+        let result = await graphVerticesDetail.vertexDetailView(
+          val.id.entityId,
+          this.id
+        );
+        let propertiesJson = result.data.object.propsList.map((item) => ({
+          name: item.key,
+          value: item.value,
+          primary: false,
+        }));
+        propertiesJson.forEach((item) => {
+          if (item.name == "name" || item.name == "名称") {
+            item.primary = true;
+          }
+        });
+        propertiesJson.push({
+          name: "纬度",
+          value: val.id.properties.getValue().lat,
+          primary: false,
+        });
+        propertiesJson.push({
+          name: "经度",
+          value: val.id.properties.getValue().lng,
+          primary: false,
+        });
+        let newResult = await graphVerticesDetail.verticesUpdate({
+          atlasId: parseInt(this.id),
+          id: val.id.entityId,
+          name: this.graphName,
+          propertiesJson: JSON.stringify(propertiesJson),
+          labelStr: result.data.object.labelsList.toString(),
+          type: this.newVerticesData.type,
+          graphType: this.graphType,
+        });
+        newResult.data.object.properties.latitude =
+          newResult.data.object.properties.纬度;
+        newResult.data.object.properties.longitude =
+          newResult.data.object.properties.经度;
+        newResult.data.object.properties.实体分类 =
+          (newResult.data.object.properties.hasOwnProperty("实体分类") &&
+            newResult.data.object.properties.实体分类) ||
+          "暂未分类";
+        emitter.emit(EventType.LEGEND_DATA_CHANGE, [newResult.data.object]);
         let res = await graphVerticesDetail
           .vertexDetailView(val.id.entityId, this.id)
           .catch(() => {
@@ -377,7 +374,10 @@ export default {
           return;
         } else if (res.data.success) {
           this.newVerticesData.propertiesJson = [];
-          this.newVerticesData.avatar = res.data.object.properties.hasOwnProperty('avatar')&&res.data.object.properties.avatar || 'img/location.png';
+          this.newVerticesData.avatar =
+            (res.data.object.properties.hasOwnProperty("avatar") &&
+              res.data.object.properties.avatar) ||
+            "img/location.png";
           if (res.data.object.properties) {
             let props = res.data.object.properties;
             for (let prop in props) {
@@ -660,7 +660,7 @@ export default {
               display: block;
               width: 100%;
               height: 100%;
-              object-fit: fill;
+              object-fit: contain;
             }
           }
           .name {
@@ -675,7 +675,9 @@ export default {
 .show-panel {
   right: 0;
 }
-
+/deep/ .el-form-item {
+  margin-bottom: 0
+}
 .hide-panel {
   right: -23rem;
 }
@@ -725,7 +727,7 @@ export default {
   .label {
     display: block;
     text-align: left;
-    width: 100px;
+    width: 150px;
     color: var(--color-text-primary);
     font-weight: var(--font-weight-primary-bold);
     font-size: var(--font-size-base);

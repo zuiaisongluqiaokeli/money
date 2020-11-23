@@ -491,4 +491,16 @@ export default {
     }
   }
 }
+/deep/ .cesium-performanceDisplay-defaultContainer{
+  position: absolute;
+    top: 10px;
+    right: 10px;
+    text-align: right;
+}
+/deep/ .cesium-viewer-toolbar {
+    display: block;
+    position: absolute;
+    top: 17px;
+    right: 94px;
+}
 </style>

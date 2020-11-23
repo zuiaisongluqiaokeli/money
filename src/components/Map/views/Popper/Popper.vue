@@ -3,8 +3,7 @@
     <div class="move" v-if="canMove" @click="handleMoveClick" title="移动位置">
       <i class="el-icon-rank"></i>
     </div>
-    <div class="text">{{ text || defaultText }}</div>
-    <template v-if="html" v-html="html"></template>
+    <div class="text">{{text}}</div>
   </div>
 </template>
 

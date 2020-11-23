@@ -131,7 +131,7 @@ class PointDrawer {
 
       this.entity.properties.lng = longitude;
       this.entity.properties.lat = latitude;
-      this.popper.instance.position = { top: y + 50 + "px", left: x + "px" };
+      this.popper.instance.position = { top: y + 20 + "px", left: x + "px" };
       this.popper.instance.text = `经度: ${longitude} \n\t 纬度: ${latitude}\n\t高度: ${alt} `;
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     // 鼠标移动的时候
@@ -204,8 +204,8 @@ class PointDrawer {
       position: this.position,//null
       billboard: {
         image: "img/location.png",
-        width: 40,
-        height: 40
+        width: 25,
+        height: 25,
       },
       label: {
         show: true,

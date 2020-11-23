@@ -36,7 +36,7 @@ class Viewer {
       animation: false,
       timeline: true,
       navigationHelpButton: false,
-      sceneModePicker: false,
+      sceneModePicker: true,
       creditContainer: document.createElement("div"),
       fullscreenButton: false,
       geocoder: false,

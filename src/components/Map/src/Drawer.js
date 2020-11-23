@@ -17,14 +17,14 @@ class Drawer {
     data.forEach((e, index) => {
       if (
         e.properties.longitude !== undefined &&
-        e.properties.latitude !== undefined && !this.viewer.entities.getById(e.id) //去重添加
+        e.properties.latitude !== undefined && !this.viewer.entities.getById(Number(e.id)) //去重添加
       ) {
         if (entityIndex === -1) {
           entityIndex = index;
         }
         this.viewer.entities.add({
           id: Number(e.id),
-          entityId:Number(e.id),
+          entityId: Number(e.id),
           position: Cesium.Cartesian3.fromDegrees(
             e.properties.longitude,
             e.properties.latitude,
@@ -32,14 +32,14 @@ class Drawer {
           ),
           billboard: {
             image: "img/location.png",
-            width: 40,
-            height: 40,
+            width: 25,
+            height: 25,
             color: Cesium.Color.fromCssColorString("#ffcc33"),
             scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2)
           },
           label: {
             show: labelShow,
-            text: e.properties.name || e.name || e.id,
+            text: e.properties.name || e.name,
             pixelOffset: new Cesium.Cartesian2(0, 24),
             font: "25px sans-serif",
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -55,7 +55,7 @@ class Drawer {
               0.0
             )
           },
-          properties: { properties: { ...e.properties }, name: e.properties.name || e.name || e.id, id: Number(e.id), entityId: Number(e.id), labels: e.labels, avatar: './img/gis/location.png' }
+          properties: { lat: e.properties.latitude, lng: e.properties.longitude, properties: { ...e.properties }, name: e.properties.name, id: Number(e.id), entityId: Number(e.id), labels: e.labels, avatar: './img/gis/location.png' }
         });
       }
     });
@@ -162,7 +162,7 @@ class Drawer {
     });
   }
   /**
-   * 雷达扫描
+   * 雷达扫描 cartographicCenter扫描中心
    */
   AddRadarScanPostStage(
     viewer,

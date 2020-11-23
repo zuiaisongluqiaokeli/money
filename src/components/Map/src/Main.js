@@ -1,6 +1,7 @@
 import { emitter, EventType } from "./EventEmitter";
 import Viewer from "./Viewer";
 import Drawer from "./Drawer";
+import RadarsEffects from "./RadarsEffects"
 import Store from "./Store";
 import MeasureTool from "../views/MeasureTool";
 import ScreenSpaceEvent from "./ScreenSpaceEvent";
@@ -31,18 +32,20 @@ class Main {
       viewer: this.viewer,
       store: this.store
     });
+    this.radarsEffects = new RadarsEffects({ viewer: this.viewer, })
     //测量工具
     this.measureTool = new MeasureTool(this.viewer);
     this.screenSpaceEvent = new ScreenSpaceEvent({
       viewer: this.viewer
     });
-
+    this.viewer.scene.postRender.addEventListener(this.handlePostRender, this);
     this.emitter = emitter;
     window.gisvis = this;
     if (!_instance) {
       this.initEventListener();
     }
-
+    //this.gisRadarRender({ lat: 45.33001987868777, lng: -113.45763167110341, scanColor: '#ffcc33', radius: 2000, })
+    //this.radarsEffects.addRadarScan({x: -1787967.728311429, y: -4120373.742683588, z: 4513207.960430705},2000,'#ffcc33',2)
     _instance = this;
   }
   /**
@@ -110,14 +113,16 @@ class Main {
    * 显示Popper
    */
   showPopper(params) {
-    const { position, name, canMove, create } = params;
-    const { x, y } = position;
+    var { position, name, canMove, create } = params;
+    if(!name) name = '未命名'
+    var { x, y } = position;
 
     if (!this.popper) {
       if (create) {
         this.popper = new Popper({
           data: {
-            canMove
+            canMove,
+            text:name
           }
         });
       } else {
@@ -134,25 +139,36 @@ class Main {
    * 移动Popper
    */
   movePopper() {
+    //点击实体存储
     const { selectedEntity } = this.store;
 
-    this.removePopper();
+    this.removePopper(); //删除当前可移动的popper
     this.measureTool.movePoint(selectedEntity.id, {}, entity => {
-      const { properties } = entity;
-      const values = properties.getValue();
-      const { lng, lat } = values;
-      const position = {
-        x: lng,
-        y: lat
-      };
-
       this.store.setMeasureType(null);
-      emitter.emit(EventType.POPPER_SHOW, {
-        position,
-        canMove: true,
-        create: true
-      });
     });
+  }
+  //静止滚动
+  handlePostRender() {
+    const { selectedEntity } = this.store;
+    if (!selectedEntity) {
+      return;
+    }
+    const { scene } = this.viewer;
+    const cartesian = selectedEntity.id.position.getValue();
+    const position = scene.cartesianToCanvasCoordinates(cartesian);
+    const { x, y } = position;
+    if (this.popper) {
+      this.popper.instance.position = {
+        top: y + "px",
+        left: x + "px"
+      };
+    }
+    if (this.contextMenu) {
+      this.contextMenu.instance.position = {
+        top: y + "px",
+        left: x + "px"
+      };
+    }
   }
   /**
    * 移除Popper
@@ -322,7 +338,6 @@ class Main {
    * 计算图例数据
    */
   computeLegendData() {
-    debugger
     const {
       data,
       entitiesJsonCollection,
@@ -377,20 +392,20 @@ class Main {
   gisRadarRender(params) {
     console.log("radar-render");
     const { lat, lng, scanColor, radius } = params;
-    this.drawer.marsRadarScan(lat, lng, scanColor, radius);
-    // var CartographicCenter = new Cesium.Cartographic(
-    //   Cesium.Math.toRadians(lng),
-    //   Cesium.Math.toRadians(lat),
-    //   0
-    // );
-    // // var scanColor = Cesium.Color.fromCssColorString("#00c6ab").withAlpha(0.8);
-    // this.drawer.AddRadarScanPostStage(
-    //   this.viewer,
-    //   CartographicCenter,
-    //   radius,
-    //   scanColor,
-    //   2000
-    // );
+    //this.drawer.marsRadarScan(lat, lng, scanColor, radius);
+    var CartographicCenter = new Cesium.Cartographic(
+      Cesium.Math.toRadians(lng),
+      Cesium.Math.toRadians(lat),
+      0
+    );
+    // var scanColor = Cesium.Color.fromCssColorString("#00c6ab").withAlpha(0.8);
+    this.drawer.AddRadarScanPostStage(
+      this.viewer,
+      CartographicCenter,
+      radius,
+      scanColor,
+      2000
+    );
   }
 }
 

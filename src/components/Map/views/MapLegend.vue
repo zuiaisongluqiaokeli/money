@@ -8,7 +8,7 @@
         清空所有
       </el-button>
       <i
-        :class="collapse ? 'el-icon-edit' : 'el-icon-s-fold'"
+        :class="collapse ? 'el-icon-top-right' : 'el-icon-bottom-left'"
         @click="collapse = !collapse"
       ></i>
     </div>

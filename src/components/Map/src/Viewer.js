@@ -32,7 +32,7 @@ class Viewer {
     });
     window.viewer = this.viewer = new Cesium.Viewer("cesium", {
       imageryProvider: imageryProvider,
-      shouldAnimate:true,
+      shouldAnimate:true, //去除水印
       animation: false,
       timeline: true,
       navigationHelpButton: false,
@@ -41,7 +41,7 @@ class Viewer {
       fullscreenButton: false,
       geocoder: false,
       homeButton: false,
-      baseLayerPicker: false,
+      baseLayerPicker: false, //去掉基础图层
       infoBox: false
     });
     // this.viewer.scene.debugShowFramesPerSecond =

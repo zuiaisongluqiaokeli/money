@@ -11,6 +11,14 @@ const EventType = {
   RIGHT_CLICK: "gis-right-click",
   /** 【地图】 绘制圆形区域 */
   SCOPE_RENDER: "gis-scope-render",
+  /** 【地图】 扫描范围 */
+  SCOPE_SEARCH: "gis-scope-search",
+  /** 【地图】 轨迹飞行 */
+  Simulated_Satellite: "gis-simulated-satellite",
+  /** 【地图】 测量距离 */
+  MeasureLineSpace: "gis-measure-lineSpacee",
+  /** 【地图】 测量距离 */
+  MeasureAreaSpace: "gis-measure-areaSpace",
   /** 【地图】 绘制雷达效果 */
   RADAR_RENDER: "gis-radar-render",
   /** 【地图】 地图数据改变 */

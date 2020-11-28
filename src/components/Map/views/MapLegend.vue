@@ -76,10 +76,10 @@
                 <el-tooltip
                   class="item"
                   effect="dark"
-                  :content="ele.properties.name"
+                  :content="ele.properties.name|| ele.properties.名称"
                   placement="top-start"
                   ><div class="description">
-                    <span>{{ ele.properties.name }}</span>
+                    <span>{{ ele.properties.name || ele.properties.名称}}</span>
                   </div></el-tooltip
                 >
               </div>
@@ -315,6 +315,7 @@ export default {
       emitter.emit(EventType.POPPER_REMOVE);
       emitter.emit(EventType.CONTEXT_MENU_REMOVE);
       emitter.emit(EventType.CLICK_BLANK);
+      gisvis.viewer.scene.postProcessStages.removeAll();
     },
     removeEntities(val, index) {
       this.tableData.forEach((item) => {

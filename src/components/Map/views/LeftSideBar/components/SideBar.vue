@@ -54,7 +54,7 @@
       :dialogTattle="dialogTitle"
       :entityInfo="entityInfo"
       ref="entityDialog"
-      @changeEntity="changeEntity"
+      @changeEntity="saveEntityDialog"
     ></GisInfoPanelAdd>
     <!-- 关联关系 -->
     <Relationship
@@ -108,7 +108,7 @@ export default {
   },
   created() {
     emitter.on(EventType.CLICK_ENTITY, this.setSelectedEntity, this);
-    emitter.on(EventType.RIGHT_EDIT, this.editEntity, this);
+    emitter.on(EventType.EDIT_CLICK_ENTITY, this.editEntityDialog, this);
   },
   beforeDestroy() {
     emitter.off(EventType.CLICK_ENTITY, this.setSelectedEntity);
@@ -131,7 +131,7 @@ export default {
         }, 2000);
       }
     },
-    editEntity(id) {
+    editEntityDialog(id) {
       this.addEntityDialog = true;
       this.dialogTitle = "编辑实体";
       this.$nextTick(() => {
@@ -157,8 +157,8 @@ export default {
     //打开标记或者关系
     async open(val) {
       if (val == "category") {
+        console.log("连续选择两项的数据", this.selectedVertices);
         if (this.selectedVertices.length == 2) {
-          console.log("连续选择两项的数据", this.selectedVertices);
           this.dialogTitle = "设置关系";
           this.setRelationship = true;
         } else {
@@ -176,7 +176,7 @@ export default {
       }
     },
     //val 代表ID ，entity代表返回的结果,新增需要重绘/修改不用
-    changeEntity({ val, state, entity }) {
+    saveEntityDialog({ val, state, entity }) {
       entity.properties.latitude = entity.properties.纬度;
       entity.properties.longitude = entity.properties.经度;
       if (state === -1) {

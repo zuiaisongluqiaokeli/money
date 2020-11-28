@@ -1,14 +1,18 @@
-import { emitter, EventType } from "./EventEmitter";
+import {
+  emitter,
+  EventType
+} from "./EventEmitter";
 import Viewer from "./Viewer";
 import Drawer from "./Drawer";
-import RadarsEffects from "./RadarsEffects"
 import Store from "./Store";
 import MeasureTool from "../views/MeasureTool";
 import ScreenSpaceEvent from "./ScreenSpaceEvent";
 import ContextMenu from "../views/ContextMenu/index";
 import Popper from "../views/Popper";
+import PolylineTrailMaterialProperty from "./PolylineTrailMaterialProperty"; //关系
+import * as RadarsEffects from "./RadarsEffects" //雷达
+import * as SimulatedSatellite from "./SimulatedSatellite" //轨迹线
 const _homePosition = [119.17968749999999, 25.522614647623293, 25000000];
-
 let _instance = null;
 
 class Main {
@@ -19,12 +23,11 @@ class Main {
     if (_instance) {
       // return _instance;
     }
-
-    const { homePosition = _homePosition, el } = options;
-
+    const {
+      homePosition = _homePosition, el
+    } = options;
     this.el = el;
     this.homePosition = homePosition;
-
     this.viewer = new Viewer(options);
     this.viewer.scene.debugShowFramesPerSecond = true;
     this.store = new Store();
@@ -32,7 +35,7 @@ class Main {
       viewer: this.viewer,
       store: this.store
     });
-    this.radarsEffects = new RadarsEffects({ viewer: this.viewer, })
+
     //测量工具
     this.measureTool = new MeasureTool(this.viewer);
     this.screenSpaceEvent = new ScreenSpaceEvent({
@@ -44,8 +47,6 @@ class Main {
     if (!_instance) {
       this.initEventListener();
     }
-    //this.gisRadarRender({ lat: 45.33001987868777, lng: -113.45763167110341, scanColor: '#ffcc33', radius: 2000, })
-    //this.radarsEffects.addRadarScan({x: -1787967.728311429, y: -4120373.742683588, z: 4513207.960430705},2000,'#ffcc33',2)
     _instance = this;
   }
   /**
@@ -56,7 +57,6 @@ class Main {
     emitter.on(EventType.CLICK_ENTITY, this.setSelectedEntity, this); //点实体右侧面板数据改变
     emitter.on(EventType.SET_MEASURE_TYPE, this.setMeasureType, this); //绘制点
     emitter.on(EventType.COLOR_SHADER_CHANGE, this.handleColorShader, this); //着色
-    // emitter.on(EventType.CONTEXT_MENU_SHOW, this.showContextMenu, this);
     emitter.on(EventType.CONTEXT_MENU_REMOVE, this.removeContextMenu, this);
     emitter.on(EventType.CONTEXT_MENU_CLICK, this.clickContextMenuItem, this);
     emitter.on(EventType.POPPER_SHOW, this.showPopper, this); //名字提示语
@@ -64,26 +64,20 @@ class Main {
     emitter.on(EventType.POPPER_REMOVE, this.removePopper, this);
     emitter.on(EventType.RENDER_DATA, this.gisRender, this); //地图搜索/扩展等添加实体
     emitter.on(EventType.SCOPE_RENDER, this.gisScopeRender, this); //范围
-    emitter.on(EventType.RADAR_RENDER, this.gisRadarRender, this); //雷达
+    emitter.on(EventType.RADAR_RENDER, this.addCircleScan, this); //雷达
+    emitter.on(EventType.SCOPE_SEARCH, this.addRadarScan, this); //雷达扫描
+    emitter.on(EventType.Simulated_Satellite, this.simulatedSatellite, this); //扫描
+    emitter.on(EventType.MeasureLineSpace, this.measureLineSpace, this); //测量距离
+    emitter.on(EventType.MeasureAreaSpace, this.measureAreaSpace, this); //测量面积
     emitter.on(EventType.REMOVE_ALL_ENTITIES, this.removeAllEntities, this); //清空实体
-    emitter.on(
-      EventType.SET_ENTITIES_VISIBLE_BY_TYPE,
-      this.setEntitiesVisibleByType,
-      this
-    ); //点击图例显示图标
-    emitter.on(EventType.FLY_TO_ENTITY, this.flyTo, this);
+    emitter.on(EventType.CREATE_Fly_LINES, this.createFlyLines, this); //关系之前线条
+    emitter.on(EventType.CREATE_Fly_LINES, this.createFlyLines, this); //关系之前线条
+    emitter.on(EventType.SET_ENTITIES_VISIBLE_BY_TYPE, this.setEntitiesVisibleByType, this); //点击图例显示图标
+    emitter.on(EventType.FLY_TO_ENTITY, this.flyToEntity, this);
     emitter.on(EventType.SELECTED_ENTITY, this.setSelectedEntity, this);
-    emitter.on(
-      EventType.SET_ATTACK_VISIBLE_BY_TYPE,
-      this.setAttackVisibleByType,
-      this
-    );
+    emitter.on(EventType.SET_ATTACK_VISIBLE_BY_TYPE, this.setAttackVisibleByType, this);
     emitter.on(EventType.DELETE_ENTITIES_BY_ID, this.deleteEntitiesById, this); //删除
-    emitter.on(
-      EventType.DELETE_ENTITIES_BY_TYPE,
-      this.deleteEntitiesByType,
-      this
-    );
+    emitter.on(EventType.DELETE_ENTITIES_BY_TYPE, this.deleteEntitiesByType, this);
   }
   handleClickBlank() {
     this.removePopper();
@@ -94,8 +88,12 @@ class Main {
    * 通过类别删除实体
    */
   deleteEntitiesByType(type) {
-    const { entitiesJsonCollection } = this.store;
-    const ids = entitiesJsonCollection[type].map(({ id }) => id);
+    const {
+      entitiesJsonCollection
+    } = this.store;
+    const ids = entitiesJsonCollection[type].map(({
+      id
+    }) => id);
 
     ids.forEach(id => this.viewer.entities.removeById(id));
     this.store.deleteDataById(ids);
@@ -113,16 +111,24 @@ class Main {
    * 显示Popper
    */
   showPopper(params) {
-    var { position, name, canMove, create } = params;
-    if(!name) name = '未命名'
-    var { x, y } = position;
+    var {
+      position,
+      name,
+      canMove,
+      create
+    } = params;
+    if (!name) name = '未命名'
+    var {
+      x,
+      y
+    } = position;
 
     if (!this.popper) {
       if (create) {
         this.popper = new Popper({
           data: {
             canMove,
-            text:name
+            text: name
           }
         });
       } else {
@@ -140,7 +146,9 @@ class Main {
    */
   movePopper() {
     //点击实体存储
-    const { selectedEntity } = this.store;
+    const {
+      selectedEntity
+    } = this.store;
 
     this.removePopper(); //删除当前可移动的popper
     this.measureTool.movePoint(selectedEntity.id, {}, entity => {
@@ -149,14 +157,21 @@ class Main {
   }
   //静止滚动
   handlePostRender() {
-    const { selectedEntity } = this.store;
+    const {
+      selectedEntity
+    } = this.store;
     if (!selectedEntity) {
       return;
     }
-    const { scene } = this.viewer;
+    const {
+      scene
+    } = this.viewer;
     const cartesian = selectedEntity.id.position.getValue();
     const position = scene.cartesianToCanvasCoordinates(cartesian);
-    const { x, y } = position;
+    const {
+      x,
+      y
+    } = position;
     if (this.popper) {
       this.popper.instance.position = {
         top: y + "px",
@@ -193,8 +208,14 @@ class Main {
    * 右键菜单显示
    */
   showContextMenu(params) {
-    const { position, create } = params;
-    const { x, y } = position;
+    const {
+      position,
+      create
+    } = params;
+    const {
+      x,
+      y
+    } = position;
     console.log(this.contextMenu);
     if (!this.contextMenu) {
       if (create) {
@@ -221,8 +242,12 @@ class Main {
   /**
    * 飞入到实体
    */
-  flyTo(entity) {
-    const { lng, lat, h = 10000000 } = entity;
+  flyToEntity(entity) {
+    const {
+      lng,
+      lat,
+      h = 10000000
+    } = entity;
 
     this.viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(lng, lat, h)
@@ -252,18 +277,29 @@ class Main {
    * @param {string} data.action 方法标识，目前data里只用到这个，后面可能会增加
    */
   clickContextMenuItem(data) {
-    const { action } = data;
+    const {
+      action
+    } = data;
     console.log(action);
   }
   /**
    * 通过类别设置实体可见性
    */
   setEntitiesVisibleByType(payload) {
-    const { type, value } = payload;
-    const { entitiesJsonCollection } = this.store;
-    const ids = entitiesJsonCollection[type].map(({ id }) => id);
+    const {
+      type,
+      value
+    } = payload;
+    const {
+      entitiesJsonCollection
+    } = this.store;
+    const ids = entitiesJsonCollection[type].map(({
+      id
+    }) => id);
     const allEntities = this.getEntities();
-    const collection = allEntities.filter(({ id }) => ids.includes(id));
+    const collection = allEntities.filter(({
+      id
+    }) => ids.includes(id));
 
     collection.forEach(entity => {
       entity.show = value;
@@ -278,14 +314,26 @@ class Main {
    * 通过类别设置实体攻击范围可见性
    */
   setAttackVisibleByType(payload) {
-    const { type, value } = payload;
-    const { entitiesJsonCollection } = this.store;
-    const ids = entitiesJsonCollection[type].map(({ id }) => id);
+    const {
+      type,
+      value
+    } = payload;
+    const {
+      entitiesJsonCollection
+    } = this.store;
+    const ids = entitiesJsonCollection[type].map(({
+      id
+    }) => id);
     const allEntities = this.getEntities();
-    const collection = allEntities.filter(({ id }) => ids.includes(id));
+    const collection = allEntities.filter(({
+      id
+    }) => ids.includes(id));
 
     collection.forEach(entity => {
-      const { ellipse, polyline } = entity;
+      const {
+        ellipse,
+        polyline
+      } = entity;
 
       if (ellipse) {
         ellipse.show = value;
@@ -301,7 +349,9 @@ class Main {
    * 绘点
    */
   setMeasureType(type) {
-    const { measureType } = this.store;
+    const {
+      measureType
+    } = this.store;
 
     this.store.setMeasureType(type);
 
@@ -324,6 +374,14 @@ class Main {
       //   create: true
       // });
     });
+  }
+  //测量距离
+  measureLineSpace(){
+    this.measureTool.measureLineSpace()
+  }
+  //测量面积
+  measureAreaSpace(){
+    this.measureTool.measureAreaSpace()
   }
   /**
    * 添加地图数据,每次先清除上次左键选中的效果
@@ -359,24 +417,35 @@ class Main {
    * 绘制圆形区域
    */
   gisScopeRender(scopedEntities) {
-    const { entities, areaProperty, radius, color } = scopedEntities;
+    const {
+      entities,
+      areaProperty,
+      radius,
+      color
+    } = scopedEntities;
     this.drawer.drawScope(entities, areaProperty, radius, color);
   }
   /**
    * 图例着色改变
    */
   handleColorShader() {
-    const { entitiesCountryCollection } = this.legendData;
+    const {
+      entitiesCountryCollection
+    } = this.legendData;
     const entities = this.viewer.entities;
-
     Object.entries(entitiesCountryCollection).forEach(
       ([country, collection]) => {
         const color =
           colorControl.findColorByType(country) || colorControl.defaultColor;
 
-        collection.forEach(({ id }) => {
+        collection.forEach(({
+          id
+        }) => {
           const entity = entities.getById(id);
-          const { ellipse, polyline } = entity;
+          const {
+            ellipse,
+            polyline
+          } = entity;
 
           ellipse.material = Cesium.Color.fromCssColorString(color);
           polyline.material.color.setValue(
@@ -387,28 +456,113 @@ class Main {
     );
   }
   /**
-   * 雷达
+   * 圆形扩大扫描圈
    */
-  gisRadarRender(params) {
-    console.log("radar-render");
-    const { lat, lng, scanColor, radius } = params;
-    //this.drawer.marsRadarScan(lat, lng, scanColor, radius);
-    var CartographicCenter = new Cesium.Cartographic(
-      Cesium.Math.toRadians(lng),
-      Cesium.Math.toRadians(lat),
+  addCircleScan(val) {
+    let ScanPostStage = RadarsEffects.addCircleScan(this.viewer, val)
+    console.log("雷达", ScanPostStage)
+    // if (this.store.radarsData.every(item => item.name !== val.name)) {
+    //   let ScanPostStage = RadarsEffects.addCircleScan(this.viewer, val)
+    //   this.store.setallRadarsData(ScanPostStage)
+    // } else {
+    //   this.store.radarsData.filter(item => item.name !== val.name)
+    //   this.store.radarsData.forEach(item => {
+    //       if (item.name == val.name) {
+    //         this.viewer.scene.postProcessStages.remove(item);
+    //       }
+    //     })
+    // }
+  }
+  /**
+   * 区域雷达扫描
+   */
+  addRadarScan(val) {
+    RadarsEffects.addRadarScan(this.viewer, val)
+  }
+  /**
+   * 轨迹飞行
+   */
+  simulatedSatellite(){
+    SimulatedSatellite.planFlying(this.viewer)
+  }
+  createFlyLines(data) {
+    const center = data.center;
+    const points = data.points;
+    const startPoint = Cesium.Cartesian3.fromDegrees(
+      center.lon,
+      center.lat,
       0
     );
-    // var scanColor = Cesium.Color.fromCssColorString("#00c6ab").withAlpha(0.8);
-    this.drawer.AddRadarScanPostStage(
-      this.viewer,
-      CartographicCenter,
-      radius,
-      scanColor,
-      2000
+    //中心点
+    this.viewer.entities.add({
+      position: startPoint,
+      point: {
+        pixelSize: center.size,
+        color: center.color
+      }
+    });
+    //大批量操作时，临时禁用事件可以提高性能
+    this.viewer.entities.suspendEvents();
+    //散点
+    points.map(item => {
+      let material = new PolylineTrailMaterialProperty({
+        color: Cesium.Color.BLUE,
+        duration: 3000,
+        trailImage: "images/colors1.png" //动态图片
+      });
+      const endPoint = Cesium.Cartesian3.fromDegrees(item.lon, item.lat, 0);
+      this.viewer.entities.add({
+        position: endPoint,
+        point: {
+          pixelSize: item.size,
+          color: item.color
+        }
+      });
+      this.viewer.entities.add({
+        polyline: {
+          positions: this.generateCurve(startPoint, endPoint),
+          width: 2,
+          material: material
+        }
+      });
+    });
+    this.viewer.entities.resumeEvents();
+  }
+  /**
+   * 生成流动曲线
+   * @param startPoint 起点
+   * @param endPoint 终点
+   * @returns {Array}
+   */
+  generateCurve(startPoint, endPoint) {
+    let addPointCartesian = new Cesium.Cartesian3();
+    Cesium.Cartesian3.add(startPoint, endPoint, addPointCartesian);
+    let midPointCartesian = new Cesium.Cartesian3();
+    Cesium.Cartesian3.divideByScalar(addPointCartesian, 2, midPointCartesian);
+    let midPointCartographic = Cesium.Cartographic.fromCartesian(
+      midPointCartesian
     );
+    midPointCartographic.height =
+      Cesium.Cartesian3.distance(startPoint, endPoint) / 5;
+    let midPoint = new Cesium.Cartesian3();
+    Cesium.Ellipsoid.WGS84.cartographicToCartesian(
+      midPointCartographic,
+      midPoint
+    );
+    let spline = new Cesium.CatmullRomSpline({
+      times: [0.0, 0.5, 1.0],
+      points: [startPoint, midPoint, endPoint]
+    });
+    let curvePoints = [];
+    for (let i = 0, len = 200; i < len; i++) {
+      curvePoints.push(spline.evaluate(i / len));
+    }
+    return curvePoints;
   }
 }
 
-export { Main };
+export {
+  Main
+};
 
 export default Main;

@@ -21,6 +21,8 @@ export default {
         { name: "拓展", icon: "\ue70e", angle: 1, action: "expand" },
         { name: "范围搜索", icon: "\ue8ef", angle: 1, action: "scopeSearch" },
         { name: "范围切换", icon: "\ue814", angle: 1, action: "scopeChange" },
+        { name: "轨迹飞行", icon: "\ue683", angle: 1, action: "SimulatedSatellite" },
+        { name: "显示雷达", icon: "\ue70e", angle: 1, action: "radarShow" },
         { name: "删除", icon: "\ue683", angle: 1, action: "delete" },
       ],
       pieInnerData: [],
@@ -74,7 +76,6 @@ export default {
   },
 
   beforeDestroy() {
-    console.log("ContextMenu beforeDestroy");
     this.$el.parentNode.removeChild(this.$el);
   },
 
@@ -157,7 +158,6 @@ export default {
           this.exit = setTimeout(() => {
             this.leaveMune();
           }, 500);
-          console.log("leave");
         });
 
       g.append("path")
@@ -334,7 +334,6 @@ export default {
 
     // 鼠标悬浮第一环菜单按钮
     menuInnerHover(index) {
-      console.log(index);
       let array;
       document.querySelector(".hover")
         ? document.querySelector(".hover").classList.remove("hover")
@@ -374,7 +373,6 @@ export default {
 
     // 鼠标悬浮第二环菜单按钮
     menuOuterHover(index) {
-      console.log("外环", index);
       // let bigArray = ['实体', '文本']
       document.querySelector(".outer.hover")
         ? document.querySelector(".outer.hover").classList.remove("hover")
@@ -403,7 +401,6 @@ export default {
       // })
     },
     leaveMune() {
-      console.log("menuleave");
       if (gisvis.contextMenu) {
         gisvis.contextMenu.destroy();
         gisvis.contextMenu = null;

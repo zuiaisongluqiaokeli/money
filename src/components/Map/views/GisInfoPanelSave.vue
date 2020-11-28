@@ -272,7 +272,7 @@ export default {
   },
   computed: {
     ...mapState("graphInfo", ["name"]),
-    ...mapGetters("graphInfo", ["id"]),
+    ...mapGetters("graphInfo", ["id", "graphName"]),
     ...mapGetters("map", ["gisEntityIds", "gisLinesIds"]),
     ...mapState("map", ["gisEntities"]),
     // entity() {
@@ -413,7 +413,7 @@ export default {
      * 获取group分组列表
      */
     async getGroupData() {
-      const res = await geoNodeFindGroupData(this.name);
+      const res = await geoNodeFindGroupData(this.graphName);
       const { success, object, msg } = res.data;
       if (!success) {
         this.$message.error(msg);

@@ -19,6 +19,7 @@ class Store {
     this.entitiesAttackCollection = {};
     /** 分类后的攻击范围可视条件 */
     this.entitiesAttackAvailableCollection = {};
+    this.radarsData=[{name:'雷达名字'}], //所有画圈雷达数据
     this.lastEntity = null;
     this.selectedEntity = null;
     this.measureType = null;
@@ -55,6 +56,10 @@ class Store {
     );
 
     return res;
+  }
+  //雷达数据
+  setallRadarsData(val){
+    this.radarsData = this.radarsData.push(val)
   }
   /**
    * 分类数据，比如是否可见

@@ -29,7 +29,6 @@
         <el-button type="primary" class="submit" @click="dialogSave"
           >确 定</el-button
         >
-        <el-button type="plain" class="cancel" @click="cancel">取 消</el-button>
       </div>
     </div>
   </div>
@@ -43,7 +42,6 @@ import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import SelectTree from "@/components/SelectTree";
 export default {
   name: "LegendShader",
-
   inject: ["provide"],
   components: {
     SelectTree,

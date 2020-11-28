@@ -48,7 +48,7 @@ export default {
   },
 
   computed: {
-    ...mapState("graphInfo", ["name"])
+    ...mapState("graphInfo", ["graphName"])
   },
 
   watch: {},
@@ -62,7 +62,7 @@ export default {
      * 获取group分组列表
      */
     async getGroupData() {
-      const res = await geoNodeFindGroupData(this.name);
+      const res = await geoNodeFindGroupData(this.graphName);
       const { success, object, msg } = res.data;
 
       if (!success) {

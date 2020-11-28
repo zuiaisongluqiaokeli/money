@@ -1,17 +1,19 @@
 import PointDrawer from "./src/PointDrawer";
-import unknownlocationDrawer from "./src/unknownlocationDrawer"
-import { emitter, EventType } from "../../src/EventEmitter";
-
+import {
+  emitter,
+  EventType
+} from "../../src/EventEmitter";
+import measureTools from './src/measureTools'
 class MeasureTool {
   constructor(viewer = {}, options = {}) {
     this.viewer = viewer;
     this.options = options;
     this.pointDrawer = null;
-    this.unknownlocationDrawer = null
     this.drawing = false;
     // this.setDefaultOptions();
 
     // this.initEventListener();
+
   }
 
   initEventListener() {
@@ -29,16 +31,18 @@ class MeasureTool {
 
     return this.pointDrawer;
   }
-  //未知位置绘制点
-  unknownlocationPoint(options = {}, callback) {
-    options = Object.assign(options, this.options);
-    this.unknownlocationDrawer = new unknownlocationDrawer(this.viewer, options);
-    this.unknownlocationDrawer.startDrawPoint(callback);
-
-    return this.unknownlocationDrawer;
+  //测量距离
+  measureLineSpace() {
+    measureTools.measureLineSpace(this.viewer)
+  }
+  measureAreaSpace() {
+    measureTools.measureAreaSpace(this.viewer)
   }
   setDefaultOptions() {
-    const { width, height } = this.options;
+    const {
+      width,
+      height
+    } = this.options;
 
     if (!width && width !== 0) {
       this.options.width = 20;

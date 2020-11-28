@@ -17,7 +17,7 @@ import Setting from "./components/Setting";
 import MapMark from "./components/MapMark";
 import MapSearchAdd from "./components/MapSearchAdd";
 import MapSwitch from "./components/MapSwitch";
-
+import measureTool from "./components/measureTool";
 export default {
   name: "LeftSideBar",
   components: {
@@ -28,6 +28,7 @@ export default {
     chartView,
     Setting,
     MapSwitch,
+    measureTool,
     LegendShader,
     MapMark,
     MapSearchAdd,
@@ -88,6 +89,16 @@ export default {
           tip: false,
           placement: "right",
         },
+        {
+          label: "测量工具",
+          type: "measureTool",
+          name: "measureTool",
+          icon: "iconfont icon-information-attribute",
+          component: measureTool,
+          tip: false,
+          placement: "right",
+        },
+        
         // {
         //   label: "图表配置",
         //   type: "chartOption",

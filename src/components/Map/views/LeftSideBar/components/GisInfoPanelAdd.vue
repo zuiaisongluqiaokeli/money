@@ -7,6 +7,7 @@
       :visible.sync="dialogVisible"
       @closed="emitClosedEvent"
       width="1000px"
+      :close-on-click-modal="false"
     >
       <div
         class="dialog-body"

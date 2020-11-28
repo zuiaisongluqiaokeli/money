@@ -14,7 +14,9 @@
                 <template v-if="item.subs">
                     <el-submenu :index="item.index" :key="item.index">
                         <template slot="title">
-                            <i :class="item.icon"></i>
+                            <svg class="icon" aria-hidden="true">
+                                <use :xlink:href="`#${item.icon}`"></use>
+                            </svg>
                             <span slot="title">{{ item.title }}</span>
                         </template>
                         <template v-for="subItem in item.subs">
@@ -40,7 +42,9 @@
                 </template>
                 <template v-else>
                     <el-menu-item :index="item.index" :key="item.index">
-                        <i :class="item.icon"></i>
+                        <svg class="icon" aria-hidden="true">
+                            <use :xlink:href="`#${item.icon}`"></use>
+                        </svg>
                         <span slot="title">{{ item.title }}</span>
                     </el-menu-item>
                 </template>
@@ -57,18 +61,18 @@ export default {
             collapse: false,
             items: [
                 {
-                    icon: 'el-icon-lx-home',
+                    icon: 'icon-food-doughnut',
                     index: 'dashboard',
                     title: '系统首页'
                 },
                 {
-                    icon: 'el-icon-chicken',
+                    icon: 'icon-food-bread',
                     index: 'table',
                     title: '基础表格'
                 },
 
                 {
-                    icon: 'el-icon-fork-spoon',
+                    icon: 'icon-food-avocado',
                     index: '2',
                     title: 'vxe表格',
                     subs: [
@@ -83,7 +87,7 @@ export default {
                     ]
                 },
                 {
-                    icon: 'el-icon-sugar',
+                    icon: 'icon-food-pudding',
                     index: '3',
                     title: '表单相关',
                     subs: [
@@ -106,17 +110,17 @@ export default {
                     ]
                 },
                 {
-                    icon: 'el-icon-dessert',
+                    icon: 'icon-food-strawberry',
                     index: 'scharts',
                     title: 'schart图表'
                 },
                 {
-                    icon: 'el-icon-ice-cream',
+                    icon: 'icon-food-popsicle',
                     index: 'workFlowTable',
                     title: '审批流组件'
                 },
                 {
-                    icon: 'el-icon-cold-drink',
+                    icon: 'icon-food-pizza',
                     index: '6',
                     title: '拖拽组件',
                     subs: [
@@ -131,48 +135,48 @@ export default {
                     ]
                 },
                 {
-                    icon: 'el-icon-location-information',
+                    icon: 'icon-food-popsicle',
                     index: 'G6地铁',
                     title: 'G6地铁'
                 },
                 {
-                    icon: 'el-icon-location-information',
+                    icon: 'icon-food-eggyolkcake',
                     index: 'G6node-edge',
                     title: 'G6node-edge'
                 },
                 {
-                    icon: 'el-icon-basketball',
+                    icon: 'icon-food-hotdog',
                     index: 'cesium',
                     title: 'cesium'
                 },
                 {
-                    icon: 'el-icon-hot-water',
+                    icon: 'icon-food-sushi',
                     index: 'MenuControl',
                     title: '菜单权限'
                 },
 
                 {
-                    icon: 'el-icon-goblet-full',
+                    icon: 'icon-food-macaron',
                     index: 'icon',
                     title: '自定义图标'
                 },
                 {
-                    icon: 'el-icon-refrigerator',
+                    icon: 'icon-food-cashew',
                     index: 'editor',
                     title: '富文本编辑器'
                 },
                 {
-                    icon: 'el-icon-grape',
+                    icon: 'icon-food-mochi',
                     index: 'markdown',
                     title: 'markdown编辑器'
                 },
                 {
-                    icon: 'el-icon-watermelon',
+                    icon: 'icon-food-pistachio',
                     index: 'i18n',
                     title: '国际化功能'
                 },
                 {
-                    icon: 'el-icon-cherry',
+                    icon: 'icon-food-pecan',
                     index: '7',
                     title: '错误处理',
                     subs: [
@@ -209,7 +213,7 @@ export default {
 
 <style scoped>
 /deep/ .el-submenu .el-menu-item{
-    padding-left: 50px!important;
+    padding-left: 62px!important;
 }
 .sidebar {
     display: block;

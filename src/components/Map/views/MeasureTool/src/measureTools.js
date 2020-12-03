@@ -1,18 +1,24 @@
 export default {
-
+  //移动的时候如果有2个点以上的坐标就绘线否则一直更新前一次坐标
   //测量空间直线距离 
   /******************************************* */
-  measureLineSpace(viewer, handler) {
+  measureLineSpace(viewer, callback, firstPoint) {
     // 取消双击事件-追踪该位置
     viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
-    handler = new Cesium.ScreenSpaceEventHandler(viewer.scene._imageryLayerCollection);
-    var positions = [];
+    var handler = viewer.screenSpaceEventHandler;
+    var positions = []
+    if (firstPoint.length == 1) {
+      positions.push(...firstPoint)
+      positions.push(...firstPoint)
+    }
     var poly = null; //线条
     // var tooltip = document.getElementById("toolTip");
     var distance = 0; //距离
+    var alt = 0 //高度
     var cartesian = null; //坐标
     var floatingPoint;
+    var arrData = [] //构造航线的数据
     // tooltip.style.display = "block";
 
     handler.setInputAction(function (movement) {
@@ -20,7 +26,7 @@ export default {
       // tooltip.style.top = movement.endPosition.y - 25 + "px";
       // tooltip.innerHTML = '<p>单击开始，右击结束</p>';
       // cartesian = viewer.scene.pickPosition(movement.endPosition);
-      let ray = viewer.camera.getPickRay(movement.endPosition);
+      let ray = viewer.scene.camera.getPickRay(movement.endPosition);
       cartesian = viewer.scene.globe.pick(ray, viewer.scene);
       //cartesian = viewer.scene.camera.pickEllipsoid(movement.endPosition, viewer.scene.globe.ellipsoid);
       if (positions.length >= 2) {
@@ -41,8 +47,12 @@ export default {
       // tooltip.style.display = "none";
       // cartesian = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
       // cartesian = viewer.scene.pickPosition(movement.position);
-      let ray = viewer.camera.getPickRay(movement.position);
+      let ray = viewer.scene.camera.getPickRay(movement.position);
       cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+      const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+      const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+      const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+      alt = Math.abs(cartographic.height);
       if (positions.length == 0) {
         positions.push(cartesian.clone());
       }
@@ -51,34 +61,43 @@ export default {
       //   var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
       var textDisance = distance + "米";
       // console.log(textDisance + ",lng:" + cartographic.longitude/Math.PI*180.0);
-      floatingPoint = viewer.entities.add({
-        name: '空间直线距离',
-        // position: Cesium.Cartesian3.fromDegrees(cartographic.longitude / Math.PI * 180, cartographic.latitude / Math.PI * 180,cartographic.height),
-        position: positions[positions.length - 1],
-        point: {
-          pixelSize: 5,
-          color: Cesium.Color.RED,
-          outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 2,
-        },
-        label: {
-          text: textDisance,
-          font: '18px sans-serif',
-          fillColor: Cesium.Color.GOLD,
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          outlineWidth: 2,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(20, -20),
-        }
-      });
+      if (positions.length >= 2) {
+        floatingPoint = viewer.entities.add({
+          name: '空间直线距离',
+          // position: Cesium.Cartesian3.fromDegrees(cartographic.longitude / Math.PI * 180, cartographic.latitude / Math.PI * 180,cartographic.height),
+          position: positions[positions.length - 1],
+          point: {
+            pixelSize: 5,
+            color: Cesium.Color.RED,
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 2,
+          },
+
+          label: {
+            text: textDisance,
+            font: '18px sans-serif',
+            fillColor: Cesium.Color.GOLD,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            outlineWidth: 2,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(20, -20),
+          }
+        });
+      }
+      arrData.push({
+        //time:Cesium.JulianDate.fromDate(new Date()).secondsOfDay, //转为秒钟
+        longitude,
+        latitude,
+        height: alt,
+      })
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
     handler.setInputAction(function (movement) {
       handler.destroy(); //关闭事件句柄
       positions.pop(); //最后一个点无效
+      callback(arrData)
       // viewer.entities.remove(floatingPoint);
       // tooltip.style.display = "none";
-
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
     var PolyLinePrimitive = (function () {
@@ -135,7 +154,7 @@ export default {
     // 取消双击事件-追踪该位置
     viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
     // 鼠标事件
-    handler = new Cesium.ScreenSpaceEventHandler(viewer.scene._imageryLayerCollection);
+    handler = viewer.screenSpaceEventHandler;
     var positions = [];
     var tempPoints = [];
     var polygon = null;

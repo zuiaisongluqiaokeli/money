@@ -32,8 +32,8 @@ class MeasureTool {
     return this.pointDrawer;
   }
   //测量距离
-  measureLineSpace() {
-    measureTools.measureLineSpace(this.viewer)
+  measureLineSpace(callback,cartesian) {
+    measureTools.measureLineSpace(this.viewer,callback,cartesian)
   }
   measureAreaSpace() {
     measureTools.measureAreaSpace(this.viewer)

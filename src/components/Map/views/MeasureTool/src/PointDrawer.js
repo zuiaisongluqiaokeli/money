@@ -99,7 +99,7 @@ class PointDrawer {
         return;
       }
 
-      // 空间坐标系转弧度，弧度转经纬度，经纬度再转空间坐标系（符合地球曲率的？）
+      // 空间坐标系转弧度，弧度转经纬度，经纬度再转空间坐标系（符合地球曲率的？） 解决鼠标位置与真实位置的误差
       const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
       const longitude = Cesium.Math.toDegrees(cartographic.longitude);
       const latitude = Cesium.Math.toDegrees(cartographic.latitude);
@@ -248,8 +248,9 @@ class PointDrawer {
   }
 
   cancelDraw() {
-    this.viewer.entities.remove(this.entity);
-    this.popper.destroy();
+    this.viewer.entities.remove(this.entity); //删除当前实体
+    this.entity = null;
+    if(this.popper) this.popper.destroy();
     this.handler.destroy();
   }
 }

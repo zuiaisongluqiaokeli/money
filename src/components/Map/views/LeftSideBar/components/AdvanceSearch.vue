@@ -29,7 +29,6 @@
               <el-form-item class="search-name">
                 <el-select
                   v-model="aryItem.conditionsTypeEnum"
-                  :title="showTitle(aryItem.conditionsTypeEnum, searchType)"
                   @change="selectName(aryItem, searchIndex, aryIndex)"
                 >
                   <el-option
@@ -69,12 +68,7 @@
               <el-form-item class="search-type">
                 <el-select
                   v-model="aryItem.conditionsEnum"
-                  :title="
-                    showTitle(
-                      aryItem.conditionsEnum,
-                      searchRelationAry[searchIndex][aryIndex]
-                    )
-                  "
+                  
                 >
                   <el-option
                     v-for="item in searchRelationAry[searchIndex][aryIndex]"
@@ -279,9 +273,6 @@ export default {
         aryIndex
       ][0].value;
     },
-    showTitle(value, arr) {
-      return arr.find(item => item.value === value).key;
-    }
   }
 };
 </script>

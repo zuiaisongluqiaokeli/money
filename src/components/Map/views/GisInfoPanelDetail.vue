@@ -250,7 +250,7 @@ export default {
         //记得改标记实体的ID
         async setSelectedEntity(val) {
             this.entityId = val.id.entityId;
-            if (val.id.entityId !== "") {
+            if (val.id.hasOwnProperty('entityId')&&val.id.entityId !== "") {
                 // 如果没有经纬度的话 拿之前的数据然后保存替换在查看
                 let result = await graphVerticesDetail.vertexDetailView(
                     val.id.entityId,
@@ -317,6 +317,7 @@ export default {
                         "img/location.png";
                     if (res.data.object.properties) {
                         let props = res.data.object.properties;
+                        this.fileData = []  //清空
                         for (let prop in props) {
                             if (typeof props[prop] === "string") {
                                 props[prop] = props[prop].replace(/[\n\r\t]+/g, "<br />");
@@ -492,7 +493,7 @@ export default {
     }
     .tab-button {
         position: absolute;
-        top: calc(50vh - 8.43rem);
+        top: calc(50vh - 12.43rem);
         left: -31px;
         width: 31px;
         box-sizing: border-box;

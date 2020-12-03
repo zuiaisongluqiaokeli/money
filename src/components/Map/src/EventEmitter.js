@@ -9,12 +9,16 @@ const EventType = {
   RENDER_DATA: "gis-render-data",
   /** 【地图】 鼠标右键 */
   RIGHT_CLICK: "gis-right-click",
+  /** 【地图】 修改实体数据 */
+  EDIT_CLICK_ENTITY: "gis-edit-click",
   /** 【地图】 绘制圆形区域 */
   SCOPE_RENDER: "gis-scope-render",
   /** 【地图】 扫描范围 */
   SCOPE_SEARCH: "gis-scope-search",
   /** 【地图】 轨迹飞行 */
   Simulated_Satellite: "gis-simulated-satellite",
+  /** 【地图】 轨迹飞行事件线初始话 */
+  StartTimeLine:'gis-startTime-line',
   /** 【地图】 测量距离 */
   MeasureLineSpace: "gis-measure-lineSpacee",
   /** 【地图】 测量距离 */

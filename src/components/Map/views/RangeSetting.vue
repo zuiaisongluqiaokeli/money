@@ -58,8 +58,9 @@ export default {
                 r: Number(this.range),
                 scanColor: Cesium.Color.GREEN,
                 interval: 4000, //时间
-                name: this.gisRightSelectedEntity.id.toString(),  //只能标识名字，用名字当作ID
+                name: this.gisRightSelectedEntity.id.toString(),  //标识名字有问题
             });
+            //请求接口搜索后销毁
             setTimeout(()=>{
                 gisvis.viewer.scene.postProcessStages.removeAll();
             },6000)

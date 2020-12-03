@@ -132,30 +132,39 @@
                 }"
                 style="margin-left: 1.1%; margin-bottom: 20px"
               >
-                <el-select
-                  v-model="categoryName"
-                  filterable
-                  clearable
-                  :filter-method="selectTreeFilterNode"
-                  placeholder="请选择"
-                  class="add-dialog-select"
-                  @visible-change="selectTreeBlur"
-                  @clear="clearCategory"
+                <el-form-item
+                  prop="categoryName"
+                  :rules="{
+                    required: true,
+                    message: '实体分类不能为空',
+                    trigger: 'change',
+                  }"
                 >
-                  <el-option :value="0" class="hidden" />
-                  <template>
-                    <el-tree
-                      ref="selectTree"
-                      :filter-node-method="filterNode"
-                      accordion
-                      highlight-current
-                      :data="treeData"
-                      node-key="id"
-                      @node-click="nodeClick"
-                    />
-                  </template>
-                  <template slot="empty"> 暂时没有数据 </template>
-                </el-select>
+                  <el-select
+                    v-model="newVerticesData.categoryName"
+                    filterable
+                    clearable
+                    :filter-method="selectTreeFilterNode"
+                    placeholder="请选择"
+                    class="add-dialog-select"
+                    @visible-change="selectTreeBlur"
+                    @clear="clearCategory"
+                  >
+                    <el-option :value="0" class="hidden" />
+                    <template>
+                      <el-tree
+                        ref="selectTree"
+                        :filter-node-method="filterNode"
+                        accordion
+                        highlight-current
+                        :data="treeData"
+                        node-key="id"
+                        @node-click="nodeClick"
+                      />
+                    </template>
+                    <template slot="empty"> 暂时没有数据 </template>
+                  </el-select>
+                </el-form-item>
               </el-col>
               <el-col :span="2" style="margin-left: 14px">
                 <i
@@ -431,10 +440,15 @@
               v-if="fileData.length > 0"
               :data="fileData"
               style="width: 60%; margin-top: 10px"
-              :header-cell-style="{ 'text-align': 'center' }"
-              :cell-style="{ 'text-align': 'center' }"
+              :header-cell-style="{ 'text-align': 'left' }"
+              :cell-style="{ 'text-align': 'left' }"
             >
-              <el-table-column prop="name" label="文件名" show-overflow-tooltip>
+              <el-table-column
+                prop="name"
+                label="文件名"
+                show-overflow-tooltip
+                width="350px"
+              >
                 <template slot-scope="scope">
                   <span :class="scope.row.icon" class="file-icon"></span>
                   <span
@@ -583,6 +597,8 @@ export default {
       newVerticesData: {
         //  新增编辑实体数据
         name: null,
+
+        categoryName: "", // 实体详情的实体分类
         idStr: null,
         propertiesJson: [
           // {
@@ -602,7 +618,6 @@ export default {
       avatar: "", //新增的图片url
       imgBigShow: false, //图片放大弹窗
       dialogImageUrl: "",
-      categoryName: "", // 实体详情的实体分类
       latitude: this.entityInfo.latitude, //纬度
       longitude: this.entityInfo.longitude, //经度
       allPropsList: [], //实体属性下拉框数据
@@ -840,7 +855,7 @@ export default {
     },
     async handleRemove() {
       await deleteFile({
-        fileUrls: this.imgList[0].url
+        fileUrls: this.imgList[0].url,
       });
       this.$refs.upload.clearFiles();
       this.imgList = [];
@@ -947,7 +962,7 @@ export default {
     nodeClick(data) {
       this.categoryId = data.id !== -1 ? data.parentId + ">" + data.id : "";
       this.categoryId = data.parentId !== 0 ? this.categoryId : String(data.id);
-      this.categoryName = data.name;
+      this.newVerticesData.categoryName = data.name;
       this.newVerticesData.type = data.name;
     },
     filterNode(value, data) {
@@ -1081,13 +1096,6 @@ export default {
     },
     //修改和新增的保存
     addVertices() {
-      if (!this.categoryName) {
-        this.$message({
-          type: "error",
-          message: "请选择实体分类！",
-        });
-        return;
-      }
       this.$refs["newVerticesData"].validate(async (valid) => {
         if (valid) {
           this.advancedSearchQuery.advancedSearchFlag = true;
@@ -1106,7 +1114,7 @@ export default {
             });
             this.newVerticesData.propertiesJson.push({
               name: "实体分类",
-              value: this.categoryName,
+              value: this.newVerticesData.categoryName,
               primary: this.tempForm["实体分类"],
             });
             this.newVerticesData.propertiesJson.push({
@@ -1186,7 +1194,7 @@ export default {
           if (!hasCategory) {
             this.newVerticesData.propertiesJson.push({
               name: "实体分类",
-              value: this.categoryName,
+              value: this.newVerticesData.categoryName,
               primary: this.tempForm["实体分类"],
             });
             this.newVerticesData.propertiesJson.push({
@@ -1197,7 +1205,7 @@ export default {
           } else {
             this.newVerticesData.propertiesJson.forEach((item) => {
               if (item.name === "实体分类") {
-                item.value = this.categoryName;
+                item.value = this.newVerticesData.categoryName;
               }
               if (item.name === "_实体分类ID") {
                 item.value = this.categoryId;
@@ -1442,7 +1450,7 @@ export default {
               ];
             }
             if (prop === "实体分类") {
-              this.categoryName = props[prop];
+              this.newVerticesData.categoryName = props[prop];
             }
             if (prop === "经度") {
               this.longitude = props[prop];
@@ -1978,9 +1986,6 @@ $border-color: #eee;
         }
       }
     }
-  }
-
-  .footer {
   }
 }
 </style>

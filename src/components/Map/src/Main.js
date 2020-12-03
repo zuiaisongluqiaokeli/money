@@ -47,6 +47,7 @@ class Main {
     if (!_instance) {
       this.initEventListener();
     }
+    this.arrData = [] //绘制飞行的数据
     _instance = this;
   }
   /**
@@ -70,7 +71,6 @@ class Main {
     emitter.on(EventType.MeasureLineSpace, this.measureLineSpace, this); //测量距离
     emitter.on(EventType.MeasureAreaSpace, this.measureAreaSpace, this); //测量面积
     emitter.on(EventType.REMOVE_ALL_ENTITIES, this.removeAllEntities, this); //清空实体
-    emitter.on(EventType.CREATE_Fly_LINES, this.createFlyLines, this); //关系之前线条
     emitter.on(EventType.CREATE_Fly_LINES, this.createFlyLines, this); //关系之前线条
     emitter.on(EventType.SET_ENTITIES_VISIBLE_BY_TYPE, this.setEntitiesVisibleByType, this); //点击图例显示图标
     emitter.on(EventType.FLY_TO_ENTITY, this.flyToEntity, this);
@@ -137,7 +137,7 @@ class Main {
     }
     this.popper.instance.text = name;
     this.popper.instance.position = {
-      top: y + "px",
+      top: y - 20 + "px",
       left: x + "px"
     };
   }
@@ -157,32 +157,25 @@ class Main {
   }
   //静止滚动
   handlePostRender() {
-    const {
-      selectedEntity
-    } = this.store;
-    if (!selectedEntity) {
-      return;
+    if (!this.store.selectedEntity) {
+      return
     }
-    const {
-      scene
-    } = this.viewer;
-    const cartesian = selectedEntity.id.position.getValue();
-    const position = scene.cartesianToCanvasCoordinates(cartesian);
-    const {
-      x,
-      y
-    } = position;
-    if (this.popper) {
-      this.popper.instance.position = {
-        top: y + "px",
-        left: x + "px"
-      };
-    }
-    if (this.contextMenu) {
-      this.contextMenu.instance.position = {
-        top: y + "px",
-        left: x + "px"
-      };
+    if (this.store.selectedEntity.id.position) {
+      const cartesian = this.store.selectedEntity.id.position.getValue();
+      const position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
+      const { x, y } = position;
+      if (this.popper) {
+        this.popper.instance.position = {
+          top: y + "px",
+          left: x + "px"
+        };
+      }
+      if (this.contextMenu) {
+        this.contextMenu.instance.position = {
+          top: y + "px",
+          left: x + "px"
+        };
+      }
     }
   }
   /**
@@ -375,12 +368,22 @@ class Main {
       // });
     });
   }
-  //测量距离
-  measureLineSpace(){
-    this.measureTool.measureLineSpace()
+  //测量距离 (如果是绘制航线默认带上第一点坐标，每次先清空上次绘制的数据)
+  measureLineSpace(obj) {
+    if (obj.state == 'measure') {
+      this.measureTool.measureLineSpace(arrData =>{},[])
+    } else {
+      const { firstPoint, cartesian } = obj
+      this.arrData = []
+      //this.viewer.entities.values = this.viewer.entities.values.filter(item=>item.name!='空间直线距离')
+      this.measureTool.measureLineSpace(arrData => {
+        this.arrData = arrData
+        this.arrData.splice(0, 0, firstPoint)
+      }, cartesian)
+    }
   }
   //测量面积
-  measureAreaSpace(){
+  measureAreaSpace() {
     this.measureTool.measureAreaSpace()
   }
   /**
@@ -482,8 +485,17 @@ class Main {
   /**
    * 轨迹飞行
    */
-  simulatedSatellite(){
-    SimulatedSatellite.planFlying(this.viewer)
+  simulatedSatellite() {
+    let time = 0
+    this.arrData.forEach(item => {
+      item.height = this.arrData[1].height //默认高度
+      item.time = time
+      time += 200
+    })
+    sessionStorage.setItem('initTackData', JSON.stringify(this.arrData))
+    console.log("绘制的飞行轨迹数据", JSON.parse(sessionStorage.getItem("initTackData")))
+    SimulatedSatellite.planFlying(this.viewer, JSON.parse(sessionStorage.getItem("initTackData")))
+    emitter.emit(EventType.StartTimeLine);
   }
   createFlyLines(data) {
     const center = data.center;

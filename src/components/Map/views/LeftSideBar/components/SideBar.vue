@@ -122,7 +122,7 @@ export default {
     setSelectedEntity(val) {
       console.log("左键实体", val);
       this.temEntity = val;
-      if (val.id.entityId === "") {
+      if (val.id.hasOwnProperty('entityId')&&val.id.entityId === "") {
         this.entityInfo.longitude = val.id.properties.getValue().lng;
         this.entityInfo.latitude = val.id.properties.getValue().lat;
         setTimeout(() => {
@@ -188,6 +188,13 @@ export default {
         });
       } else {
         //修改的时候重新生成分组数据
+        emitter.emit(EventType.CLICK_ENTITY, this.temEntity);//重新掉接口显示更改后的数据
+        emitter.emit(EventType.POPPER_SHOW, { //更新poper
+          position:this.temEntity.id.position.getValue(),
+          name: entity.properties.hasOwnProperty('name')&&entity.properties.name||entity.name,
+          canMove: true,
+          create: true
+        });
         emitter.emit(EventType.LEGEND_DATA_CHANGE, [entity]);
       }
     },

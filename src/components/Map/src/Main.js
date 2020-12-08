@@ -5,13 +5,14 @@ import {
 import Viewer from "./Viewer";
 import Drawer from "./Drawer";
 import Store from "./Store";
+import VuexStore from '@/store/index'
 import MeasureTool from "../views/MeasureTool";
 import ScreenSpaceEvent from "./ScreenSpaceEvent";
 import ContextMenu from "../views/ContextMenu/index";
 import Popper from "../views/Popper";
 import PolylineTrailMaterialProperty from "./PolylineTrailMaterialProperty"; //关系
 import * as RadarsEffects from "./RadarsEffects" //雷达
-import * as SimulatedSatellite from "./SimulatedSatellite" //轨迹线
+import SimulatedSatellite from "./SimulatedSatellite" //轨迹线
 const _homePosition = [119.17968749999999, 25.522614647623293, 25000000];
 let _instance = null;
 
@@ -35,20 +36,27 @@ class Main {
       viewer: this.viewer,
       store: this.store
     });
-
+    this.simulatedSatellite = new SimulatedSatellite({
+      store: this.store
+    });
     //测量工具
     this.measureTool = new MeasureTool(this.viewer);
     this.screenSpaceEvent = new ScreenSpaceEvent({
-      viewer: this.viewer
+      viewer: this.viewer,
+      store:this.store,
     });
     this.viewer.scene.postRender.addEventListener(this.handlePostRender, this);
     this.emitter = emitter;
     window.gisvis = this;
     if (!_instance) {
+      //监听
       this.initEventListener();
     }
     this.arrData = [] //绘制飞行的数据
     _instance = this;
+    //监听
+    this.screenSpaceEvent.handleLeftClick()
+    this.screenSpaceEvent.handleRightClick()
   }
   /**
    * 初始化事件监听
@@ -67,7 +75,7 @@ class Main {
     emitter.on(EventType.SCOPE_RENDER, this.gisScopeRender, this); //范围
     emitter.on(EventType.RADAR_RENDER, this.addCircleScan, this); //雷达
     emitter.on(EventType.SCOPE_SEARCH, this.addRadarScan, this); //雷达扫描
-    emitter.on(EventType.Simulated_Satellite, this.simulatedSatellite, this); //扫描
+    emitter.on(EventType.Simulated_Satellite, this.simulatedSatelliteFun, this); //扫描
     emitter.on(EventType.MeasureLineSpace, this.measureLineSpace, this); //测量距离
     emitter.on(EventType.MeasureAreaSpace, this.measureAreaSpace, this); //测量面积
     emitter.on(EventType.REMOVE_ALL_ENTITIES, this.removeAllEntities, this); //清空实体
@@ -192,7 +200,6 @@ class Main {
    */
   setSelectedEntity(entity) {
     this.store.setSelectedEntity(entity);
-
     if (entity === null) {
       this.viewer.selectedEntity = null;
     }
@@ -370,8 +377,13 @@ class Main {
   }
   //测量距离 (如果是绘制航线默认带上第一点坐标，每次先清空上次绘制的数据)
   measureLineSpace(obj) {
+    //每次清空之前的
+    this.viewer.entities.values.forEach(element => {
+      if (element.name == '空间直线距离' || element.name == '直线')
+        this.viewer.entities.remove(element)
+    });
     if (obj.state == 'measure') {
-      this.measureTool.measureLineSpace(arrData =>{},[])
+      this.measureTool.measureLineSpace(arrData => { }, [])
     } else {
       const { firstPoint, cartesian } = obj
       this.arrData = []
@@ -485,7 +497,7 @@ class Main {
   /**
    * 轨迹飞行
    */
-  simulatedSatellite() {
+  simulatedSatelliteFun() {
     let time = 0
     this.arrData.forEach(item => {
       item.height = this.arrData[1].height //默认高度
@@ -494,8 +506,9 @@ class Main {
     })
     sessionStorage.setItem('initTackData', JSON.stringify(this.arrData))
     console.log("绘制的飞行轨迹数据", JSON.parse(sessionStorage.getItem("initTackData")))
-    SimulatedSatellite.planFlying(this.viewer, JSON.parse(sessionStorage.getItem("initTackData")))
-    emitter.emit(EventType.StartTimeLine);
+    this.simulatedSatellite.planFlying(this.viewer, JSON.parse(sessionStorage.getItem("initTackData")))
+    VuexStore.state.map.airplaneEntity = this.simulatedSatellite.store.airplaneEntity
+    emitter.emit(EventType.StartTimeLine);//自动启用时间线
   }
   createFlyLines(data) {
     const center = data.center;

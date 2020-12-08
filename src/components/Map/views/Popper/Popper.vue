@@ -56,7 +56,7 @@ export default {
   color: #4c4c4c;
 
   &.placement-top {
-    transform: translate(-50%, calc(-50% - 60px));
+    transform: translate(-50%, calc(-50% - 20px));
   }
 
   &.placement-right {

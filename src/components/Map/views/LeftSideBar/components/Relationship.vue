@@ -272,7 +272,7 @@ export default {
             const startId = this.selectedVertices[0].id;
             const endId = this.selectedVertices[1].id;
             const { data } = await sortManage.nodeRelationShipList(
-                this.graphName,
+                this.id,
                 startId,
                 endId
             );

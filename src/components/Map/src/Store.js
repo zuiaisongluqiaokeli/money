@@ -1,4 +1,6 @@
-import { groupBy } from "./Methods";
+import {
+  groupBy
+} from "./Methods";
 
 let _instance = null;
 
@@ -19,7 +21,8 @@ class Store {
     this.entitiesAttackCollection = {};
     /** 分类后的攻击范围可视条件 */
     this.entitiesAttackAvailableCollection = {};
-    this.radarsData=[{name:'雷达名字'}], //所有画圈雷达数据
+    this.radarsData = [{name: '雷达名字'}], //所有画圈雷达数据
+    this.airplaneEntity = {}, //轨迹飞行飞机对象
     this.lastEntity = null;
     this.selectedEntity = null;
     this.measureType = null;
@@ -32,7 +35,7 @@ class Store {
   /**
    * 初始化事件监听
    */
-  initEventListener() {}
+  initEventListener() { }
   /**
    * 添加数据
    * @param {array} data
@@ -52,20 +55,22 @@ class Store {
    */
   getUniqueData(data) {
     const res = data.filter(
-      item => !this.data.some(({ id }) => item.id === id)
+      item => !this.data.some(({
+        id
+      }) => item.id === id)
     );
 
     return res;
   }
   //雷达数据
-  setallRadarsData(val){
+  setallRadarsData(val) {
     this.radarsData = this.radarsData.push(val)
   }
   /**
    * 分类数据，比如是否可见
    */
   groupData() {
-    this.entitiesJsonCollection = groupBy(this.data);  //转化成key:arr格式
+    this.entitiesJsonCollection = groupBy(this.data); //转化成key:arr格式
 
     const visibleCollection = this.entitiesVisibleCollection;
     const attackAvailableCollection = this.entitiesAttackAvailableCollection;
@@ -132,7 +137,9 @@ class Store {
     if (!Array.isArray(ids)) {
       ids = [ids];
     }
-    this.data = this.data.filter(({ id }) => !ids.includes(id));
+    this.data = this.data.filter(({
+      id
+    }) => !ids.includes(id));
     this.groupData();
   }
   /**
@@ -145,7 +152,9 @@ class Store {
    * 通过类别删除数据
    */
   deleteDataByType(type) {
-    const ids = this.entitiesJsonCollection[type].map(({ id }) => id);
+    const ids = this.entitiesJsonCollection[type].map(({
+      id
+    }) => id);
 
     this.deleteDataById(ids);
   }
@@ -163,6 +172,8 @@ class Store {
   }
 }
 
-export { Store };
+export {
+  Store
+};
 
 export default Store;

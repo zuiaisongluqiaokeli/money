@@ -22,3 +22,18 @@ this.viewer.entities.remove(this.entity); //删除当前实体
 绘制交互线：给定两个点经纬度id等
 czl轨迹线：隐藏当前有轨迹线的实体，根据后端参数批量绘制线条，绘制假的实体随时间移动;当前时间大于结束时间重置并清空加的数据显示真的点
 地图上点只需要id与经纬度，全局数据需要ID和分组名称和其余参数
+
+//地面光照
+var terrainProvider = Cesium.createWorldTerrain({
+    requestVertexNormals: true
+});
+viewer.terrainProvider = terrainProvider;
+viewer.scene.globe.enableLighting = true;
+//水面效果
+var terrainProvider = Cesium.createWorldTerrain({
+    requestWaterMask: true
+});
+viewer.terrainProvider = terrainProvider;
+//阴影
+viewer.shadows = true
+viewer.terrainShadows = true

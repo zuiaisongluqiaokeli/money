@@ -4,13 +4,13 @@
       <i
         class="iconfont icon-Play"
         title="播放"
-        v-show="isPlay"
+        v-if="isPlay"
         @click="handlePlay"
       ></i>
       <i
         class="iconfont icon-suspend"
         title="暂停"
-        v-show="!isPlay"
+        v-if="!isPlay"
         @click="handlePause"
       ></i>
       <i class="iconfont icon-stop-b" title="停止" @click="handleStop"></i>
@@ -81,9 +81,9 @@ export default {
     },
     //飞行时候自动执行时间轴
     changePlay() {
+      this.isPlay = false;
       this.initTimeline();
       this.animationViewModel.playForwardViewModel.command(); //播放
-      this.isPlay = false;
     },
     handleStop() {
       if (this.create) {
@@ -126,11 +126,19 @@ export default {
           this.gisRightSelectedEntity.id
         ).position = Cesium.Cartesian3.fromDegrees(
           initTackData[initTackData.length - 1].longitude,
-          sessionStorage.initTackData[initTackData.length - 1].latitude
+          initTackData[initTackData.length - 1].latitude
         );
         gisvis.viewer.entities.getById(
           this.gisRightSelectedEntity.id
         ).show = true;
+        //销毁轨迹线和飞机实体
+        gisvis.viewer.entities.removeById("airplain");
+        gisvis.viewer.entities.removeById("airplain-radar");
+        gisvis.viewer.entities.values.forEach(element => {
+          if(element.name=='空间直线距离'||element.name=='直线')
+          gisvis.viewer.entities.remove(element)
+        });
+        gisvis.viewer.trackedEntity = null
       }
       this.updateInitTack(false);
     },
@@ -141,7 +149,7 @@ export default {
       this.clockViewModel.multiplier =
         this.multiplier * (this.speedUp === 1 ? 1 : this.speedUp * 3);
     },
-
+    //生成CZML格式
     initTimeline() {
       let trackEntities = this.allEntityBackEnd.filter(
         (item) =>
@@ -325,8 +333,6 @@ export default {
         let stopTime = Cesium.JulianDate.toDate(
           this.clockViewModel.stopTime
         ).getTime();
-        console.log("轨迹当前时间", currentTime);
-        console.log("轨迹结束时间", stopTime);
         if (currentTime >= stopTime) {
           this.handleStop();
         }

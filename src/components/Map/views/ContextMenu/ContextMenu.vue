@@ -19,9 +19,10 @@ export default {
       dataInnerList: [
         // { name: "标记", icon: "\ue831", angle: 1, action: "" },
         { name: "拓展", icon: "\ue70e", angle: 1, action: "expand" },
-        { name: "范围搜索", icon: "\ue8ef", angle: 1, action: "scopeSearch" },
-        { name: "轨迹飞行", icon: "\ue814", angle: 1, action: "SimulatedSatellite" },
         { name: "删除", icon: "\ue683", angle: 1, action: "delete" },
+        { name: "轨迹飞行", icon: "\ue814", angle: 1, action: "SimulatedSatellite" },
+        // { name: "切换视角", icon: "\ue813", angle: 1, action: "changeView" },
+        { name: "范围搜索", icon: "\ue8ef", angle: 1, action: "scopeSearch" },
         { name: "范围切换", icon: "\ue814", angle: 1, action: "scopeChange" },
         { name: "显示雷达", icon: "\ue831", angle: 1, action: "radarShow" },
       ],
@@ -76,7 +77,6 @@ export default {
   },
 
   beforeDestroy() {
-    console.log("ContextMenu beforeDestroy");
     this.$el.parentNode.removeChild(this.$el);
   },
 
@@ -333,7 +333,7 @@ export default {
         .attr('text-anchor', 'middle')
         .attr('fill', '#1C2833')
         .attr('style', 'font-size: 11px')
-        .text('开始飞行')
+        .text('开始')
         .on('click',d=>{
           this.handleClick(d)
         })
@@ -363,6 +363,7 @@ export default {
         //     }
         //   })
         //   break
+        //第一层0-5，第二层0-11
         case 2:
           array = ['设置航线']
           document.querySelectorAll('.g-box')[index].classList.add('hover')

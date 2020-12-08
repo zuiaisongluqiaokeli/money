@@ -12,11 +12,9 @@ class ScreenSpaceEvent {
     }
 
     this.viewer = options.viewer;
+    this.store = options.store;
 
     _instance = this;
-
-    this.handleLeftClick();
-    this.handleRightClick();
   }
   /**
    * 左键单击处理
@@ -48,7 +46,7 @@ class ScreenSpaceEvent {
       //   emitter.emit(EventType.CLICK_ENTITY,currentEntity);
       // }
 
-      const {id: entity} = currentEntity;
+      const { id: entity } = currentEntity;
       // console.log("左键选择实体：", currentEntity, values);
       // // 设置选中实体
       // emitter.emit(EventType.SELECTED_ENTITY, entity);
@@ -74,27 +72,28 @@ class ScreenSpaceEvent {
    * 右键单击处理
    */
   handleRightClick() {
-    const {scene} = this.viewer;
+    const { scene } = this.viewer;
     const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
 
     handler.setInputAction(async event => {
       const currentEntity = scene.pick(event.position);
       if (!currentEntity) return
-      
+
       if (currentEntity && currentEntity.id.hasOwnProperty('entityId')) {
         const cartesian = currentEntity.id.position.getValue();
         const popperPosition = scene.cartesianToCanvasCoordinates(cartesian);
-        const {x,y} = popperPosition;
-        emitter.emit(EventType.RIGHT_CLICK, {
-          entity: currentEntity,
-          cartesian,
-          position: {
-            top: y + "px",
-            left: x + "px"
-          },
-          create: true
-        });
-
+        const { x, y } = popperPosition;
+        if (this.store.selectedEntity) {
+          emitter.emit(EventType.RIGHT_CLICK, {
+            entity: currentEntity,
+            cartesian,
+            position: {
+              top: y + "px",
+              left: x + "px"
+            },
+            create: true
+          });
+        }
         return;
       }
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);

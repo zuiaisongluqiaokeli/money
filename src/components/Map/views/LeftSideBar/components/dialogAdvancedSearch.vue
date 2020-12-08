@@ -712,7 +712,7 @@ export default {
           if (item.fullCategoryName == "" || item.fullCategoryName == "null")
             item.fullCategoryName = "暂未分类";
           item.properties.实体分类 = item.fullCategoryName; //分类用
-          this.$refs.table.toggleRowSelection(item);
+          //this.$refs.table.toggleRowSelection(item);
         });
         this.listQuery1.total = res.data.totalCounts || 0;
         this.verticesListLoading = false;
@@ -792,7 +792,7 @@ export default {
         if (item.fullCategoryName == "" || item.fullCategoryName == "null")
           item.fullCategoryName = "暂未分类";
         item.properties.实体分类 = item.fullCategoryName; //分类用
-        this.$refs.table.toggleRowSelection(item);
+        //this.$refs.table.toggleRowSelection(item);
       });
       this.listQuery1.total = res.data.object.totalCounts || 0;
     },

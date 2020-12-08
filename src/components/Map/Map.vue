@@ -32,7 +32,7 @@ import { emitter, EventType } from "./src/EventEmitter";
 const Cesium = window.Cesium;
 let viewer = null;
 let gisvis = null;
-
+let trackedEntity = null;
 export default {
   components: {
     GisInfoPanelDetail,
@@ -52,7 +52,7 @@ export default {
   data() {
     return {
       showRangeSetting: false, //范围->设置
-      rightEntityPosition:{}, //右键实体
+      rightEntityPosition: {}, //右键实体
       imageryProviderMap: [
         {
           name: "卫星图",
@@ -103,8 +103,8 @@ export default {
     gisvis.emitter.on(
       "gis-right-click",
       (params) => {
-        const { entity, position, create,cartesian } = params;
-        this.rightEntityPosition = cartesian
+        const { entity, position, create, cartesian } = params;
+        this.rightEntityPosition = cartesian;
         this.changeGisRightSelectedEntity(entity.id); //右侧实体
         gisvis.contextMenu = new ContextMenu({}, this.$el);
         gisvis.contextMenu.instance.position = position;
@@ -116,7 +116,6 @@ export default {
       "gis.context-menu-item-click",
       (data) => {
         let { action } = data;
-        console.log("转盘数据", action);
         switch (action) {
           //扩展
           case "expand":
@@ -196,8 +195,17 @@ export default {
                       // console.log(lines);
                       // this.updateGisLines([].concat(lines, this.gisLines));
                       result.vertices.forEach((item) => {
+                        item.id = Number(item.id)  //有的是字符串的达不到去重的效果
                         item.properties.latitude = item.properties.纬度;
                         item.properties.longitude = item.properties.经度;
+                        if (
+                          item.properties.hasOwnProperty("分类名称") &&
+                          item.properties.分类名称
+                        ) {
+                          item.properties.实体分类 = item.properties.分类名称;
+                        } else {
+                          item.properties.实体分类 = "暂未分类";
+                        }
                       });
                       let gisData = {
                         entities: result.vertices,
@@ -296,7 +304,6 @@ export default {
             break;
           //轨迹飞行开始
           case "range":
-            gisvis.emitter.emit(EventType.CLICK_BLANK);
             //作为起始点
             gisvis.emitter.emit(EventType.MeasureLineSpace, {
               firstPoint: {
@@ -305,16 +312,27 @@ export default {
                 latitude: this.gisRightSelectedEntity.properties.getValue().lat,
                 height: 1000,
               },
-              cartesian:[{...this.rightEntityPosition}],
-              state:'fly'
+              cartesian: [{ ...this.rightEntityPosition }],
+              state: "fly",
             });
 
             break;
+          //轨迹飞行
           case "range-setting":
             gisvis.viewer.entities.getById(
               this.gisRightSelectedEntity.id
             ).show = false; //隐藏右键轨迹飞行动画结束显示
-            gisvis.emitter.emit(EventType.Simulated_Satellite);
+            gisvis.emitter.emit(
+              EventType.Simulated_Satellite,
+              (trackedEntity) => {
+                trackedEntity = trackedEntity;
+              }
+            );
+            break;
+          //切换视角
+          case "changeView":
+            console.log("飞机实体模型", trackedEntity);
+            gisvis.viewer.trackedEntity = trackedEntity;
             break;
         }
         if (gisvis.contextMenu) {

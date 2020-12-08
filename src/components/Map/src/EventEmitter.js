@@ -39,6 +39,8 @@ const EventType = {
   FLY_TO_ENTITY: "fly-to-entity",
   /** 【地图】 飞入到首页 */
   FLY_HOME: "fly-home",
+  /** 【地图】 轨迹飞行飞机实体切换视图 */
+  Air_Plane_View: "air_plane_view",
   /** 【地图】 清空所有实体 */
   REMOVE_ALL_ENTITIES: "remove-all-entities",
   /** 【实体】 通过类别设置实体可见性 */

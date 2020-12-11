@@ -189,6 +189,7 @@ export default {
       } else {
         //修改的时候重新生成分组数据
         emitter.emit(EventType.CLICK_ENTITY, this.temEntity);//重新掉接口显示更改后的数据
+        gisvis.viewer.entities.getById(this.temEntity.id.id).label.text = entity.name
         emitter.emit(EventType.POPPER_SHOW, { //更新poper
           position:this.temEntity.id.position.getValue(),
           name: entity.properties.hasOwnProperty('name')&&entity.properties.name||entity.name,

@@ -1,9 +1,8 @@
 <template>
-  <div class="map">
+  <div class="map" id="mapMap">
+    <div id="eye" v-show="$store.state.map.eyeMap"></div>
     <div id="cesium" class="cesium"></div>
-    <div class="left-side">
-      <MapLegend />
-    </div>
+    <MapLegend />
     <Timeline></Timeline>
     <GisInfoPanelDetail></GisInfoPanelDetail>
     <!-- <MapInfoPanel></MapInfoPanel> -->
@@ -89,7 +88,6 @@ export default {
     ...mapGetters("graphInfo", ["graphName"]),
     ...mapGetters("map", ["gisEntityIds", "gisLinesIds"]),
   },
-
   mounted() {
     window.map = this;
     gisvis = new Main({ el: this.$el });
@@ -195,7 +193,7 @@ export default {
                       // console.log(lines);
                       // this.updateGisLines([].concat(lines, this.gisLines));
                       result.vertices.forEach((item) => {
-                        item.id = Number(item.id)  //有的是字符串的达不到去重的效果
+                        item.id = Number(item.id); //有的是字符串的达不到去重的效果
                         item.properties.latitude = item.properties.纬度;
                         item.properties.longitude = item.properties.经度;
                         if (
@@ -348,6 +346,9 @@ export default {
   beforeDestroy() {},
 
   methods: {
+    handlemouse() {
+      document.getElementById("mapMap").style.cursor = "grab";
+    },
     /**
      * 初始化地图
      */
@@ -509,15 +510,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.left-side {
+#eye {
   position: absolute;
-  left: calc(3.58rem + 8px);
-  bottom: 120px;
-  color: #4c4c4c;
-  border-radius: 4px;
-  user-select: none;
-  overflow: hidden;
+  width: 15%;
+  height: 20%;
+  bottom: 12%;
+  left: 3.3%;
+  z-index: 999;
+  border: solid blue 1px;
 }
+
 .map {
   width: 100vw;
   height: 100vh;

@@ -99,6 +99,7 @@ export default {
         let trackEntities = this.allEntityBackEnd.filter(
           (e) => e.properties.locus
         );
+        //后端轨迹线
         trackEntities.forEach((item) => {
           let locus = JSON.parse(item.properties.locus);
           let cartographicDegrees = locus.position.cartographicDegrees.map(

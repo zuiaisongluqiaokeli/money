@@ -74,7 +74,7 @@ class Drawer {
       let center = Cesium.Cartesian3.fromDegrees(
         data[entityIndex].properties.longitude,
         data[entityIndex].properties.latitude,
-        1000000
+        1500
       );
       this.viewer.camera.flyTo({
         // 相机飞往该点

@@ -155,6 +155,7 @@
                       <el-tree
                         ref="selectTree"
                         :filter-node-method="filterNode"
+                        :expand-on-click-node="false"
                         accordion
                         highlight-current
                         :data="treeData"
@@ -874,12 +875,13 @@ export default {
       if (this.compareFileSize(file)) {
         return this.$message.info("上传的所有文件大小之和不能大于1G");
       }
+
       let files = this.compareOneFileSize(file);
       if (files.length === 0) return;
 
       if (file.length > 0) {
         let formData = new FormData();
-        file.forEach((item) => {
+        files.forEach((item) => {
           formData.append("uploadFiles", item);
         });
         this.uploading = true;
@@ -921,32 +923,20 @@ export default {
       return filesSizes > 1024 * 1024 * 1024;
     },
     //单个文件超过100M的以及过滤不支持的格式，将取消上传，并给予提示
-    compareOneFileSize(files) {
-      if (files.length === 0) return false;
-      let file = files.some((it) => {
-        return it.size > 100 * 1024 * 1024;
-      });
-      let pare;
-      if (file) {
-        pare = files.filter((it) => {
-          return it.size < 100 * 1024 * 1024;
-        });
-        this.$message.warning("存在文件大于100M，已被过滤");
-      } else {
-        pare = files;
-      }
-
-      const reg = /\.txt$|\.doc$|.docx$|\.pdf$|\.xlsx$|\.xls$|\.png$|\.jpg$|\.jpeg$|\.gif$|\.bmp$|\.mp4$|\.webm$|\.mp3$|\.wav$/;
+    compareOneFileSize(file) {
+      let pare = file;
+      let files = [];
+      const reg = /\.txt$|\.doc$|\.docx$|\.pdf$|\.xlsx$|\.xls$|\.png$|\.jpg$|\.jpeg$|\.gif$|\.bmp$|\.mp4$|\.webm$|\.mp3$|\.wav$/;
       let flag = pare.some((item) => {
-        return !reg.test(item.name);
+        return !reg.test(item.name.toLowerCase());
+      });
+      files = pare.filter((item) => {
+        return reg.test(item.name.toLowerCase());
       });
       if (flag) {
-        pare = pare.filter((item) => {
-          return reg.test(item.name);
-        });
         this.$message.warning("存在不支持的文件，已被过滤");
       }
-      return pare;
+      return files;
     },
     //放大图片
     handlePictureCardPreview(file) {
@@ -1006,6 +996,7 @@ export default {
 
     //用于判断，当前文件的格式，来控制显示什么图标，代码需要优化
     makeIcons(name) {
+      name = name.toLowerCase()
       if (name === "") return "";
       if (/\.txt$/.test(name)) {
         return "file-txt";
@@ -1031,19 +1022,13 @@ export default {
       this.$confirm("确定删除该文件？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-      })
-        .then(async () => {
-          const res = await deleteFile({
-            fileUrls: this.fileData[index].url,
-          });
-          if (res.status === 200) {
-            this.fileData.splice(index, 1);
-            this.$message.success("删除成功");
-          } else {
-            this.$message.success("删除失败");
-          }
-        })
-        .catch(() => {});
+      }).then(async () => {
+        const res = await deleteFile({
+          fileUrls: this.fileData[index].url,
+        });
+        this.fileData.splice(index, 1);
+        this.$message.success("删除成功");
+      });
     },
     //删除所有文件
     async deleteAllFile() {
@@ -1132,6 +1117,9 @@ export default {
               value: this.latitude,
               primary: false,
             });
+            this.newVerticesData.propertiesJson = this.newVerticesData.propertiesJson.filter(
+              (item) => item.name != "docs"
+            );
             if (this.fileData.length > 0) {
               this.newVerticesData.propertiesJson.push({
                 name: "docs",
@@ -1253,20 +1241,15 @@ export default {
               });
             }
           }
+          this.newVerticesData.propertiesJson = this.newVerticesData.propertiesJson.filter(
+            (item) => item.name != "docs"
+          );
           if (this.fileData.length > 0) {
-            if (!hasDocs) {
-              this.newVerticesData.propertiesJson.push({
-                name: "docs",
-                value: this.fileData,
-                primary: false,
-              });
-            } else {
-              this.newVerticesData.propertiesJson.forEach((item) => {
-                if (item.name === "docs") {
-                  item.value = this.fileData;
-                }
-              });
-            }
+            this.newVerticesData.propertiesJson.push({
+              name: "docs",
+              value: this.fileData,
+              primary: false,
+            });
           }
 
           let someProperties = JSON.stringify(
@@ -1437,7 +1420,7 @@ export default {
               this.fileData = JSON.parse(props[prop]);
               this.fileData.forEach((item) => {
                 item.type = item.name.slice(item.name.lastIndexOf(".") + 1);
-                item.icon = this.makeIcons(item.name);
+                item.icon = this.makeIcons("." + item.type);
               });
             }
             if (prop === "avatar") {

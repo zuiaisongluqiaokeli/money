@@ -1,122 +1,130 @@
 <template>
-  <div class="map-legend" v-if="allEntityBackEnd.length > 0">
-    <div class="remove-all">
-      <el-button type="text" class="button">
-        所有实体({{ allEntityBackEnd.length }})
-      </el-button>
-      <el-button type="text" class="button" @click="removeAll">
-        清空所有
-      </el-button>
-      <i
-        :class="collapse ? 'el-icon-top-right' : 'el-icon-bottom-left'"
-        @click="collapse = !collapse"
-      ></i>
-    </div>
-    <div v-show="!collapse">
-      <div class="title">
-        <el-button :type="active == 1 ? 'primary' : ''" @click="buttonChoice(1)"
-          >已知位置</el-button
-        >
-        <el-button :type="active == 2 ? 'primary' : ''" @click="buttonChoice(2)"
-          >未知位置</el-button
-        >
+  <div v-drag class="left-side">
+    <div class="map-legend" v-if="allEntityBackEnd.length > 0">
+      <div class="remove-all">
+        <el-button type="text" class="button">
+          所有实体({{ allEntityBackEnd.length }})
+        </el-button>
+        <el-button type="text" class="button" @click="removeAll">
+          清空所有
+        </el-button>
+        <i
+          :class="collapse ? 'el-icon-top-right' : 'el-icon-bottom-left'"
+          @click="collapse = !collapse"
+        ></i>
       </div>
-      <div class="legend">
-        <el-collapse v-for="(item, index) in tableData" :key="index">
-          <el-collapse-item v-if="item.number > 0">
-            <template slot="title">
-              <div
-                class="titleItem"
-                style="padding-left: 31px; font-size: 15px"
-              >
-                <!-- <img :src="item.image" class="img" /> -->
-                <el-tooltip
-                  class="item"
-                  effect="dark"
-                  :content="`${item.category}(${item.number})`"
-                  placement="top-start"
+      <div v-show="!collapse">
+        <div class="title">
+          <el-button
+            :type="active == 1 ? 'primary' : ''"
+            @click="buttonChoice(1)"
+            >已知位置</el-button
+          >
+          <el-button
+            :type="active == 2 ? 'primary' : ''"
+            @click="buttonChoice(2)"
+            >未知位置</el-button
+          >
+        </div>
+        <div class="legend">
+          <el-collapse v-for="(item, index) in tableData" :key="index">
+            <el-collapse-item v-if="item.number > 0">
+              <template slot="title">
+                <div
+                  class="titleItem"
+                  style="padding-left: 31px; font-size: 15px"
                 >
-                  <div class="description">
-                    <span>{{ `${item.category}(${item.number})` }}</span>
-                  </div>
-                </el-tooltip>
-                <div class="count"></div>
-              </div>
-              <div class="switch" style="padding-right: 8px">
-                <i
-                  class="el-icon-view"
-                  title="切换显示"
-                  :class="{
-                    'is-active': item.visible,
-                  }"
-                  v-if="active == 1"
-                  @click="changeVisibleEntities($event, index, item)"
-                ></i>
-                <i
-                  class="el-icon-delete"
-                  title="移除"
-                  @click="removeEntities($event, item, index)"
-                ></i>
-                <i
-                  class="el-icon-aim"
-                  title="切换攻击范围"
-                  :class="{
-                    'is-active': item.attackRange,
-                  }"
-                  v-if="active == 1"
-                  @click="changeEntitiesAttackRange($event, index, item)"
-                ></i>
-              </div>
-            </template>
-            <div v-for="(ele, key) in item.listInfo" :key="key">
-              <div
-                class="titleItem"
-                @click="ele.properties.latitude ? flyEntity(ele) : mapMark(ele)"
-                :title="ele.properties.latitude ? '飞向该点' : '暂无坐标'"
-              >
-                <!-- <img :src="ele.image" class="img" /> -->
+                  <!-- <img :src="item.image" class="img" /> -->
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="`${item.category}(${item.number})`"
+                    placement="top-start"
+                  >
+                    <div class="description">
+                      <span>{{ `${item.category}(${item.number})` }}</span>
+                    </div>
+                  </el-tooltip>
+                  <div class="count"></div>
+                </div>
+                <div class="switch" style="padding-right: 8px">
+                  <i
+                    class="el-icon-view"
+                    title="切换显示"
+                    :class="{
+                      'is-active': item.visible,
+                    }"
+                    v-if="active == 1"
+                    @click="changeVisibleEntities($event, index, item)"
+                  ></i>
+                  <i
+                    class="el-icon-delete"
+                    title="移除"
+                    @click="removeEntities($event, item, index)"
+                  ></i>
+                  <i
+                    class="el-icon-aim"
+                    title="切换攻击范围"
+                    :class="{
+                      'is-active': item.attackRange,
+                    }"
+                    v-if="active == 1"
+                    @click="changeEntitiesAttackRange($event, index, item)"
+                  ></i>
+                </div>
+              </template>
+              <div v-for="(ele, key) in item.listInfo" :key="key">
+                <div
+                  class="titleItem"
+                  @click="
+                    ele.properties.latitude ? flyEntity(ele) : mapMark(ele)
+                  "
+                  :title="ele.properties.latitude ? '飞向该点' : '暂无坐标'"
+                >
+                  <!-- <img :src="ele.image" class="img" /> -->
 
-                <el-tooltip
-                  class="item"
-                  effect="dark"
-                  :content="ele.properties.name || ele.properties.名称"
-                  placement="top-start"
-                >
-                  <div class="description">
-                    <span>{{
-                      ele.properties.name || ele.properties.名称
-                    }}</span>
-                  </div>
-                </el-tooltip>
+                  <el-tooltip
+                    class="item"
+                    effect="dark"
+                    :content="ele.properties.name || ele.properties.名称"
+                    placement="top-start"
+                  >
+                    <div class="description">
+                      <span>{{
+                        ele.properties.name || ele.properties.名称
+                      }}</span>
+                    </div>
+                  </el-tooltip>
+                </div>
+                <div class="switch">
+                  <i
+                    class="el-icon-view"
+                    title="切换显示"
+                    v-if="active == 1"
+                    :class="{
+                      'is-active': ele.visible,
+                    }"
+                    @click="changeVisibleEntity($event, index, ele, key)"
+                  ></i>
+                  <i
+                    class="el-icon-delete"
+                    title="移除"
+                    @click="removeEntity($event, index, ele, key)"
+                  ></i>
+                  <i
+                    class="el-icon-aim"
+                    title="切换攻击范围"
+                    v-if="active == 1"
+                    :class="{
+                      'is-active': ele.attackRange,
+                    }"
+                    @click="changeAttackRange($event, index, ele, key)"
+                  ></i>
+                </div>
               </div>
-              <div class="switch">
-                <i
-                  class="el-icon-view"
-                  title="切换显示"
-                  v-if="active == 1"
-                  :class="{
-                    'is-active': ele.visible,
-                  }"
-                  @click="changeVisibleEntity($event, index, ele, key)"
-                ></i>
-                <i
-                  class="el-icon-delete"
-                  title="移除"
-                  @click="removeEntity($event, index, ele, key)"
-                ></i>
-                <i
-                  class="el-icon-aim"
-                  title="切换攻击范围"
-                  v-if="active == 1"
-                  :class="{
-                    'is-active': ele.attackRange,
-                  }"
-                  @click="changeAttackRange($event, index, ele, key)"
-                ></i>
-              </div>
-            </div>
-          </el-collapse-item>
-        </el-collapse>
+            </el-collapse-item>
+          </el-collapse>
+        </div>
       </div>
     </div>
   </div>
@@ -127,26 +135,18 @@ import { emitter, EventType } from "../src/EventEmitter";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 export default {
   directives: {
-    drag: function (el) {
-      let dragBox = el; //获取当前元素
-      dragBox.onmousedown = (e) => {
-        //算出鼠标相对元素的位置
-        let disX = e.clientX - dragBox.offsetLeft;
-        let disY = e.clientY - dragBox.offsetTop;
-        document.onmousemove = (e) => {
-          //用鼠标的位置减去鼠标相对元素的位置，得到元素的位置
-          let left = e.clientX - disX;
-          let top = e.clientY - disY;
-          //移动当前元素
-          dragBox.style.left = left + "px";
-          dragBox.style.top = top + "px";
+    drag(el) {
+      el.onmousedown = function (e) {
+        var disx = e.pageX - el.offsetLeft;
+        var disy = e.pageY - el.offsetTop;
+        document.onmousemove = function (e) {
+          el.style.left = e.pageX - disx + "px";
+          el.style.top = e.pageY - disy + "px";
         };
-        document.onmouseup = (e) => {
-          //鼠标弹起来的时候不再移动
-          document.onmousemove = null;
-          //预防鼠标弹起来后还会循环（即预防鼠标放上去的时候还会移动）
-          document.onmouseup = null;
+        document.onmouseup = function (e) {
+          document.onmouseup = document.onmousemove = null;
         };
+        e.preventDefault();
       };
     },
   },
@@ -224,6 +224,13 @@ export default {
   },
   created() {
     emitter.on(EventType.LEGEND_DATA_CHANGE, this.handleLegendDataChange, this);
+    emitter.on(
+      EventType.MapLegend_Collapse,
+      () => {
+        this.collapse = false;
+      },
+      this
+    );
   },
 
   mounted() {},
@@ -337,6 +344,14 @@ export default {
           });
         }
       });
+      if (gisvis.contextMenu) {
+        gisvis.contextMenu.destroy();
+        gisvis.contextMenu = null;
+      }
+      if (gisvis.popper) {
+        gisvis.popper.destroy();
+        gisvis.popper = null;
+      }
       this.tableData.splice(index, 1);
       this.handleLegendDataChange([]);
     },
@@ -347,6 +362,14 @@ export default {
       this.removeEntityBackEnd(val.id);
       gisvis.viewer.entities.removeById(val.id);
       this.handleLegendDataChange([]);
+      if (gisvis.contextMenu) {
+        gisvis.contextMenu.destroy();
+        gisvis.contextMenu = null;
+      }
+      if (gisvis.popper) {
+        gisvis.popper.destroy();
+        gisvis.popper = null;
+      }
     },
     /**
      * 点击图例项，飞到项里的最后一个
@@ -365,7 +388,7 @@ export default {
       if (val) {
         let { 经度: lng, 纬度: lat } = val.properties;
         gisvis.viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(lng, lat, 1000),
+          destination: Cesium.Cartesian3.fromDegrees(lng, lat, 1500),
         });
       }
     },
@@ -499,6 +522,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.left-side {
+  position: absolute;
+  left: 70px;
+  top: 26px;
+  color: #4c4c4c;
+  border-radius: 4px;
+  user-select: none;
+  overflow: hidden;
+}
 /deep/ button {
   color: #fafafa;
 }
@@ -539,6 +571,7 @@ export default {
 }
 .map-legend {
   width: 224px;
+  cursor: move;
   background: rgba(255, 255, 255, 0.15);
   border-radius: 0px 4px 0px 0px;
 

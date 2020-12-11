@@ -57,6 +57,9 @@ class Main {
     //监听
     this.screenSpaceEvent.handleLeftClick()
     this.screenSpaceEvent.handleRightClick()
+    this.screenSpaceEvent.handleMiddleUp()
+    this.screenSpaceEvent.handleMiddleDown()
+    // this.screenSpaceEvent.handleMouseMove()
   }
   /**
    * 初始化事件监听
@@ -145,7 +148,7 @@ class Main {
     }
     this.popper.instance.text = name;
     this.popper.instance.position = {
-      top: y - 20 + "px",
+      top: y  + "px",
       left: x + "px"
     };
   }
@@ -246,7 +249,7 @@ class Main {
     const {
       lng,
       lat,
-      h = 10000000
+      h = 1500
     } = entity;
 
     this.viewer.camera.flyTo({

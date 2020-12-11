@@ -17,6 +17,8 @@ const EventType = {
   SCOPE_SEARCH: "gis-scope-search",
   /** 【地图】 轨迹飞行 */
   Simulated_Satellite: "gis-simulated-satellite",
+  /** 【地图】 默认展开左下侧菜单 */
+  MapLegend_Collapse: "gis-mapLegend-collapse",
   /** 【地图】 轨迹飞行事件线初始话 */
   StartTimeLine:'gis-startTime-line',
   /** 【地图】 测量距离 */

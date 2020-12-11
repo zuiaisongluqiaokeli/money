@@ -1,4 +1,5 @@
 import Popper from "../../Popper";
+import {emitter,EventType} from "../../../src/EventEmitter";
 class PointDrawer {
   constructor(viewer, options) {
     this.viewer = viewer;
@@ -71,7 +72,7 @@ class PointDrawer {
       let center = Cesium.Cartesian3.fromDegrees(
         longitude,
         latitude,
-        1000000
+        1500
       );
       this.viewer.camera.flyTo({
         destination: center,
@@ -138,7 +139,7 @@ class PointDrawer {
     this.handler.setInputAction(event => {
 
       this.cancelDraw();
-
+      emitter.emit(EventType.MapLegend_Collapse);
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
   }
   /**

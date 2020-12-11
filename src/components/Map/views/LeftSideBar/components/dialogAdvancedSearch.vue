@@ -14,7 +14,7 @@
           v-loading="verticesListLoading"
           :element-loading-text="loadingText"
         >
-          <el-col style="overflow: hidden" :span="7">
+          <el-col style="overflow: hidden" :span="5">
             <div class="tree-filter">
               <el-input
                 v-model="filterText"
@@ -38,7 +38,7 @@
             </el-tree>
           </el-col>
           <el-col
-            :span="16"
+            :span="18"
             class="main-right-box"
             style="overflow: hidden"
             :offset="1"
@@ -125,7 +125,7 @@
                 ></el-table-column>
                 <el-table-column
                   label="实体名称"
-                  width="150"
+                  width="175"
                   show-overflow-tooltip
                   ><template slot-scope="scope">
                     <span
@@ -139,13 +139,13 @@
                 <el-table-column
                   prop="fullCategoryName"
                   label="实体分类"
-                  width="150"
+                  width="175"
                   show-overflow-tooltip
                 ></el-table-column>
                 <el-table-column
                   prop="longitude"
                   label="经度"
-                  width="150"
+                  width="175"
                   show-overflow-tooltip
                 ></el-table-column>
                 <el-table-column
@@ -212,7 +212,7 @@
                         v-if="newVerticesData.avatar"
                         :onerror="errorImg"
                       />
-                      <img v-else :src="defaultImgSrc" />
+                      <img v-else src="img/location.png" />
                       <span>{{ newVerticesData.name }}</span>
                     </div>
                   </div>
@@ -243,9 +243,10 @@
                           item.name !== 'name' &&
                           item.name[0] !== '_' &&
                           item.name !== 'pk_id' &&
-                          item.name !== 'id'
-                        "
-                      >
+                          item.name !== 'id'&&
+                          item.name !== 'latitude'&&
+                          item.name !== 'longitude'
+                        ">
                         <span class="label">{{ item.name }}</span>
                         <span class="value" v-html="item.value"></span>
                       </template>
@@ -293,14 +294,16 @@
                         class="list-item"
                         :title="item.name"
                       >
-                        <div>
+                        <div style="cursor:pointer;color: #02b3fc;">
                           <span :class="item.icon" class="file-icon"></span
-                          ><span>{{ item.name }}</span>
+                          ><span
+                            class="file-name"
+                            @click="previewMethod(item.url)"
+                            >{{
+                              item.name.substr(0, item.name.lastIndexOf("."))
+                            }}</span
+                          >
                         </div>
-
-                        <el-button type="text" @click="previewMethod(item.url)">
-                          预览
-                        </el-button>
                       </div>
                     </div>
                     <div v-else>暂无相关文档！</div>
@@ -367,7 +370,6 @@ export default {
       videoType: "mp4",
       previewDialog: false,
       blob: null,
-      defaultImgSrc: "./img/gis/location.png",
       filterText: "",
       treeData: [],
       showAdvancedSearch: false, // 高级搜索判断
@@ -433,6 +435,7 @@ export default {
       placeholder: "请输入内容",
       categoryId: "",
       categoryName: "",
+      errorImg: 'this.src="' + './img/gis/location.png"',
       searchCategory: "",
       newVerticesData: {
         //  新增编辑实体数据
@@ -548,6 +551,7 @@ export default {
       this.searchCategory =
         node.parentName === "" ? node.name : node.parentName + ">" + node.name;
       this.nodeClick(node);
+      this.advanceQuery();
     },
     nodeClick(data) {
       this.categoryId = data.id !== -1 ? data.parentId + ">" + data.id : "";
@@ -640,7 +644,7 @@ export default {
             operator: "且",
             moreConditions: [
               {
-                conditionsTypeEnum: "prop",
+                conditionsTypeEnum: "name",
                 conditionsEnum: "FUZZY",
                 key: "",
                 value: "",
@@ -653,7 +657,7 @@ export default {
         if (this.advancedSearchQuery.searchContent) {
           //高级搜索有输入框
           params.moreCondition[0].moreConditions.push({
-            conditionsTypeEnum: "prop",
+            conditionsTypeEnum: "name",
             conditionsEnum: "FUZZY",
             key: "",
             value: this.advancedSearchQuery.searchContent,
@@ -676,21 +680,16 @@ export default {
           });
         }
         let conditionsDTO = JSON.parse(JSON.stringify(params));
-
         conditionsDTO = JSON.parse(JSON.stringify(conditionsDTO));
-        conditionsDTO.moreCondition = conditionsDTO.moreCondition.filter(
-          (outItem) => {
-            outItem.moreConditions = outItem.moreConditions.filter((inItem) => {
-              if (inItem.conditionsTypeEnum === "prop") {
-                return inItem.key !== "" && inItem.value !== "";
-              } else {
-                return inItem.value !== "";
-              }
-            });
-            return outItem.moreConditions.length;
-          }
-        );
-
+        conditionsDTO.moreCondition.forEach((item) => {
+          item.moreConditions = item.moreConditions.filter((ele) => {
+            if (ele.conditionsTypeEnum == "prop") {
+              return ele.key !== "" && ele.value !== "";
+            } else {
+              return ele.value !== "";
+            }
+          });
+        });
         let res = await sortManage.verticesNeo4jSeniorQuery(
           this.listQuery1.page - 1,
           this.listQuery1.size,
@@ -720,11 +719,11 @@ export default {
     },
     //多选实体
     handleSelectChange(val) {
-      var list = [].concat(JSON.parse(JSON.stringify(val)))
-      list = list.filter((item,index,arr)=>{
-          let arrIds = arr.map(ele=>ele.id)
-          return arrIds.indexOf(item.id)==index
-      })
+      var list = [].concat(JSON.parse(JSON.stringify(val)));
+      list = list.filter((item, index, arr) => {
+        let arrIds = arr.map((ele) => ele.id);
+        return arrIds.indexOf(item.id) == index;
+      });
       this.selectRows = list;
       this.totalSelection = list.length;
     },
@@ -894,6 +893,29 @@ export default {
         }
         this.newVerticesData.type = res.data.object.type;
         this.drawerDialog = true;
+      }
+    },
+    //用于判断，当前文件的格式，来控制显示什么图标，代码需要优化
+    makeIcons(name) {
+      name = name.toLowerCase()
+      if (name === "") return "";
+      name = name.toLowerCase();
+      if (/\.txt$/.test(name)) {
+        return "file-txt";
+      } else if (/\.doc$|\.docx$/.test(name)) {
+        return "file-word";
+      } else if (/\.pdf$/.test(name)) {
+        return "file-pdf";
+      } else if (/\.xlsx$|\.xls$/.test(name)) {
+        return "file-excel";
+      } else if (/\.png$|\.jpg$|\.jpeg$|\.gif$|\.bmp$/.test(name)) {
+        return "file-img";
+      } else if (/\.mp4$|\.webm$/.test(name)) {
+        return "file-video";
+      } else if (/\.mp3$|\.wav$/.test(name)) {
+        return "file-music";
+      } else {
+        return "file";
       }
     },
     changeSize(val) {
@@ -1085,6 +1107,41 @@ export default {
   background: rgba(0, 0, 0, 0.1);
   z-index: 998;
 }
+.file-icon {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  margin-right: 6px;
+  background-size: 100% 100%;
+  vertical-align: middle;
+}
+.file-txt {
+  background-image: url("~@/assets/icon/txt.png");
+}
+.file-zip {
+  background-image: url("~@/assets/icon/zip.png");
+}
+.file-pdf {
+  background-image: url("~@/assets/icon/pdf.png");
+}
+.file-word {
+  background-image: url("~@/assets/icon/word.png");
+}
+.file-excel {
+  background-image: url("~@/assets/icon/excel.png");
+}
+.file-img {
+  background-image: url("~@/assets/icon/img.png");
+}
+.file-video {
+  background-image: url("~@/assets/icon/video.png");
+}
+.file-music {
+  background-image: url("~@/assets/icon/music.png");
+}
+.file-file {
+  background-image: url("~@/assets/icon/file.png");
+}
 .GisInfoPanel {
   position: absolute;
   top: 0.3rem;
@@ -1118,7 +1175,7 @@ export default {
   .panel-content {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 110%;
 
     .top {
       flex-shrink: 0;
@@ -1158,6 +1215,7 @@ export default {
           .list-item {
             display: flex;
             align-items: center;
+            margin: 7px 0;
             justify-content: space-between;
             .item-title {
               font-size: 14px;
@@ -1204,7 +1262,7 @@ export default {
               display: block;
               width: 100%;
               height: 100%;
-              object-fit: cover;
+              object-fit: contain;
             }
           }
           .name {

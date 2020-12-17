@@ -2,16 +2,12 @@ export default {
   //移动的时候如果有2个点以上的坐标就绘线否则一直更新前一次坐标
   //测量空间直线距离 
   /******************************************* */
-  measureLineSpace(viewer, callback, firstPoint) {
+  measureLineSpace(viewer) {
     // 取消双击事件-追踪该位置
     viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
-    var handler = viewer.screenSpaceEventHandler;
+    var handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
     var positions = []
-    if (firstPoint.length == 1) {
-      positions.push(...firstPoint)
-      positions.push(...firstPoint)
-    }
     var poly = null; //线条
     // var tooltip = document.getElementById("toolTip");
     var distance = 0; //距离
@@ -95,7 +91,6 @@ export default {
     handler.setInputAction(function (movement) {
       handler.destroy(); //关闭事件句柄
       positions.pop(); //最后一个点无效
-      callback(arrData)
       // viewer.entities.remove(floatingPoint);
       // tooltip.style.display = "none";
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -108,7 +103,7 @@ export default {
             show: true,
             positions: [],
             material: Cesium.Color.CHARTREUSE,
-            width: 3,
+            width: 2,
             clampToGround: true
           }
         };
@@ -154,7 +149,7 @@ export default {
     // 取消双击事件-追踪该位置
     viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
     // 鼠标事件
-    handler = viewer.screenSpaceEventHandler;
+    handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
     var positions = [];
     var tempPoints = [];
     var polygon = null;

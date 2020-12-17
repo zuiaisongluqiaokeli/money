@@ -9,10 +9,11 @@
       :before-close="emitClosedEvent"
     >
       <div class="dialog-body">
+        <el-backtop target=".el-dialog__body"></el-backtop>
         <el-row
           class="row"
-          v-loading="verticesListLoading"
-          :element-loading-text="loadingText"
+          v-loading="treeLoading"
+          element-loading-text="正在获取数据，请稍后..."
         >
           <el-col style="overflow: hidden" :span="5">
             <div class="tree-filter">
@@ -243,10 +244,11 @@
                           item.name !== 'name' &&
                           item.name[0] !== '_' &&
                           item.name !== 'pk_id' &&
-                          item.name !== 'id'&&
-                          item.name !== 'latitude'&&
+                          item.name !== 'id' &&
+                          item.name !== 'latitude' &&
                           item.name !== 'longitude'
-                        ">
+                        "
+                      >
                         <span class="label">{{ item.name }}</span>
                         <span class="value" v-html="item.value"></span>
                       </template>
@@ -294,15 +296,11 @@
                         class="list-item"
                         :title="item.name"
                       >
-                        <div style="cursor:pointer;color: #02b3fc;">
+                        <div style="cursor: pointer; color: #02b3fc">
                           <span :class="item.icon" class="file-icon"></span
-                          ><span
-                            class="file-name"
-                            @click="previewMethod(item.url)"
-                            >{{
-                              item.name.substr(0, item.name.lastIndexOf("."))
-                            }}</span
-                          >
+                          ><span class="file-name" @click="preview(item)">{{
+                            item.name.substr(0, item.name.lastIndexOf("."))
+                          }}</span>
                         </div>
                       </div>
                     </div>
@@ -323,7 +321,7 @@
       >
         <iframe
           v-if="previewUrl"
-          :src="previewUrl"
+          :src="previewUrl + '#toolbar=0'"
           width="100%"
           height="700"
         ></iframe>
@@ -390,8 +388,9 @@ export default {
         size: 10, //每页显示数据量
         total: 0, //总条数
       },
-      verticesListLoading: false,
-      loadingText: "加载中....",
+      verticesListLoading: false, //实体列表loading
+      loadingText: "", //实体列表loading文字
+      treeLoading: false,
       advancedSearchQuery: {
         advancedSearchFlag: true,
         categoryName: "",
@@ -464,6 +463,7 @@ export default {
   },
   async created() {
     this.verticesListLoading = true;
+    this.loadingText = "正在获取数据，请稍候...";
     let a = await this.relationPropsGet();
     let x = await this.getCategory();
     let y = await this.getPropMapping(); //获取字段映射
@@ -486,6 +486,7 @@ export default {
     },
     //显示树
     async getCategory() {
+      this.treeLoading = true;
       const res = await sortManage.nodeCategoryQuery(this.id);
       let data = res.data;
       let treeData = [];
@@ -610,18 +611,20 @@ export default {
         this.reFresh = true;
       });
       this.handleFilter("search");
+      this.verticesListLoading = false;
     },
     // 高级搜索查询
     advanceQuery() {
-      this.loadingText = "正在获取数据，请稍候...";
-      this.verticesListLoading = true;
+      if (!this.verticesListLoading) this.verticesListLoading = true;
       this.listQuery1.page = 1;
       this.advancedSearchQuery.advancedSearchFlag = true;
       this.handleFilter("search");
+      this.verticesListLoading = false;
     },
     async handleFilter(type) {
       // this.advancedSearchQuery.graphName = this.graphName;
-
+      this.verticesListLoading = true;
+      this.treeLoading = true;
       let params;
       //区分是普通搜索还是高级搜索
       if (type !== "search") {
@@ -714,6 +717,7 @@ export default {
           //this.$refs.table.toggleRowSelection(item);
         });
         this.listQuery1.total = res.data.totalCounts || 0;
+        this.treeLoading = false;
         this.verticesListLoading = false;
       }
     },
@@ -729,12 +733,14 @@ export default {
     },
     //查询实体列表
     findVertices() {
+      this.verticesListLoading = true;
+      this.loadingText = "正在获取数据，请稍候...";
       this.listQuery1.page = 1;
       this.graphVerticesGet("search");
+      this.verticesListLoading = false;
     },
     //获取实体列表数据
     graphVerticesGet(type) {
-      this.loadingText = "正在获取数据，请稍候...";
       this.verticesListLoading = true;
       if (this.graphType === "Neo4j") {
         if (type === "search") {
@@ -749,8 +755,6 @@ export default {
           this.JanusGraphVerticesGet();
         }
       }
-
-      this.verticesListLoading = false;
     },
     //获取实体列表数据
     async JanusGraphVerticesGet(type) {
@@ -762,6 +766,8 @@ export default {
         this.prevName = this.advancedSearchQuery.searchContent;
         searchContent = this.advancedSearchQuery.searchContent;
       }
+      this.loadingText = "正在获取数据，请稍候...";
+      this.verticesListLoading = true;
       let res = await graphVerticesDetail
         .graphVerticesGet(
           this.listQuery1.page - 1,
@@ -794,21 +800,23 @@ export default {
         //this.$refs.table.toggleRowSelection(item);
       });
       this.listQuery1.total = res.data.object.totalCounts || 0;
+      this.verticesListLoading = false;
     },
-    async previewMethod(url) {
+    async preview(file) {
+      this.fileName = file.name;
       this.previewLoading = true;
-      const type = url.slice(url.lastIndexOf(".") + 1);
+      const type = file.url.slice(file.url.lastIndexOf(".") + 1).toLowerCase();
       if (/pdf$/.test(type)) {
-        this.previewUrl = url;
+        this.previewUrl = file.url;
       } else if (/jpg$|png$|jpeg$|gif$|bmp$/.test(type)) {
-        this.previewImg = url;
+        this.previewImg = file.url;
       } else if (/mp4$|webm$/.test(type)) {
-        this.previewSrc = url;
+        this.previewSrc = file.url;
         this.videoType = type;
       } else if (/mp3$|wav$/.test(type)) {
-        this.previewMusic = url;
+        this.previewMusic = file.url;
       } else {
-        const res = await sortManage.neo4jFilePreview(url, 0, null);
+        const res = await sortManage.neo4jFilePreview(file.url, 0, null);
         this.blob = new Blob([res.data], {
           type: "application/pdf",
         });
@@ -897,7 +905,7 @@ export default {
     },
     //用于判断，当前文件的格式，来控制显示什么图标，代码需要优化
     makeIcons(name) {
-      name = name.toLowerCase()
+      name = name.toLowerCase();
       if (name === "") return "";
       name = name.toLowerCase();
       if (/\.txt$/.test(name)) {
@@ -1141,6 +1149,10 @@ export default {
 }
 .file-file {
   background-image: url("~@/assets/icon/file.png");
+}
+/deep/ .el-backtop {
+  right: 10%;
+  bottom: 29%;
 }
 .GisInfoPanel {
   position: absolute;

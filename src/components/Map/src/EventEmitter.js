@@ -20,11 +20,15 @@ const EventType = {
   /** 【地图】 默认展开左下侧菜单 */
   MapLegend_Collapse: "gis-mapLegend-collapse",
   /** 【地图】 轨迹飞行事件线初始话 */
-  StartTimeLine:'gis-startTime-line',
+  StartTimeLine: 'gis-startTime-line',
+  /** 【地图】  绘制实体飞行线段*/
+  drawingEntityFlightLine: 'drawingEntityFlightLine',
   /** 【地图】 测量距离 */
   MeasureLineSpace: "gis-measure-lineSpacee",
   /** 【地图】 测量距离 */
   MeasureAreaSpace: "gis-measure-areaSpace",
+  /** 【地图】 测量距离 */
+  handleStopTimeLine:"gis-handleStop-TimeLine",
   /** 【地图】 绘制雷达效果 */
   RADAR_RENDER: "gis-radar-render",
   /** 【地图】 地图数据改变 */

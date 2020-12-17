@@ -35,11 +35,15 @@ class Drawer {
             width: 25,
             height: 25,
             color: Cesium.Color.fromCssColorString("#ffcc33"),
-            scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2)
+            scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+            pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+              1.5e2, 1.0, 8.0e6, 0.2
+            )
           },
           label: {
             show: labelShow,
-            text: e.properties.name || e.name,
+            // text: (e.properties.name || e.name).substring(0,10),
+            text: e.properties.hasOwnProperty('name')&&e.properties.name || e.name,
             pixelOffset: new Cesium.Cartesian2(0, 24),
             font: "25px sans-serif",
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -49,10 +53,7 @@ class Drawer {
             horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
             scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
             pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
-              1e2,
-              3,
-              9.0e6,
-              0.0
+              1.5e2, 1.0, 8.0e6, 0.2
             )
           },
           properties: {
@@ -61,7 +62,7 @@ class Drawer {
             properties: {
               ...e.properties
             },
-            name: e.properties.name,
+            name: e.properties.hasOwnProperty('name')&&e.properties.name || e.name,
             id: Number(e.id),
             entityId: Number(e.id),
             labels: e.labels,

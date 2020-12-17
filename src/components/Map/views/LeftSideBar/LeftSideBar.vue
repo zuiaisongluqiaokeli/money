@@ -60,7 +60,7 @@ export default {
         //   placement: "right-start"
         // },
         {
-          label: "清空",
+          label: "清空所有",
           type: "delete",
           name: "MapDelete",
           icon: "iconfont icon-tool-delete-circle",
@@ -108,9 +108,9 @@ export default {
         },
         {
           label: "设置关系",
-          type: "category",
-          name: "category",
-          icon: "iconfont icon-tubiaozhizuomoban",
+          type: "relationship",
+          name: "relationship",
+          icon: "iconfont icon-tool-link",
           component: MapSearchAdd,
           tip: false,
           placement: "right",

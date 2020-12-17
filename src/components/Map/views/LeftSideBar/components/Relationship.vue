@@ -414,6 +414,7 @@ export default {
   },
   methods: {
     ...mapMutations("canvasInfo", ["updateData"]),
+    ...mapMutations("map", ["updateGisLines", "deleteGisLines"]),
     /**
      * 关闭弹窗
      */
@@ -543,6 +544,9 @@ export default {
         if (JSON.stringify(currentData.currentRelationName) === "{}") {
           return this.$message.error("关系名称必填");
         }
+        if (!currentData.relationName.trim()) {
+          return this.$message.error("关系名称必填");
+        }
       }
       if (this.type === "delete") {
         if (!currentData.currentDirection) {
@@ -576,7 +580,7 @@ export default {
 
         return;
       }
-      await this.afterSave(object)
+      await this.afterSave(object);
       this.$message.success(data.msg);
       //对数据划分哪个是起点哪个是终点
       let center = {
@@ -586,15 +590,13 @@ export default {
         size: 5,
         color: Cesium.Color.YELLOW,
       };
-      let points = [
-        {
-          id: this.selectedVertices[1].id,
-          lon: this.selectedVertices[1].properties.经度,
-          lat: this.selectedVertices[1].properties.纬度,
-          size: 5,
-          color: Cesium.Color.YELLOW,
-        },
-      ];
+      let points = {
+        id: this.selectedVertices[1].id,
+        lon: this.selectedVertices[1].properties.经度,
+        lat: this.selectedVertices[1].properties.纬度,
+        size: 5,
+        color: Cesium.Color.YELLOW,
+      };
       if (this.currentTypeData.direction[1]) {
         emitter.emit(EventType.CREATE_Fly_LINES, { center, points });
       } else {
@@ -736,6 +738,7 @@ export default {
 
         // 返回边的 id 不变，直接更新边的数据
         if (currentEdgeId === targetId) {
+          edges.push(item);
           targetEdge.type = item.type;
           targetEdge.property(item.properties);
           targetEdge.setPropertiesList(item.propertiesList);
@@ -745,9 +748,10 @@ export default {
         }
       }
 
-      removedEdge.forEach((id) => sativis.removeEdge(id));
-      sativis.addEdges(edges);
-      sativis.render();
+      //removedEdge.forEach((id) => sativis.removeEdge(id.toString()));
+      this.updateGisLines(edges);
+      // sativis.addEdges(edges);
+      // sativis.render();
       // this.updateData({ edges });
     },
     /**
@@ -825,6 +829,9 @@ export default {
             type: "success",
             message: "删除关系成功！",
           });
+          this.deleteGisLines(
+            this.currentTypeData.currentRelationName.id.toString()
+          ); //vuex去掉这个
         }
         this.closeDialog();
       }

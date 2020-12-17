@@ -1,5 +1,5 @@
 import Popper from "../../Popper";
-import {emitter,EventType} from "../../../src/EventEmitter";
+import { emitter, EventType } from "../../../src/EventEmitter";
 class PointDrawer {
   constructor(viewer, options) {
     this.viewer = viewer;
@@ -7,8 +7,10 @@ class PointDrawer {
     this.handler = null;
     this.position = null;
     this.entity = null;
-
-    ({ scene: this.scene, clock: this.clock } = this.viewer);
+    this.firstPosition = null;
+    this.firstLng = null;
+    this.firstLat = null;
+      ({ scene: this.scene, clock: this.clock } = this.viewer);
     ({
       canvas: this.canvas,
       camera: this.camera,
@@ -57,12 +59,6 @@ class PointDrawer {
 
       this.position = cartesian3;
       this.entity.position.setValue(cartesian3);
-      this.entity.billboard.scaleByDistance = new Cesium.NearFarScalar(  //近值，近端放大率，远值，远端放大率） 给定距离视点的近值和远值，
-        1.5e2,
-        1.0,
-        8.0e6,
-        0.2
-      );
       this.handler.destroy();
       this.handler = null;
       this.popper.destroy();
@@ -88,9 +84,7 @@ class PointDrawer {
       if (!Cesium.defined(endPosition)) {
         return;
       }
-
       const ray = this.camera.getPickRay(endPosition);
-
       if (!Cesium.defined(ray)) {
         return;
       }
@@ -99,24 +93,19 @@ class PointDrawer {
       if (!Cesium.defined(cartesian)) {
         return;
       }
-
       // 空间坐标系转弧度，弧度转经纬度，经纬度再转空间坐标系（符合地球曲率的？） 解决鼠标位置与真实位置的误差
       const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
       const longitude = Cesium.Math.toDegrees(cartographic.longitude);
       const latitude = Cesium.Math.toDegrees(cartographic.latitude);
-      const alt = Math.abs(cartographic.height)*100;
+      const alt = Math.abs(cartographic.height) * 100;
       const cartesian3 = Cesium.Cartesian3.fromDegrees(longitude, latitude);
-
       this.position = cartesian3;
-
       if (this.entity === null) {
         this.createPoint();
       } else {
         // const values = this.entity.properties.getValue();
         // const { id } = values;
-
         this.entity.position.setValue(cartesian3);
-
         // 有id的时候发送 
         // if (id) {
         //   emitter.emit(EventType.UPDATE_SELECTED_ENTITY, {
@@ -125,7 +114,6 @@ class PointDrawer {
         //   });
         // }
       }
-
       // 画布中的鼠标坐标
       const popperPosition = this.scene.cartesianToCanvasCoordinates(cartesian);
       const { x, y, z } = popperPosition;
@@ -135,9 +123,9 @@ class PointDrawer {
       this.popper.instance.position = { top: y + 20 + "px", left: x + "px" };
       this.popper.instance.text = `经度: ${longitude} \n\t 纬度: ${latitude}\n\t高度: ${alt} `;
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-    // 鼠标移动的时候
-    this.handler.setInputAction(event => {
 
+    // 鼠标右键取消绘制展开面板
+    this.handler.setInputAction(event => {
       this.cancelDraw();
       emitter.emit(EventType.MapLegend_Collapse);
     }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
@@ -192,22 +180,17 @@ class PointDrawer {
     } else {
       entityId = ""
     }
-    let location
-    if (this.options.hasOwnProperty('state')) {
-      location = this.options.state
-    } else {
-      location = ""
-    }
     const point = this.viewer.entities.add({
       id: mapId,
       entityId: entityId,
-      location: location,
       position: this.position,//null
       billboard: {
         image: "img/location.png",
         width: 25,
         height: 25,
+        color: Cesium.Color.fromCssColorString("#ffcc33"),
       },
+      newAdd: true,  //标记或者未知位置添加时候的标记
       label: {
         show: true,
         text: this.options.hasOwnProperty('name') && this.options.name || '暂无名称',
@@ -220,10 +203,7 @@ class PointDrawer {
         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
         scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
         pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
-          1e2,
-          3,
-          9.0e6,
-          0.0
+          1.5e2, 1.0, 8.0e6, 0.2
         )
       },
       // ellipse: {
@@ -234,6 +214,7 @@ class PointDrawer {
       // properties: { properties: { ...properties }, id: entityId, avatar: image, name: groupCategory }
       properties: properties
     });
+
     this.entity = point;
   }
   /**
@@ -244,14 +225,21 @@ class PointDrawer {
 
     if (key === "Escape") {
       window.removeEventListener("keydown", this.handleKeydownEvent);
+      emitter.emit(EventType.MapLegend_Collapse);
       this.cancelDraw();
     }
   }
 
   cancelDraw() {
-    this.viewer.entities.remove(this.entity); //删除当前实体
+    //标记或者未知位置的直接删除 //移动实体的不能删除
+    if (this.entity.newAdd) this.viewer.entities.remove(this.entity); //删除当前实体
+    if (!this.entity.hasOwnProperty('newAdd')) { //已知位置的移动取消就变为刚开始的位置
+      this.entity.position.setValue(this.firstPosition);
+      this.entity.properties.lng.setValue(this.firstLng);
+      this.entity.properties.lat.setValue(this.firstLat);
+    }
     this.entity = null;
-    if(this.popper) this.popper.destroy();
+    if (this.popper) this.popper.destroy();
     this.handler.destroy();
   }
 }

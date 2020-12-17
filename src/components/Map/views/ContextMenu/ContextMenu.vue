@@ -21,7 +21,7 @@ export default {
         { name: "拓展", icon: "\ue70e", angle: 1, action: "expand" },
         { name: "删除", icon: "\ue683", angle: 1, action: "delete" },
         { name: "轨迹飞行", icon: "\ue814", angle: 1, action: "SimulatedSatellite" },
-        // { name: "切换视角", icon: "\ue813", angle: 1, action: "changeView" },
+        { name: "一键部署", icon: "\ue813", angle: 1, action: "oneDeployment" },
         { name: "范围搜索", icon: "\ue8ef", angle: 1, action: "scopeSearch" },
         { name: "范围切换", icon: "\ue814", angle: 1, action: "scopeChange" },
         { name: "显示雷达", icon: "\ue831", angle: 1, action: "radarShow" },

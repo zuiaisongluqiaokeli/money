@@ -50,6 +50,7 @@ export default {
   },
   data() {
     return {
+      drawingEntityFlightLine: false, //设置轨迹飞行线
       showRangeSetting: false, //范围->设置
       rightEntityPosition: {}, //右键实体
       imageryProviderMap: [
@@ -158,7 +159,7 @@ export default {
                   level = vertice.level || 0;
                 let subIds = ids.join(",");
                 let virtualCount = 1;
-                const clusterCacheKey = this.clusterCacheKey;
+                const clusterCacheKey = new Date().getTime();
                 newExtendVertice(
                   extendSize,
                   extendOpen,
@@ -234,7 +235,18 @@ export default {
             gisvis.emitter.emit(EventType.CLICK_BLANK);
             gisvis.viewer.entities.removeById(this.gisRightSelectedEntity.id);
             this.removeEntityBackEnd(this.gisRightSelectedEntity.id);
-            gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, []);
+            //批量删除存在的关系线
+            gisvis.viewer.entities.values.forEach((ele) => {
+              let id = ele.id.toString();
+              if (
+                id.split(",").length > 1 &&
+                ele.id
+                  .split(",")
+                  .includes(this.gisRightSelectedEntity.id.toString())
+              ) {
+                gisvis.viewer.entities.remove(ele);
+              }
+            });
             if (gisvis.contextMenu) {
               gisvis.contextMenu.destroy();
               gisvis.contextMenu = null;
@@ -243,6 +255,7 @@ export default {
               gisvis.popper.destroy();
               gisvis.popper = null;
             }
+            gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, []);
             // let tempEntities = this.gisEntities.filter(
             //   (e) => e.id !== this.gisRightSelectedEntity.id
             // );
@@ -302,8 +315,8 @@ export default {
             break;
           //轨迹飞行开始
           case "range":
-            //作为起始点
-            gisvis.emitter.emit(EventType.MeasureLineSpace, {
+            //作为起始点坐标
+            gisvis.emitter.emit(EventType.drawingEntityFlightLine, {
               firstPoint: {
                 longitude: this.gisRightSelectedEntity.properties.getValue()
                   .lng,
@@ -313,24 +326,31 @@ export default {
               cartesian: [{ ...this.rightEntityPosition }],
               state: "fly",
             });
-
+            this.drawingEntityFlightLine = true;
             break;
           //轨迹飞行
           case "range-setting":
+            if (!this.drawingEntityFlightLine) {
+              this.$message.info("请先设置轨迹飞行线");
+              return;
+            }
+            this.drawingEntityFlightLine = false;
+            gisvis.emitter.emit(EventType.CLICK_BLANK);
             gisvis.viewer.entities.getById(
               this.gisRightSelectedEntity.id
             ).show = false; //隐藏右键轨迹飞行动画结束显示
-            gisvis.emitter.emit(
-              EventType.Simulated_Satellite,
-              (trackedEntity) => {
-                trackedEntity = trackedEntity;
-              }
-            );
+            gisvis.emitter.emit(EventType.Simulated_Satellite);
             break;
-          //切换视角
-          case "changeView":
-            console.log("飞机实体模型", trackedEntity);
-            gisvis.viewer.trackedEntity = trackedEntity;
+          //一键部署
+          case "oneDeployment":
+            emitter.emit(EventType.CLICK_BLANK);
+            emitter.emit(EventType.SET_MEASURE_TYPE, {
+              group: "基地",
+              groupCategory: "基地",
+              groupType: "基地",
+              image: "images/facility.png",
+            });
+            this.$message.success("已成功创建关联部署点");
             break;
         }
         if (gisvis.contextMenu) {

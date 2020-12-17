@@ -5,7 +5,7 @@
       class="dialog"
       append-to-body
       :visible.sync="dialogVisible"
-      @closed="emitClosedEvent"
+      @closed="cancel"
       width="1000px"
       :close-on-click-modal="false"
     >
@@ -155,7 +155,6 @@
                       <el-tree
                         ref="selectTree"
                         :filter-node-method="filterNode"
-                        :expand-on-click-node="false"
                         accordion
                         highlight-current
                         :data="treeData"
@@ -455,7 +454,7 @@
                   <span
                     style="margin-left: 10px; cursor: pointer; color: #188cff"
                     :title="scope.row.name"
-                    @click="preview(scope.row.url)"
+                    @click="preview(scope.row)"
                     >{{ scope.row.name }}</span
                   >
                 </template>
@@ -479,7 +478,7 @@
         <el-button type="primary" @click="addVertices" size="small"
           >确定</el-button
         >
-        <el-button type="default" @click="emitClosedEvent" size="small"
+        <el-button type="default" @click="cancel" size="small"
           >取消</el-button
         >
       </div>
@@ -497,7 +496,7 @@
     >
       <iframe
         v-if="previewUrl"
-        :src="previewUrl"
+        :src="previewUrl + '#toolbar=0'"
         width="100%"
         height="700"
       ></iframe>
@@ -793,14 +792,15 @@ export default {
         }
       }
       this.formatTree(treeData, data);
-      this.treeData = [
-        {
-          id: -1,
-          label: "所有",
-          children: treeData,
-          parentsName: "",
-        },
-      ];
+      // this.treeData = [
+      //   {
+      //     id: -1,
+      //     label: "所有",
+      //     children: treeData,
+      //     parentsName: "",
+      //   },
+      // ];
+      this.treeData =treeData
     },
 
     // 递归返回的数据，形成树结构
@@ -826,7 +826,7 @@ export default {
     async uploadSectionFile(params) {
       this.$refs.upload.clearFiles();
       const file = params.raw;
-      const type = params.name.substr(params.name.lastIndexOf(".") + 1);
+      const type = params.name.substr(params.name.lastIndexOf(".") + 1).toLowerCase();
       const types = ["jpg", "jpeg", "png", "gif", "bmp"];
       if (types.indexOf(type) === -1) {
         this.imgList = [];
@@ -1048,22 +1048,23 @@ export default {
         }
       }
     },
-    async preview(url) {
+    async preview(file) {
+      this.fileName = file.name;
       this.previewLoading = true;
-      const type = url.slice(url.lastIndexOf(".") + 1);
+      const type = file.url.slice(file.url.lastIndexOf(".") + 1).toLowerCase();
       if (/pdf$/.test(type)) {
-        this.previewUrl = url;
+        this.previewUrl = file.url;
       } else if (/jpg$|png$|jpeg$|gif$|bmp$/.test(type)) {
-        this.previewImg = url;
+        this.previewImg = file.url;
       } else if (/mp4$|webm$/.test(type)) {
-        this.previewSrc = url;
+        this.previewSrc = file.url;
         this.videoType = type;
       } else if (/mp3$|wav$/.test(type)) {
-        this.previewMusic = url;
+        this.previewMusic = file.url;
       } else {
-        const res = await sortManage.neo4jFilePreview(url, 0, null);
+        const res = await sortManage.neo4jFilePreview(file.url, 0, null);
         this.blob = new Blob([res.data], {
-          type: "application/pdf",
+          type: "application/pdf"
         });
         this.previewUrl = URL.createObjectURL(this.blob);
       }
@@ -1467,6 +1468,9 @@ export default {
     },
     emitClosedEvent() {
       this.$emit("before-close");
+    },
+    cancel() {
+      this.$emit("cancel");
     },
   },
 };

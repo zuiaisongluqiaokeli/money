@@ -10,7 +10,7 @@
       >
         <i class="tip iconfont icon-triangle" v-show="item.tip"></i>
         <div
-          v-if="item.name === 'category' || item.name === 'mark'"
+          v-if="item.name === 'relationship' || item.name === 'mark'"
           @click="open(item.name)"
         >
           <i :class="item.icon" class="icon"></i>
@@ -50,7 +50,8 @@
     <!-- 新的标记 -->
     <GisInfoPanelAdd
       v-if="addEntityDialog"
-      @before-close="closeDialog"
+      @before-close="closeDialog()"
+      @cancel="closeDialog();deleteNewPoint()"
       :dialogTattle="dialogTitle"
       :entityInfo="entityInfo"
       ref="entityDialog"
@@ -145,7 +146,7 @@ export default {
       // this.$emit("click", item);
       if (item.label === "主页") {
         window.viewer.camera.flyHome();
-      } else if (item.label === "清空") {
+      } else if (item.label === "清空所有") {
         this.removeallEntityBackEnd();
         gisvis.viewer.entities.removeAll();
         gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, []);
@@ -156,7 +157,7 @@ export default {
     },
     //打开标记或者关系
     async open(val) {
-      if (val == "category") {
+      if (val == "relationship") {
         console.log("连续选择两项的数据", this.selectedVertices);
         if (this.selectedVertices.length == 2) {
           this.dialogTitle = "设置关系";
@@ -165,7 +166,7 @@ export default {
           this.$message.error("请连续选择两项");
         }
       } else {
-        //startDrawPoint drawEntities //drawEntities RENDER_DATA
+        emitter.emit(EventType.CLICK_BLANK);
         emitter.emit(EventType.SET_MEASURE_TYPE, {
           group: "基地",
           groupCategory: "基地",
@@ -180,6 +181,7 @@ export default {
       entity.properties.latitude = entity.properties.纬度;
       entity.properties.longitude = entity.properties.经度;
       if (state === -1) {
+        gisvis.emitter.emit(EventType.CLICK_BLANK);
         gisvis.viewer.entities.removeById(this.temEntity.id.id);
         emitter.emit(EventType.POPPER_REMOVE);
         emitter.emit(EventType.RENDER_DATA, {
@@ -206,6 +208,10 @@ export default {
       this.setRelationship = false;
       this.showMapMark = false;
       this.addEntityDialog = false;
+    },
+    deleteNewPoint(){
+      gisvis.emitter.emit(EventType.CLICK_BLANK);
+      gisvis.viewer.entities.removeById(this.temEntity.id.id)
     },
     ...mapMutations("map", ["updateGisEntities", "updateGisLines"]),
   },

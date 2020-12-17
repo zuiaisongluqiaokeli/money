@@ -4,6 +4,7 @@ import {
   EventType
 } from "../../src/EventEmitter";
 import measureTools from './src/measureTools'
+import drawingFlightLine from './src/drawingFlightLine'
 class MeasureTool {
   constructor(viewer = {}, options = {}) {
     this.viewer = viewer;
@@ -32,11 +33,16 @@ class MeasureTool {
     return this.pointDrawer;
   }
   //测量距离
-  measureLineSpace(callback,cartesian) {
-    measureTools.measureLineSpace(this.viewer,callback,cartesian)
+  measureLineSpace() {
+    measureTools.measureLineSpace(this.viewer)
   }
+  //测量面积
   measureAreaSpace() {
     measureTools.measureAreaSpace(this.viewer)
+  }
+  //绘制实体飞行线段
+  drawingEntityFlightLine(callback,cartesian) {
+    drawingFlightLine.measureLineSpace(this.viewer,callback,cartesian)
   }
   setDefaultOptions() {
     const {
@@ -62,6 +68,9 @@ class MeasureTool {
     Object.assign(options, this.options);
     this.pointDrawer = new PointDrawer(this.viewer, options);
     this.pointDrawer.entity = entity; //有实体不用初始化
+    this.pointDrawer.firstPosition = entity.position.getValue(); 
+    this.pointDrawer.firstLng = entity.properties.lng.getValue(); 
+    this.pointDrawer.firstLat = entity.properties.lat.getValue();  
     this.pointDrawer.startDrawPoint(callback);
 
     return this.pointDrawer;

@@ -14,6 +14,7 @@
                     </keep-alive>
                 </transition>
                 <changeBackground />
+                <!-- 要求满足样式是设置了高度且超出滚动的 -->
                 <el-backtop target=".content" :style="{'background-color':appBackground}"></el-backtop>
             </div>
         </div>

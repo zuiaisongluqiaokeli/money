@@ -6,6 +6,7 @@ this.viewer.entities.removeAll()
 this.viewer.entities.values.forEach(item=>{})//地图上标记点的所有实体
 this.viewer.entities.remove(this.entity); //删除当前实体
 //指定集合操作 Data.forEach(item=>this.viewer.entities.add())
+//勾选中的实体删除或隐藏的时候先勾选到空白，因为有poper没有被销毁会直接报移动位置错误
 
 标记：一次性创建空的实体移动给其经纬度，左键点击销毁监听事件，触发全局的左键监听
 全局的左键监听：带出实体信息依据是否有标记字段进入新增/修改；

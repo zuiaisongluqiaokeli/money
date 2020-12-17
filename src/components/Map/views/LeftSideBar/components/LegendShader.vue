@@ -91,14 +91,7 @@ export default {
         }
       }
       this.formatTree(treeData, data);
-      this.treeData = [
-        {
-          id: -1,
-          label: "所有",
-          children: treeData,
-          parentsName: "",
-        },
-      ];
+      this.treeData = treeData
     },
 
     // 递归返回的数据，形成树结构

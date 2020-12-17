@@ -89,10 +89,10 @@ class SimulatedSatellite {
           glowPower: .1,
           color: Cesium.Color.YELLOW
         }),
-        width: 10
+        width: 4
       }
     });
-    this.store.airplaneEntity = planeModel
+    this.store.airplaneEntity = planeModel //用于观察飞机模型
     planeModel.position.setInterpolationOptions({ //设定位置的插值算法
       interpolationDegree: 1,
       interpolationAlgorithm: Cesium.LinearApproximation,
@@ -101,33 +101,33 @@ class SimulatedSatellite {
       // interpolationAlgorithm:Cesium.LagrangePolynomialApproximation,
     });
 
-    var property2 = computeFlight2(data);
-    var entity_ty = viewer.entities.add({
-      availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
-        start: start,
-        stop: stop
-      })]),
-      id:"airplain-radar",
-      position: property2,
-      orientation: new Cesium.VelocityOrientationProperty(property2),
-      cylinder: {
-        HeightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        length: data[0].height,
-        topRadius: 0,
-        bottomRadius: data[0].height / 2,
-        material: Cesium.Color.RED.withAlpha(.4),
-        outline: !0,
-        numberOfVerticalLines: 0,
-        outlineColor: Cesium.Color.RED.withAlpha(.8)
-      },
-    });
-    entity_ty.position.setInterpolationOptions({
-      interpolationDegree: 1,
-      interpolationAlgorithm: Cesium.LinearApproximation,
-      //画园轨迹
-      // interpolationDegree: 5,
-      // interpolationAlgorithm:Cesium.LagrangePolynomialApproximation,
-    });
+    // var property2 = computeFlight2(data);
+    // var entity_ty = viewer.entities.add({
+    //   availability: new Cesium.TimeIntervalCollection([new Cesium.TimeInterval({
+    //     start: start,
+    //     stop: stop
+    //   })]),
+    //   id:"airplain-radar",
+    //   position: property2,
+    //   orientation: new Cesium.VelocityOrientationProperty(property2),
+    //   cylinder: {
+    //     HeightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+    //     length: data[0].height,
+    //     topRadius: 0,
+    //     bottomRadius: data[0].height / 2,
+    //     material: Cesium.Color.RED.withAlpha(.4),
+    //     outline: !0,
+    //     numberOfVerticalLines: 0,
+    //     outlineColor: Cesium.Color.RED.withAlpha(.8)
+    //   },
+    // });
+    // entity_ty.position.setInterpolationOptions({
+    //   interpolationDegree: 1,
+    //   interpolationAlgorithm: Cesium.LinearApproximation,
+    //   //画园轨迹
+    //   // interpolationDegree: 5,
+    //   // interpolationAlgorithm:Cesium.LagrangePolynomialApproximation,
+    // });
 
 
 
@@ -142,16 +142,16 @@ class SimulatedSatellite {
       return property;
     }
 
-    function computeFlight2(source) {
-      var property = new Cesium.SampledPositionProperty();
-      for (var i = 0; i < source.length; i++) {
-        var time = Cesium.JulianDate.addSeconds(start, source[i].time, new Cesium.JulianDate);
-        var position = Cesium.Cartesian3.fromDegrees(source[i].longitude, source[i].latitude, source[i].height / 2);
-        // 添加位置，和时间对应
-        property.addSample(time, position);
-      }
-      return property;
-    }
+    // function computeFlight2(source) {
+    //   var property = new Cesium.SampledPositionProperty();
+    //   for (var i = 0; i < source.length; i++) {
+    //     var time = Cesium.JulianDate.addSeconds(start, source[i].time, new Cesium.JulianDate);
+    //     var position = Cesium.Cartesian3.fromDegrees(source[i].longitude, source[i].latitude, source[i].height / 2);
+    //     // 添加位置，和时间对应
+    //     property.addSample(time, position);
+    //   }
+    //   return property;
+    // }
   }
 }
 export default SimulatedSatellite

@@ -5,9 +5,6 @@
         <el-button type="text" class="button">
           所有实体({{ allEntityBackEnd.length }})
         </el-button>
-        <el-button type="text" class="button" @click="removeAll">
-          清空所有
-        </el-button>
         <i
           :class="collapse ? 'el-icon-top-right' : 'el-icon-bottom-left'"
           @click="collapse = !collapse"
@@ -220,6 +217,7 @@ export default {
       tableData: [],
       arr1: [],
       arr2: [],
+      countArr: [], //用来累计便于关系线的显示
     };
   },
   created() {
@@ -234,6 +232,7 @@ export default {
   },
 
   mounted() {},
+  //样式的更新/实体的更新/全局的更新
   methods: {
     ...mapMutations("map", [
       "setallEntityBackEnd",
@@ -336,14 +335,26 @@ export default {
     removeEntities(event, val, index) {
       event.stopPropagation();
       gisvis.emitter.emit(EventType.CLICK_BLANK);
+      //批量删除
       this.tableData.forEach((item) => {
         if (item.category == val.category) {
           item.listInfo.forEach((element) => {
             gisvis.viewer.entities.removeById(element.id);
             this.removeEntityBackEnd(element.id);
+            //批量删除存在的关系线
+            gisvis.viewer.entities.values.forEach((ele) => {
+              let id = ele.id.toString();
+              if (
+                id.split(",").length > 1 &&
+                ele.id.split(",").includes(element.id.toString())
+              ) {
+                gisvis.viewer.entities.remove(ele);
+              }
+            });
           });
         }
       });
+
       if (gisvis.contextMenu) {
         gisvis.contextMenu.destroy();
         gisvis.contextMenu = null;
@@ -361,6 +372,16 @@ export default {
       gisvis.emitter.emit(EventType.CLICK_BLANK);
       this.removeEntityBackEnd(val.id);
       gisvis.viewer.entities.removeById(val.id);
+      //批量删除存在的关系线
+      gisvis.viewer.entities.values.forEach((ele) => {
+        let id = ele.id.toString();
+        if (
+          id.split(",").length > 1 &&
+          ele.id.split(",").includes(val.id.toString())
+        ) {
+          gisvis.viewer.entities.remove(ele);
+        }
+      });
       this.handleLegendDataChange([]);
       if (gisvis.contextMenu) {
         gisvis.contextMenu.destroy();
@@ -386,6 +407,7 @@ export default {
     },
     flyEntity(val) {
       if (val) {
+        emitter.emit(EventType.CLICK_BLANK);
         let { 经度: lng, 纬度: lat } = val.properties;
         gisvis.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(lng, lat, 1500),
@@ -394,13 +416,13 @@ export default {
     },
     mapMark(val) {
       this.collapse = true;
+      emitter.emit(EventType.CLICK_BLANK); //避免右键取消转到之前仍被选中的状态
       emitter.emit(EventType.SET_MEASURE_TYPE, {
         group: "基地",
         groupCategory: "基地",
         groupType: "基地",
         image: "images/facility.png",
         id: val.id,
-        state: "未知位置",
         name: val.properties.name || val.properties.名称,
       });
       this.$message.warning("开始编辑位置");
@@ -422,15 +444,78 @@ export default {
       gisvis.emitter.emit(EventType.CLICK_BLANK);
       val.visible = !val.visible;
       this.tableData[index].listInfo.forEach((item) => {
+        this.countArr.push(item.id);
         item.visible = val.visible;
         gisvis.viewer.entities.getById(item.id).show = val.visible;
+        //批量隐藏存在的关系线
+        if (!val.visibl) {
+          gisvis.viewer.entities.values.forEach((ele) => {
+            let id = ele.id.toString();
+            if (
+              id.split(",").length > 1 &&
+              ele.id.split(",").includes(item.id.toString())
+            ) {
+              ele.show = val.visible;
+            }
+          });
+        }
       });
+      //只有当两个点都是被选中的点是和边对应的ID吻合时候才显示边
+      if (val.visible) {
+        let arrIds = gisvis.viewer.entities.values
+          .filter((ele) => {
+            let id = ele.id.toString();
+            return id.split(",").length > 1;
+          })
+          .map((item) => item.id);
+        arrIds.forEach((item) => {
+          if (
+            item
+              .split(",")
+              .filter((ele) => !this.countArr.some((element) => ele == element))
+              .length == 0
+          ) {
+            gisvis.viewer.entities.getById(item).show = true;
+          }
+        });
+      }
     },
     changeVisibleEntity(event, index, val, key) {
+      this.countArr.push(val.id);
       event.stopPropagation();
       gisvis.emitter.emit(EventType.CLICK_BLANK);
       this.tableData[index].listInfo[key].visible = !val.visible;
       gisvis.viewer.entities.getById(val.id).show = val.visible;
+      //批量隐藏存在的关系线
+      if (!val.visible) {
+        gisvis.viewer.entities.values.forEach((ele) => {
+          let id = ele.id.toString();
+          if (
+            id.split(",").length > 1 &&
+            ele.id.split(",").includes(val.id.toString())
+          ) {
+            ele.show = val.visible;
+          }
+        });
+      }
+      if (val.visible) {
+        let arrIds = gisvis.viewer.entities.values
+          .filter((ele) => {
+            let id = ele.id.toString();
+            return id.split(",").length > 1;
+          })
+          .map((item) => item.id);
+        arrIds.forEach((item) => {
+          if (
+            item
+              .split(",")
+              .filter((ele) => !this.countArr.some((element) => ele == element))
+              .length == 0
+          ) {
+            gisvis.viewer.entities.getById(item).show = true;
+          }
+        });
+      }
       if (
         this.tableData[index].listInfo.every((item) => item.visible == false) ||
         this.tableData[index].listInfo.every((item) => item.visible == true)
@@ -544,6 +629,7 @@ export default {
   color: #fafafa;
   line-height: 30px;
   height: 30px;
+  position: relative;
 }
 /deep/ .el-collapse {
   border: none;
@@ -589,7 +675,7 @@ export default {
   }
 
   .legend {
-    max-height: 500px;
+    max-height: 300px;
     border-top: 1px solid rgba(255, 255, 255, 1);
     overflow: auto;
     .titleItem {

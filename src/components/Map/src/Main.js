@@ -43,7 +43,7 @@ class Main {
     this.measureTool = new MeasureTool(this.viewer);
     this.screenSpaceEvent = new ScreenSpaceEvent({
       viewer: this.viewer,
-      store:this.store,
+      store: this.store,
     });
     this.viewer.scene.postRender.addEventListener(this.handlePostRender, this);
     this.emitter = emitter;
@@ -81,6 +81,7 @@ class Main {
     emitter.on(EventType.Simulated_Satellite, this.simulatedSatelliteFun, this); //扫描
     emitter.on(EventType.MeasureLineSpace, this.measureLineSpace, this); //测量距离
     emitter.on(EventType.MeasureAreaSpace, this.measureAreaSpace, this); //测量面积
+    emitter.on(EventType.drawingEntityFlightLine, this.drawingEntityFlightLine, this); //绘制实体飞行线段
     emitter.on(EventType.REMOVE_ALL_ENTITIES, this.removeAllEntities, this); //清空实体
     emitter.on(EventType.CREATE_Fly_LINES, this.createFlyLines, this); //关系之前线条
     emitter.on(EventType.SET_ENTITIES_VISIBLE_BY_TYPE, this.setEntitiesVisibleByType, this); //点击图例显示图标
@@ -148,7 +149,7 @@ class Main {
     }
     this.popper.instance.text = name;
     this.popper.instance.position = {
-      top: y  + "px",
+      top: y + "px",
       left: x + "px"
     };
   }
@@ -162,6 +163,8 @@ class Main {
     } = this.store;
 
     this.removePopper(); //删除当前可移动的popper
+    emitter.emit(EventType.CLICK_BLANK);//移动的时候避免取消报错
+    //selectedEntity.id是传入的实体对象
     this.measureTool.movePoint(selectedEntity.id, {}, entity => {
       this.store.setMeasureType(null);
     });
@@ -379,24 +382,9 @@ class Main {
     });
   }
   //测量距离 (如果是绘制航线默认带上第一点坐标，每次先清空上次绘制的数据)
-  measureLineSpace(obj) {
-    //每次清空之前的
-    this.viewer.entities.values.forEach(element => {
-      if (element.name == '空间直线距离' || element.name == '直线')
-        this.viewer.entities.remove(element)
-    });
-    if (obj.state == 'measure') {
-      this.measureTool.measureLineSpace(arrData => { }, [])
-    } else {
-      const { firstPoint, cartesian } = obj
-      this.arrData = []
-      //this.viewer.entities.values = this.viewer.entities.values.filter(item=>item.name!='空间直线距离')
-      this.measureTool.measureLineSpace(arrData => {
-        this.arrData = arrData
-        this.arrData.splice(0, 0, firstPoint)
-      }, cartesian)
-    }
-  }
+  measureLineSpace() {
+      this.measureTool.measureLineSpace()
+    } 
   //测量面积
   measureAreaSpace() {
     this.measureTool.measureAreaSpace()
@@ -498,10 +486,21 @@ class Main {
     RadarsEffects.addRadarScan(this.viewer, val)
   }
   /**
+   * 绘制实体飞行线段
+   */
+  drawingEntityFlightLine(obj) {
+    const { firstPoint, cartesian } = obj
+      this.arrData = []
+      this.measureTool.drawingEntityFlightLine(arrData => {
+        this.arrData = arrData
+        this.arrData.splice(0, 0, firstPoint)//添加初始点坐标
+      }, cartesian)//绘制的初始点坐标
+  }
+  /**
    * 轨迹飞行
    */
   simulatedSatelliteFun() {
-    let time = 0
+    let time = 0 //拟定假的时间
     this.arrData.forEach(item => {
       item.height = this.arrData[1].height //默认高度
       item.time = time
@@ -510,51 +509,54 @@ class Main {
     sessionStorage.setItem('initTackData', JSON.stringify(this.arrData))
     console.log("绘制的飞行轨迹数据", JSON.parse(sessionStorage.getItem("initTackData")))
     this.simulatedSatellite.planFlying(this.viewer, JSON.parse(sessionStorage.getItem("initTackData")))
-    VuexStore.state.map.airplaneEntity = this.simulatedSatellite.store.airplaneEntity
+    VuexStore.state.map.airplaneEntity = this.simulatedSatellite.store.airplaneEntity//用于追随实体
     emitter.emit(EventType.StartTimeLine);//自动启用时间线
   }
+  /**
+   * 关系线
+   */
   createFlyLines(data) {
-    const center = data.center;
-    const points = data.points;
+    const center = data.center; //起始点
+    const points = data.points;//终止点
     const startPoint = Cesium.Cartesian3.fromDegrees(
       center.lon,
       center.lat,
       0
     );
+    const ids = [center.id, points.id].join(",")
     //中心点
-    this.viewer.entities.add({
-      position: startPoint,
-      point: {
-        pixelSize: center.size,
-        color: center.color
-      }
-    });
+    // this.viewer.entities.add({
+    //   position: startPoint,
+    //   point: {
+    //     pixelSize: center.size,
+    //     color: center.color
+    //   }
+    // });
     //大批量操作时，临时禁用事件可以提高性能
     this.viewer.entities.suspendEvents();
     //散点
-    points.map(item => {
-      let material = new PolylineTrailMaterialProperty({
-        color: Cesium.Color.BLUE,
-        duration: 3000,
-        trailImage: "images/colors1.png" //动态图片
-      });
-      const endPoint = Cesium.Cartesian3.fromDegrees(item.lon, item.lat, 0);
-      this.viewer.entities.add({
-        position: endPoint,
-        point: {
-          pixelSize: item.size,
-          color: item.color
-        }
-      });
-      this.viewer.entities.add({
-        polyline: {
-          positions: this.generateCurve(startPoint, endPoint),
-          width: 2,
-          material: material
-        }
-      });
+    let material = new PolylineTrailMaterialProperty({
+      color: Cesium.Color.BLUE,
+      duration: 3000,
+      trailImage: "images/colors1.png" //动态图片
     });
-    this.viewer.entities.resumeEvents();
+    const endPoint = Cesium.Cartesian3.fromDegrees(points.lon, points.lat, 0);
+    // this.viewer.entities.add({
+    //   position: endPoint,
+    //   point: {
+    //     pixelSize: points.size,
+    //     color: points.color
+    //   }
+    // });
+    this.viewer.entities.add({
+      id: ids,
+      polyline: {
+        positions: this.generateCurve(startPoint, endPoint),
+        width: 2,
+        material: material
+      }
+    });
+    this.viewer.entities.resumeEvents();//启动
   }
   /**
    * 生成流动曲线

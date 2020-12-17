@@ -4,6 +4,10 @@
       <span>名称：</span><el-switch class="switch" v-model="label"></el-switch>
     </div>
     <div>
+      <span>轨迹：</span
+      ><el-switch class="switch" v-model="track">轨迹</el-switch>
+    </div>
+    <div>
       <span>经纬度网格：</span>
       <el-switch class="switch" v-model="gridLatitudeLongitude"></el-switch>
     </div>
@@ -26,10 +30,7 @@
       <span>鹰眼图：</span>
       <el-switch class="switch" v-model="eyeMap"></el-switch>
     </div>
-    <div>
-      <span>轨迹：</span
-      ><el-switch class="switch" v-model="track">轨迹</el-switch>
-    </div>
+
     <div>
       <span>切换飞机视角：</span>
       <el-tooltip
@@ -64,6 +65,9 @@
         >
       </el-tooltip>
     </div>
+    <!-- <div>
+      <el-button @click="newnew">wodjakdasdajdl</el-button>
+    </div> -->
   </div>
 </template>
 
@@ -95,6 +99,7 @@ export default {
     label(n) {
       this.changeGisLabelShow(n);
       console.log("页面上的实体", gisvis.viewer.entities.values);
+      gisvis.emitter.emit(EventType.CLICK_BLANK);
       if (n) {
         gisvis.viewer.entities.values.forEach((n) => (n.label.show = true));
       } else {
@@ -126,10 +131,11 @@ export default {
         let czmlDataSource = new Cesium.CzmlDataSource();
         let dataSourcePromise = gisvis.viewer.dataSources.add(czmlDataSource);
         czmlDataSource.load(globalSatellites).then((instance) => {
-          emitter.emit(EventType.StartTimeLine);
+          emitter.emit(EventType.StartTimeLine);//开启时间线
         });
       } else {
         gisvis.viewer.dataSources.removeAll();
+        emitter.emit(EventType.handleStopTimeLine);//结束时间线
       }
     },
     eyeMap(val) {
@@ -159,11 +165,7 @@ export default {
       "changeGisTrackShow",
       "changeEyeMap",
     ]),
-    addselection() {
-      var els = document.getElementsByClassName("cesium-viewer"); //cesium起用地图选择后cesium创建的一个框
-      // var selectionIndicatorContainer = document.createElement('div');
-      //selectionIndicatorContainer.className = 'cesium-viewer-selectionIndicatorContainer';
-      //els[0].appendChild(selectionIndicatorContainer);
+    newnew() {
       var selectionIndicatorContainer = document.getElementsByClassName(
         "cesium-viewer-selectionIndicatorContainer"
       ); //cesium起用地图选择后cesium创建的一个框
@@ -171,32 +173,21 @@ export default {
         selectionIndicatorContainer[0],
         gisvis.viewer.scene
       );
-      var entity = viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(113.754961, 23.068441, 0.0),
-        billboard: {
-          width: 25,
-          height: 25,
-          color: Cesium.Color.YELLOW,
-          image: "img/location.png",
-        },
-      });
-      //var viewModel = selectionIndicator.viewModel;
-      //viewer._selectedEntityChanged.raiseEvent(entity);
-      //viewModel.animateAppear();
-      (selectionIndicator.viewModel.position = Cesium.Cartesian3.fromDegrees(
-        113.754961,
-        23.068441,
-        0.0
-      )),
-        (selectionIndicator.viewModel.showSelection = true);
-      //viewModel.update();
+      // var selectionIndicatorViewModel = selectionIndicator.viewModel;
+      // if (selectionIndicatorViewModel) {
+      //   selectionIndicatorViewModel.position = Cesium.Cartesian3.fromDegrees(
+      //     113.754961,
+      //     23.068441,
+      //     150000
+      //   );
+      //   selectionIndicatorViewModel.showSelection = true;
+      // }
     },
-
     measureLineSpace() {
-      gisvis.emitter.emit(EventType.MeasureLineSpace, { state: "measure" });
+      gisvis.emitter.emit(EventType.MeasureLineSpace);
     },
     measureAreaSpace() {
-      gisvis.emitter.emit(EventType.MeasureAreaSpace, { state: "measure" });
+      gisvis.emitter.emit(EventType.MeasureAreaSpace);
     },
     changeAirPlaneView() {
       gisvis.viewer.trackedEntity = this.airplaneEntity;

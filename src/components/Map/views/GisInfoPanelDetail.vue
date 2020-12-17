@@ -131,7 +131,7 @@
                       <span :class="item.icon" class="file-icon"></span>
                       <span
                         class="file-name"
-                        @click="previewMethod(item.url)"
+                        @click="preview(item)"
                         >{{
                           item.name.substr(0, item.name.lastIndexOf("."))
                         }}</span
@@ -335,7 +335,7 @@ export default {
     async setSelectedEntity(val) {
       this.entityId = val.id.entityId;
       if (val.id.hasOwnProperty("entityId") && val.id.entityId !== "") {
-        // 如果没有经纬度的话 拿之前的数据然后保存替换在查看
+        // 拿之前的数据+现在的经纬度 发送数据
         let result = await graphVerticesDetail.vertexDetailView(
           val.id.entityId,
           this.id
@@ -369,6 +369,10 @@ export default {
           type: this.newVerticesData.type,
           graphType: this.graphType,
         });
+        if(newResult.data.success==false){
+          this.$message.error(newResult.data.msg)
+          return
+        }
         newResult.data.object.properties.latitude =
           newResult.data.object.properties.纬度;
         newResult.data.object.properties.longitude =
@@ -377,7 +381,8 @@ export default {
           (newResult.data.object.properties.hasOwnProperty("实体分类") &&
             newResult.data.object.properties.实体分类) ||
           "暂未分类";
-        emitter.emit(EventType.LEGEND_DATA_CHANGE, [newResult.data.object]);
+        if(val.id.hasOwnProperty('newAdd')) delete val.id.newAdd,  //标记或者未知位置添加时候的标记
+        emitter.emit(EventType.LEGEND_DATA_CHANGE, [newResult.data.object]);//重新分组
         let res = await graphVerticesDetail
           .vertexDetailView(val.id.entityId, this.id)
           .catch(() => {
@@ -493,22 +498,23 @@ export default {
       this.selectedEntity = null;
       !this.fixed && (this.show = false);
     },
-    async previewMethod(url) {
+    async preview(file) {
+      this.fileName = file.name;
       this.previewLoading = true;
-      const type = url.slice(url.lastIndexOf(".") + 1);
+      const type = file.url.slice(file.url.lastIndexOf(".") + 1).toLowerCase();
       if (/pdf$/.test(type)) {
-        this.previewUrl = url;
+        this.previewUrl = file.url;
       } else if (/jpg$|png$|jpeg$|gif$|bmp$/.test(type)) {
-        this.previewImg = url;
+        this.previewImg = file.url;
       } else if (/mp4$|webm$/.test(type)) {
-        this.previewSrc = url;
+        this.previewSrc = file.url;
         this.videoType = type;
       } else if (/mp3$|wav$/.test(type)) {
-        this.previewMusic = url;
+        this.previewMusic = file.url;
       } else {
-        const res = await sortManage.neo4jFilePreview(url, 0, null);
+        const res = await sortManage.neo4jFilePreview(file.url, 0, null);
         this.blob = new Blob([res.data], {
-          type: "application/pdf",
+          type: "application/pdf"
         });
         this.previewUrl = URL.createObjectURL(this.blob);
       }

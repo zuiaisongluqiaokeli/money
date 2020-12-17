@@ -47,7 +47,8 @@ export default {
     };
   },
   created() {
-    emitter.on(EventType.StartTimeLine, this.changePlay, this);
+    emitter.on(EventType.StartTimeLine, this.handlePlay, this); //实体轨迹飞行
+    emitter.on(EventType.handleStopTimeLine, this.handleStop, this); //部分全球卫星
   },
   computed: {
     ...mapState("map", [
@@ -69,6 +70,7 @@ export default {
     //创建单例模式
     handlePlay() {
       if (!this.create) {
+        //如果没有创建
         this.create = true;
         this.initTimeline();
       }
@@ -79,15 +81,11 @@ export default {
       this.isPlay = true;
       this.animationViewModel.pauseViewModel.command(); //暂停
     },
-    //飞行时候自动执行时间轴
-    changePlay() {
-      this.isPlay = false;
-      this.initTimeline();
-      this.animationViewModel.playForwardViewModel.command(); //播放
-    },
     handleStop() {
       if (this.create) {
-        if (!this.isPlay) {  //如果运行就暂停
+        //如果有创建
+        if (!this.isPlay) {
+          //如果运行就暂停
           this.animationViewModel.pauseViewModel.command();
         }
         this.clockViewModel.currentTime = this.clockViewModel.startTime;
@@ -99,6 +97,7 @@ export default {
         let trackEntities = this.allEntityBackEnd.filter(
           (e) => e.properties.locus
         );
+        gisvis.emitter.emit(EventType.CLICK_BLANK);
         //后端轨迹线
         trackEntities.forEach((item) => {
           let locus = JSON.parse(item.properties.locus);
@@ -123,23 +122,37 @@ export default {
         });
         //右键飞行轨迹实体显示出来，显示的坐标是最后画线的经纬度
         let initTackData = JSON.parse(sessionStorage.getItem("initTackData"));
-        gisvis.viewer.entities.getById(
-          this.gisRightSelectedEntity.id
-        ).position = Cesium.Cartesian3.fromDegrees(
-          initTackData[initTackData.length - 1].longitude,
-          initTackData[initTackData.length - 1].latitude
-        );
-        gisvis.viewer.entities.getById(
-          this.gisRightSelectedEntity.id
-        ).show = true;
-        //销毁轨迹线和飞机实体
-        gisvis.viewer.entities.removeById("airplain");
-        gisvis.viewer.entities.removeById("airplain-radar");
-        gisvis.viewer.entities.values.forEach(element => {
-          if(element.name=='空间直线距离'||element.name=='直线')
-          gisvis.viewer.entities.remove(element)
-        });
-        gisvis.viewer.trackedEntity = null
+        if (initTackData) {
+          gisvis.viewer.entities.getById(
+            this.gisRightSelectedEntity.id
+          ).position = Cesium.Cartesian3.fromDegrees(
+            initTackData[initTackData.length - 1].longitude,
+            initTackData[initTackData.length - 1].latitude
+          );
+          gisvis.viewer.entities.getById(
+            this.gisRightSelectedEntity.id
+          ).show = true;
+          //销毁轨迹线和飞机实体
+          gisvis.viewer.entities.removeById("airplain");
+          //gisvis.viewer.entities.removeById("airplain-radar");
+          //删除绘制的数据，这样写才能删干净
+          gisvis.viewer.entities.values.forEach((element) => {
+            if (element.id.toString().split("-")[0] == "空间直线距离") {
+              viewer.entities.remove(element);
+            }
+          });
+          gisvis.viewer.entities.values.forEach((element) => {
+            if (element.id.toString().split("-")[0] == "直线") {
+              viewer.entities.remove(element);
+            }
+          });
+          gisvis.viewer.entities.values.forEach((element) => {
+            if (element.name == "空间直线距离") {
+              viewer.entities.remove(element);
+            }
+          });
+          gisvis.viewer.trackedEntity = null; //追随实体清除
+        }
       }
       this.updateInitTack(false);
     },
@@ -159,6 +172,7 @@ export default {
       let trackCZML = [
         { id: "document", name: "CZML billboard", version: "1.0" },
       ];
+      gisvis.emitter.emit(EventType.CLICK_BLANK);
       //找到有轨迹线的数据(4个值为一组，分别是时间，经度，纬度，高度)
       trackEntities.forEach((item) => {
         gisvis.viewer.entities.getById(item.id).show = false;
@@ -292,20 +306,20 @@ export default {
           let entity = instance.entities.getById("track-" + item.id);
           (entity.billboard.scaleByDistance = new Cesium.NearFarScalar(
             1.5e2,
-            1.0,
+            1.5,
             8.0e6,
-            0.2
+            0.0
           )),
             (entity.label.scaleByDistance = new Cesium.NearFarScalar(
               1.5e2,
-              1.0,
+              1.5,
               8.0e6,
-              0.2
+              0.0
             ));
           entity.label.pixelOffsetScaleByDistance = new Cesium.NearFarScalar(
-            1e2,
-            3,
-            9.0e6,
+            1.5e2,
+            1.5,
+            8.0e6,
             0.0
           );
         });
@@ -317,27 +331,36 @@ export default {
       // UNBOUNDED
       // 达到终止时间后继续读秒
       //当前时间超过结束时间掉暂停
-      gisvis.viewer.clock.clockRange = "CLAMPED";
       this.clockViewModel = null;
       this.clockViewModel = new Cesium.ClockViewModel(gisvis.viewer.clock);
-      console.log("轨迹时间", this.clockViewModel);
       this.animationViewModel = null;
       this.animationViewModel = new Cesium.AnimationViewModel(
         this.clockViewModel
       );
       this.multiplier = this.clockViewModel.multiplier;
-      gisvis.viewer.clock.onTick.addEventListener((event) => {
-        let currentTime = Cesium.JulianDate.toDate(
-          this.clockViewModel.currentTime
-        ).getTime();
-        //获取截至时间
-        let stopTime = Cesium.JulianDate.toDate(
-          this.clockViewModel.stopTime
-        ).getTime();
-        if (currentTime >= stopTime) {
-          this.handleStop();
-        }
-      });
+      if (trackEntities.length > 0) {
+        //CZML的轨迹时间
+        gisvis.viewer.clock.clockRange = "CLAMPED";
+        gisvis.viewer.clock.onTick.addEventListener((event) => {
+          let currentTime = Cesium.JulianDate.toDate(
+            this.clockViewModel.currentTime
+          ).getTime();
+          //获取截至时间
+          let stopTime = Cesium.JulianDate.toDate(
+            this.clockViewModel.stopTime
+          ).getTime();
+          if (currentTime >= stopTime) {
+            this.handleStop();
+          }
+        });
+      } else {
+        //实体轨迹飞行的轨迹时间
+        gisvis.viewer.clock.onTick.addEventListener((event) => {
+          if (gisvis.viewer.clock.currentTime >= gisvis.viewer.clock.stopTime) {
+            this.handleStop();
+          }
+        });
+      }
     },
     //测试数据
     initLine() {

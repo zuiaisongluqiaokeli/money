@@ -1,3 +1,4 @@
+
 import {
   emitter,
   EventType
@@ -15,6 +16,8 @@ class ScreenSpaceEvent {
     this.store = options.store;
 
     _instance = this;
+    // this.handleKeydownEvent = this.handleKeydown.bind(this);    //键盘按键
+    // window.addEventListener("keydown", this.handleKeydownEvent);
   }
   /**
    * 左键单击处理
@@ -30,8 +33,8 @@ class ScreenSpaceEvent {
       // 是否选中了中间的billboard
       // const { collection } = currentEntity || {};
       if (currentEntity && currentEntity.id.hasOwnProperty('entityId')) {
-        emitter.emit(EventType.CLICK_ENTITY, currentEntity);
-        emitter.emit(EventType.MapLegend_Collapse);
+        emitter.emit(EventType.CLICK_ENTITY, currentEntity); //选中实体
+        emitter.emit(EventType.MapLegend_Collapse); //展开已知位置面板
       } else {
         emitter.emit(EventType.CLICK_BLANK);
         return;
@@ -164,6 +167,42 @@ class ScreenSpaceEvent {
         this.viewer.trackedEntity = null;
       }
     }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+  }
+  /**
+   * 处理按键事件
+   */
+  handleKeydown(event) {
+    let selectionIndicatorContainer = document.getElementsByClassName(
+      "cesium-viewer-selectionIndicatorContainer"
+    );
+    let selectionIndicator = new Cesium.SelectionIndicator(
+      selectionIndicatorContainer[0],
+      this.viewer.scene
+    );
+    const {
+      scene
+    } = this.viewer;
+    const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+    if (event.ctrlKey) {
+      handler.setInputAction(async event => {
+        const currentEntity = scene.pick(event.position);
+        if (currentEntity && currentEntity.id.hasOwnProperty('entityId')) {
+          var viewModel = selectionIndicator.viewModel;
+          viewModel.animateAppear();
+          viewer.clock.onTick.addEventListener(function (clock) {
+            var time = clock.currentTime;
+            var selectionIndicatorViewModel = selectionIndicator.viewModel;
+            if (selectionIndicatorViewModel) {
+              selectionIndicatorViewModel.position = currentEntity.id.position.getValue(time);
+              selectionIndicatorViewModel.showSelection = true;
+              selectionIndicatorViewModel.update();
+            }
+          });
+
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
+
+    }
   }
 }
 

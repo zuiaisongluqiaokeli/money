@@ -1,18 +1,8 @@
 <template>
   <div class="time-line">
     <div class="container">
-      <i
-        class="iconfont icon-Play"
-        title="播放"
-        v-if="isPlay"
-        @click="handlePlay"
-      ></i>
-      <i
-        class="iconfont icon-suspend"
-        title="暂停"
-        v-if="!isPlay"
-        @click="handlePause"
-      ></i>
+      <i class="iconfont icon-Play" title="播放" v-if="isPlay" @click="handlePlay"></i>
+      <i class="iconfont icon-suspend" title="暂停" v-if="!isPlay" @click="handlePause"></i>
       <i class="iconfont icon-stop-b" title="停止" @click="handleStop"></i>
       <i class="iconfont icon-speed" title="加速" @click="handleSpeed"></i>
       <span class="speed">x{{ speedUp }}</span>
@@ -21,18 +11,18 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations } from "vuex";
-import { emitter, EventType } from "../src/EventEmitter";
+import { mapState, mapActions, mapMutations } from 'vuex'
+import { emitter, EventType } from '../src/EventEmitter'
 export default {
   props: {
     placement: {
       type: String,
-      default: "left",
+      default: 'left',
     },
     data: {
       type: Array,
       default() {
-        return [];
+        return []
       },
     },
   },
@@ -44,66 +34,66 @@ export default {
       clockViewModel: null, //时钟对象
       multiplier: 1, //速率
       create: false,
-    };
+    }
   },
   created() {
-    emitter.on(EventType.StartTimeLine, this.handlePlay, this); //实体轨迹飞行
-    emitter.on(EventType.handleStopTimeLine, this.handleStop, this); //部分全球卫星
+    emitter.on(EventType.StartTimeLine, this.handlePlay, this) //实体轨迹飞行
+    emitter.on(EventType.handleStopTimeLine, this.handleStop, this) //部分全球卫星
   },
   computed: {
-    ...mapState("map", [
-      "allEntityBackEnd",
-      "initTack",
-      "gisTrackShow",
-      "gisRightSelectedEntity",
+    ...mapState('map', [
+      'allEntityBackEnd',
+      'initTack',
+      'gisTrackShow',
+      'gisRightSelectedEntity',
     ]),
   },
 
   watch: {
     initTack(val) {
-      this.handleStop(); //改变轨迹状态就相当于重启过程
+      this.handleStop() //改变轨迹状态就相当于重启过程
     },
   },
 
   methods: {
-    ...mapMutations("map", ["updateInitTack"]),
+    ...mapMutations('map', ['updateInitTack']),
     //创建单例模式
     handlePlay() {
       if (!this.create) {
         //如果没有创建
-        this.create = true;
-        this.initTimeline();
+        this.create = true
+        this.initTimeline()
       }
-      this.isPlay = false;
-      this.animationViewModel.playForwardViewModel.command(); //播放
+      this.isPlay = false
+      this.animationViewModel.playForwardViewModel.command() //播放
     },
     handlePause() {
-      this.isPlay = true;
-      this.animationViewModel.pauseViewModel.command(); //暂停
+      this.isPlay = true
+      this.animationViewModel.pauseViewModel.command() //暂停
     },
     handleStop() {
       if (this.create) {
         //如果有创建
         if (!this.isPlay) {
           //如果运行就暂停
-          this.animationViewModel.pauseViewModel.command();
+          this.animationViewModel.pauseViewModel.command()
         }
-        this.clockViewModel.currentTime = this.clockViewModel.startTime;
-        this.isPlay = true;
-        this.speedUp = 1;
-        this.multiplier = 1;
-        this.create = false;
-        gisvis.viewer.dataSources.removeAll(); //删除移动点
+        this.clockViewModel.currentTime = this.clockViewModel.startTime
+        this.isPlay = true
+        this.speedUp = 1
+        this.multiplier = 1
+        this.create = false
+        gisvis.viewer.dataSources.removeAll() //删除移动点
         let trackEntities = this.allEntityBackEnd.filter(
           (e) => e.properties.locus
-        );
-        gisvis.emitter.emit(EventType.CLICK_BLANK);
+        )
+        gisvis.emitter.emit(EventType.CLICK_BLANK)
         //后端轨迹线
         trackEntities.forEach((item) => {
-          let locus = JSON.parse(item.properties.locus);
+          let locus = JSON.parse(item.properties.locus)
           let cartographicDegrees = locus.position.cartographicDegrees.map(
             (i) => Number(i)
-          );
+          )
           gisvis.viewer.entities.getById(
             item.id
           ).position = Cesium.Cartesian3.fromDegrees(
@@ -114,83 +104,90 @@ export default {
               ? cartographicDegrees[2]
               : cartographicDegrees[cartographicDegrees.length - 2],
             0
-          );
-          gisvis.viewer.entities.getById(item.id).show = true; //显示真实的点
+          )
+          gisvis.viewer.entities.getById(item.id).show = true //显示真实的点
           if (this.gisTrackShow) {
-            gisvis.viewer.entities.removeById("track-line-" + item.id); //删除轨迹线
+            gisvis.viewer.entities.removeById('track-line-' + item.id) //删除轨迹线
           }
-        });
+        })
         //右键飞行轨迹实体显示出来，显示的坐标是最后画线的经纬度
-        let initTackData = JSON.parse(sessionStorage.getItem("initTackData"));
+        let initTackData = JSON.parse(sessionStorage.getItem('initTackData'))
         if (initTackData) {
+          //更改经纬度
           gisvis.viewer.entities.getById(
             this.gisRightSelectedEntity.id
           ).position = Cesium.Cartesian3.fromDegrees(
             initTackData[initTackData.length - 1].longitude,
             initTackData[initTackData.length - 1].latitude
-          );
+          )
           gisvis.viewer.entities.getById(
             this.gisRightSelectedEntity.id
-          ).show = true;
+          ).properties.lat = initTackData[initTackData.length - 1].latitude
+          gisvis.viewer.entities.getById(
+            this.gisRightSelectedEntity.id
+          ).properties.lat = initTackData[initTackData.length - 1].longitude
+          gisvis.viewer.entities.getById(
+            this.gisRightSelectedEntity.id
+          ).show = true
           //销毁轨迹线和飞机实体
-          gisvis.viewer.entities.removeById("airplain");
+          gisvis.viewer.entities.removeById('airplain')
           //gisvis.viewer.entities.removeById("airplain-radar");
           //删除绘制的数据，这样写才能删干净
           gisvis.viewer.entities.values.forEach((element) => {
-            if (element.id.toString().split("-")[0] == "空间直线距离") {
-              viewer.entities.remove(element);
+            if (element.id.toString().split('-')[0] == '空间直线距离') {
+              viewer.entities.remove(element)
             }
-          });
+          })
           gisvis.viewer.entities.values.forEach((element) => {
-            if (element.id.toString().split("-")[0] == "直线") {
-              viewer.entities.remove(element);
+            if (element.id.toString().split('-')[0] == '空间直线距离') {
+              viewer.entities.remove(element)
             }
-          });
+          })
           gisvis.viewer.entities.values.forEach((element) => {
-            if (element.name == "空间直线距离") {
-              viewer.entities.remove(element);
+            if (element.id.toString().split('-')[0] == '直线') {
+              viewer.entities.remove(element)
             }
-          });
-          gisvis.viewer.trackedEntity = null; //追随实体清除
+          })
+          gisvis.viewer.trackedEntity = null //追随实体清除
         }
       }
-      this.updateInitTack(false);
+      this.updateInitTack(false)
     },
     handleSpeed() {
       if (++this.speedUp > 3) {
-        this.speedUp = 1;
+        this.speedUp = 1
       }
       this.clockViewModel.multiplier =
-        this.multiplier * (this.speedUp === 1 ? 1 : this.speedUp * 3);
+        this.multiplier * (this.speedUp === 1 ? 1 : this.speedUp * 3)
     },
     //生成CZML格式
     initTimeline() {
       let trackEntities = this.allEntityBackEnd.filter(
         (item) =>
-          item.properties.hasOwnProperty("locus") && item.properties.locus
-      );
+          item.properties.hasOwnProperty('locus') && item.properties.locus
+      )
       let trackCZML = [
-        { id: "document", name: "CZML billboard", version: "1.0" },
-      ];
-      gisvis.emitter.emit(EventType.CLICK_BLANK);
+        { id: 'document', name: 'CZML billboard', version: '1.0' },
+      ]
+      gisvis.emitter.emit(EventType.CLICK_BLANK)
       //找到有轨迹线的数据(4个值为一组，分别是时间，经度，纬度，高度)
       trackEntities.forEach((item) => {
-        gisvis.viewer.entities.getById(item.id).show = false;
-        let locus = JSON.parse(item.properties.locus);
+        gisvis.viewer.entities.getById(item.id).show = false
+        let locus = JSON.parse(item.properties.locus)
         let position = {
           epoch: locus.position.epoch,
           cartographicDegrees: locus.position.cartographicDegrees.map((i) =>
             Number(i)
           ),
-        };
+        }
         //是否显示轨迹
         if (this.gisTrackShow) {
           let trackLinePositions = position.cartographicDegrees.filter(
             (i, index) => index % 4 === 1 || index % 4 === 2
-          );
+          )
           //绘制线条
           gisvis.viewer.entities.add({
-            id: "track-line-" + item.id,
+            id: 'track-line-' + item.id,
             polyline: {
               loop: false,
               material: new Cesium.PolylineDashMaterialProperty({
@@ -204,13 +201,13 @@ export default {
               positions: Cesium.Cartesian3.fromDegreesArray(trackLinePositions),
               width: 2,
             },
-          });
+          })
         }
         //批量封装数据
         let data = {
-          id: "track-" + item.id,
+          id: 'track-' + item.id,
           availability: locus.availability, //起始时间
-          orientation: { velocityReference: "#position" }, //czml中的属性  设置镜头跟随路径经纬度
+          orientation: { velocityReference: '#position' }, //czml中的属性  设置镜头跟随路径经纬度
           position: position,
           billboard: {
             image: gisvis.viewer.entities
@@ -222,19 +219,19 @@ export default {
             height: gisvis.viewer.entities
               .getById(item.id)
               .billboard.height.getValue(),
-            color: Cesium.Color.fromCssColorString("#ffcc33"),
+            color: Cesium.Color.fromCssColorString('#ffcc33'),
           },
           label: {
             show: gisvis.viewer.entities.getById(item.id).label.show.valueOf(),
             text: gisvis.viewer.entities.getById(item.id).label.text.valueOf(),
             pixelOffset: { cartesian2: [0, 24] },
-            font: "12px sans-serif",
+            font: '12px sans-serif',
             fillColor: Cesium.Color.fromCssColorString(
-              window.mapType === "satellite" ? "#000000" : "#ffffff"
+              window.mapType === 'satellite' ? '#000000' : '#ffffff'
             ),
             // outlineColor:Cesium.Color.fromCssColorString(window.mapType==='satellite'?"#000000":"#ffffff"),
             outlineWidth: 2,
-            horizontalOrigin: "CENTER",
+            horizontalOrigin: 'CENTER',
             // scaleByDistance: new Cesium.NearFarScalar(1e2, 3, 9.0e6, 0.0),
             // pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
             //   1e2,
@@ -294,17 +291,17 @@ export default {
                 },
               }
             : undefined,
-        };
-        trackCZML.push(data); //每个数组都绘制一个实体
-      });
+        }
+        trackCZML.push(data) //每个数组都绘制一个实体
+      })
 
-      let czmlDataSource = new Cesium.CzmlDataSource();
-      let dataSourcePromise = gisvis.viewer.dataSources.add(czmlDataSource);
+      let czmlDataSource = new Cesium.CzmlDataSource()
+      let dataSourcePromise = gisvis.viewer.dataSources.add(czmlDataSource)
       //载入数据
       czmlDataSource.load(trackCZML).then((instance) => {
         trackEntities.forEach((item) => {
-          let entity = instance.entities.getById("track-" + item.id);
-          (entity.billboard.scaleByDistance = new Cesium.NearFarScalar(
+          let entity = instance.entities.getById('track-' + item.id)
+          ;(entity.billboard.scaleByDistance = new Cesium.NearFarScalar(
             1.5e2,
             1.5,
             8.0e6,
@@ -315,15 +312,15 @@ export default {
               1.5,
               8.0e6,
               0.0
-            ));
+            ))
           entity.label.pixelOffsetScaleByDistance = new Cesium.NearFarScalar(
             1.5e2,
             1.5,
             8.0e6,
             0.0
-          );
-        });
-      });
+          )
+        })
+      })
       // CLAMPED
       // 达到终止时间后停止
       // LOOP_STOP
@@ -331,41 +328,41 @@ export default {
       // UNBOUNDED
       // 达到终止时间后继续读秒
       //当前时间超过结束时间掉暂停
-      this.clockViewModel = null;
-      this.clockViewModel = new Cesium.ClockViewModel(gisvis.viewer.clock);
-      this.animationViewModel = null;
+      this.clockViewModel = null
+      this.clockViewModel = new Cesium.ClockViewModel(gisvis.viewer.clock)
+      this.animationViewModel = null
       this.animationViewModel = new Cesium.AnimationViewModel(
         this.clockViewModel
-      );
-      this.multiplier = this.clockViewModel.multiplier;
+      )
+      this.multiplier = this.clockViewModel.multiplier
       if (trackEntities.length > 0) {
         //CZML的轨迹时间
-        gisvis.viewer.clock.clockRange = "CLAMPED";
+        gisvis.viewer.clock.clockRange = 'CLAMPED'
         gisvis.viewer.clock.onTick.addEventListener((event) => {
           let currentTime = Cesium.JulianDate.toDate(
             this.clockViewModel.currentTime
-          ).getTime();
+          ).getTime()
           //获取截至时间
           let stopTime = Cesium.JulianDate.toDate(
             this.clockViewModel.stopTime
-          ).getTime();
+          ).getTime()
           if (currentTime >= stopTime) {
-            this.handleStop();
+            this.handleStop()
           }
-        });
+        })
       } else {
         //实体轨迹飞行的轨迹时间
         gisvis.viewer.clock.onTick.addEventListener((event) => {
           if (gisvis.viewer.clock.currentTime >= gisvis.viewer.clock.stopTime) {
-            this.handleStop();
+            this.handleStop()
           }
-        });
+        })
       }
     },
     //测试数据
     initLine() {
       gisvis.viewer.entities.add({
-        id: "line1",
+        id: 'line1',
         polyline: {
           loop: false,
           material: new Cesium.PolylineDashMaterialProperty({
@@ -402,9 +399,9 @@ export default {
           ]),
           width: 2,
         },
-      });
+      })
       gisvis.viewer.entities.add({
-        id: "1000411",
+        id: '1000411',
         polyline: {
           loop: false,
           material: new Cesium.PolylineDashMaterialProperty({
@@ -447,10 +444,10 @@ export default {
           ]),
           width: 2,
         },
-      });
+      })
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>

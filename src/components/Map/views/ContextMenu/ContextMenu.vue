@@ -5,12 +5,12 @@
 </template>
 
 <script>
-import * as d3 from "d3";
+import * as d3 from 'd3'
 // import { emitter, EventType } from "../../src/EventEmitter";
 import { mapState } from 'vuex'
 
 export default {
-  name: "ContextMenu",
+  name: 'ContextMenu',
   props: {},
 
   data() {
@@ -18,35 +18,40 @@ export default {
       // 第一环
       dataInnerList: [
         // { name: "标记", icon: "\ue831", angle: 1, action: "" },
-        { name: "拓展", icon: "\ue70e", angle: 1, action: "expand" },
-        { name: "删除", icon: "\ue683", angle: 1, action: "delete" },
-        { name: "轨迹飞行", icon: "\ue814", angle: 1, action: "SimulatedSatellite" },
-        { name: "一键部署", icon: "\ue813", angle: 1, action: "oneDeployment" },
-        { name: "范围搜索", icon: "\ue8ef", angle: 1, action: "scopeSearch" },
-        { name: "范围切换", icon: "\ue814", angle: 1, action: "scopeChange" },
-        { name: "显示雷达", icon: "\ue831", angle: 1, action: "radarShow" },
+        { name: '拓展', icon: '\ue70e', angle: 1, action: 'expand' },
+        { name: '删除', icon: '\ue683', angle: 1, action: 'delete' },
+        {
+          name: '轨迹飞行',
+          icon: '\ue814',
+          angle: 1,
+          action: 'SimulatedSatellite',
+        },
+        { name: '一键部署', icon: '\ue813', angle: 1, action: 'oneDeployment' },
+        { name: '范围搜索', icon: '\ue8ef', angle: 1, action: 'scopeSearch' },
+        { name: '范围切换', icon: '\ue814', angle: 1, action: 'scopeChange' },
+        { name: '雷达切换', icon: '\ue831', angle: 1, action: 'radarShow' },
       ],
       pieInnerData: [],
 
       // 第二环
-      dataOuterList:[
+      dataOuterList: [
         { name: '', icon: '', angle: 1 },
         { name: '', icon: '', angle: 1 },
         { name: '', icon: '', angle: 1 },
         { name: '', icon: '', angle: 1 },
-        { name: '', icon: '', angle: 1,action:'range' },
+        { name: '', icon: '', angle: 1, action: 'range' },
         { name: '', icon: '', angle: 1 },
         { name: '', icon: '', angle: 1 },
-        { name: '', icon: '', angle: 1, action:'toggle-area'},
+        { name: '', icon: '', angle: 1, action: 'toggle-area' },
         { name: '', icon: '', angle: 1 },
         { name: '', icon: '', angle: 1 },
         { name: '', icon: '', angle: 1 },
         { name: '', icon: '', angle: 1 },
       ],
-      pieOuterData:[],
+      pieOuterData: [],
 
       // 第三环
-      dataBigOuterList:[
+      dataBigOuterList: [
         { name: '', action: '', angle: 1 },
         { name: '', action: '', angle: 1 },
         { name: '', action: '', angle: 1 },
@@ -60,74 +65,74 @@ export default {
         { name: '', action: '', angle: 1 },
         { name: '', action: '', angle: 1 },
       ],
-      pieBigOuterData:[],
+      pieBigOuterData: [],
       position: {
         top: 0,
-        left: 0
+        left: 0,
       },
-      exit: null
-    };
+      exit: null,
+    }
   },
-  computed:{
-    ...mapState('map',['rangeSetting'])
+  computed: {
+    ...mapState('map', ['rangeSetting']),
   },
   async mounted() {
-    await this.$nextTick();
-    this.initMenu();
+    await this.$nextTick()
+    this.initMenu()
   },
 
   beforeDestroy() {
-    this.$el.parentNode.removeChild(this.$el);
+    this.$el.parentNode.removeChild(this.$el)
   },
 
   methods: {
     handleClick(data) {
       // emitter.emit(EventType.CONTEXT_MENU_CLICK, data);
-      gisvis.emitter.emit('gis.context-menu-item-click',data)
+      gisvis.emitter.emit('gis.context-menu-item-click', data)
     },
     /**
      * 初始化环形菜单，复制自`sectorMenu.vue`
      */
     initMenu() {
-      const width = 360;
-      const height = 360;
-      const pie = d3.pie().value(d => d.angle);
+      const width = 360
+      const height = 360
+      const pie = d3.pie().value((d) => d.angle)
 
-      this.pieInnerData = pie(this.dataInnerList);
-      this.pieOuterData = pie(this.dataOuterList);
+      this.pieInnerData = pie(this.dataInnerList)
+      this.pieOuterData = pie(this.dataOuterList)
       this.pieBigOuterData = pie(this.dataBigOuterList)
       // console.log(this.pieInnerData)
       // console.log(this.pieOuterData)
 
       const svg = d3
-        .select(".context-menu .menu-container")
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+        .select('.context-menu .menu-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
 
       svg
-        .append("circle")
-        .attr("cx", 90)
-        .attr("cy", 90)
-        .attr("r", 88)
-        .attr("transform", "translate(" + 90 + "," + 90 + ")")
-        .attr("class", "circle")
+        .append('circle')
+        .attr('cx', 90)
+        .attr('cy', 90)
+        .attr('r', 88)
+        .attr('transform', 'translate(' + 90 + ',' + 90 + ')')
+        .attr('class', 'circle')
         .on('mouseenter', (d, i) => {
           clearTimeout(this.exit)
         })
-        .on('mouseenter',(d,i)=>{
+        .on('mouseenter', (d, i) => {
           clearTimeout(this.exit)
           this.exit = setTimeout(() => {
             this.leaveMune()
           }, 500)
         })
       svg
-        .append("circle")
-        .attr("cx", 90)
-        .attr("cy", 90)
-        .attr("r", 25)
-        .attr("transform", "translate(" + 90 + "," + 90 + ")")
-        .attr("class", "circle")
+        .append('circle')
+        .attr('cx', 90)
+        .attr('cy', 90)
+        .attr('r', 25)
+        .attr('transform', 'translate(' + 90 + ',' + 90 + ')')
+        .attr('class', 'circle')
         .on('mouseenter', (d, i) => {
           clearTimeout(this.exit)
         })
@@ -136,20 +141,20 @@ export default {
       const arc = d3
         .arc() // 弧生成器
         .innerRadius(25) // 设置内半径
-        .outerRadius(88); // 设置外半径
+        .outerRadius(88) // 设置外半径
 
       const g = svg
-        .selectAll("g")
+        .selectAll('g')
         .data(this.pieInnerData)
         .enter()
-        .append("g")
-        .attr("class", "g-box")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-        .attr("text-anchor", "middle")
-        .on("click", (d, i) => {
-          const { data } = d;
+        .append('g')
+        .attr('class', 'g-box')
+        .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+        .attr('text-anchor', 'middle')
+        .on('click', (d, i) => {
+          const { data } = d
 
-          this.handleClick(data);
+          this.handleClick(data)
         })
         .on('mouseenter', (d, i) => {
           clearTimeout(this.exit)
@@ -159,61 +164,58 @@ export default {
           this.exit = setTimeout(() => {
             this.leaveMune()
           }, 500)
-        });
+        })
 
-      g.append("path")
-        .attr("class", "inner-path-box")
+      g.append('path')
+        .attr('class', 'inner-path-box')
         .transition()
         .delay((d, i) => {
-          return i * 70;
+          return i * 70
         })
         .duration(70)
         .ease(d3.easeLinear)
-        .attrTween("d", d => {
-          const i = d3.interpolate(d.startAngle, d.endAngle);
+        .attrTween('d', (d) => {
+          const i = d3.interpolate(d.startAngle, d.endAngle)
 
-          return t => {
-            d.endAngle = i(t);
-            return arc(d);
-          };
-        });
-
-      g.append("title").text((d, i) => {
-        return this.dataInnerList[i].name;
-      });
-
-      g.append("text")
-        .attr("transform", d => {
-          return (
-            "translate(" + arc.centroid(d).map((v, i) => (i ? v + 10 : v)) + ")"
-          );
+          return (t) => {
+            d.endAngle = i(t)
+            return arc(d)
+          }
         })
-        .attr("text-anchor", "middle")
-        .attr("fill", "#1C2833")
-        .attr("style", "font-size: 11px")
-        .text((d, i) => {
-          return this.dataInnerList[i].name;
-        });
 
-      g.append("text")
-        .attr("transform", d => {
+      g.append('title').text((d, i) => {
+        return this.dataInnerList[i].name
+      })
+
+      g.append('text')
+        .attr('transform', (d) => {
           return (
-            "translate(" + arc.centroid(d).map((v, i) => (i ? v - 5 : v)) + ")"
-          );
+            'translate(' + arc.centroid(d).map((v, i) => (i ? v + 10 : v)) + ')'
+          )
         })
-        .attr("text-anchor", "middle")
-        .attr("fill", "#1C2833")
-        .attr("style", "font-size: 16px")
-        .attr("class", "icon iconfont")
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#1C2833')
+        .attr('style', 'font-size: 11px')
         .text((d, i) => {
-          return this.dataInnerList[i].icon;
-        });
+          return this.dataInnerList[i].name
+        })
+
+      g.append('text')
+        .attr('transform', (d) => {
+          return (
+            'translate(' + arc.centroid(d).map((v, i) => (i ? v - 5 : v)) + ')'
+          )
+        })
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#1C2833')
+        .attr('style', 'font-size: 16px')
+        .attr('class', 'icon iconfont')
+        .text((d, i) => {
+          return this.dataInnerList[i].icon
+        })
 
       // 环形菜单第二环
-      const arcOuter = d3
-        .arc()
-        .innerRadius(88)
-        .outerRadius(130)
+      const arcOuter = d3.arc().innerRadius(88).outerRadius(130)
 
       const gOuter = svg
         .selectAll('outer')
@@ -223,14 +225,14 @@ export default {
         .attr('class', 'unshow outer')
         .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
         .attr('text-anchor', 'middle')
-        .on('click',(data,i)=>{
+        .on('click', (data, i) => {
           this.handleClick(data.data)
         })
-        .on('mouseenter',(d,i)=>{
+        .on('mouseenter', (d, i) => {
           clearTimeout(this.exit)
           this.menuOuterHover(i)
         })
-        .on('mouseleave',(d,i)=>{
+        .on('mouseleave', (d, i) => {
           this.exit = setTimeout(() => {
             this.leaveMune()
           }, 500)
@@ -245,9 +247,9 @@ export default {
         })
         .duration(70)
         .ease(d3.easeLinear)
-        .attrTween('d', d => {
+        .attrTween('d', (d) => {
           let i = d3.interpolate(d.startAngle, d.endAngle)
-          return t => {
+          return (t) => {
             d.endAngle = i(t)
             return arcOuter(d)
           }
@@ -259,7 +261,7 @@ export default {
 
       gOuter
         .append('text')
-        .attr('transform', d => {
+        .attr('transform', (d) => {
           return 'translate(' + arcOuter.centroid(d) + ')'
         })
         .attr('text-anchor', 'middle')
@@ -271,10 +273,7 @@ export default {
         })
 
       // 第三环
-      let arcBigOuter = d3
-        .arc()
-        .innerRadius(130)
-        .outerRadius(180)
+      let arcBigOuter = d3.arc().innerRadius(130).outerRadius(180)
 
       let gBigOuter = svg
         .selectAll('big-outer')
@@ -283,9 +282,9 @@ export default {
         .append('g')
         .attr('class', 'unshow big-outer')
         .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
-        .attr('text-anchor','middle')
-        .on('click',d=>{
-          const {data} = d
+        .attr('text-anchor', 'middle')
+        .on('click', (d) => {
+          const { data } = d
           this.handleClick(data)
         })
         .on('mouseenter', (d, i) => {
@@ -305,9 +304,9 @@ export default {
         })
         .duration(70)
         .ease(d3.easeLinear)
-        .attrTween('d', d => {
+        .attrTween('d', (d) => {
           let i = d3.interpolate(d.startAngle, d.endAngle)
-          return t => {
+          return (t) => {
             d.endAngle = i(t)
             return arcBigOuter(d)
           }
@@ -315,7 +314,7 @@ export default {
 
       gBigOuter
         .append('circle')
-        .attr('transform', d => {
+        .attr('transform', (d) => {
           return 'translate(' + arcBigOuter.centroid(d) + ')'
         })
         .attr('r', 20)
@@ -323,24 +322,24 @@ export default {
 
       gBigOuter
         .append('text')
-        .attr('transform', d => {
+        .attr('transform', (d) => {
           return (
-            'translate('
-            + arcBigOuter.centroid(d).map((v, i) => (i ? v + 5 : v))
-            + ')'
+            'translate(' +
+            arcBigOuter.centroid(d).map((v, i) => (i ? v + 5 : v)) +
+            ')'
           )
         })
         .attr('text-anchor', 'middle')
         .attr('fill', '#1C2833')
         .attr('style', 'font-size: 11px')
         .text('开始')
-        .on('click',d=>{
+        .on('click', (d) => {
           this.handleClick(d)
         })
     },
 
     // 鼠标悬浮第一环菜单按钮
-    menuInnerHover(index){
+    menuInnerHover(index) {
       let array
       document.querySelector('.hover')
         ? document.querySelector('.hover').classList.remove('hover')
@@ -368,7 +367,7 @@ export default {
           array = ['设置航线']
           document.querySelectorAll('.g-box')[index].classList.add('hover')
           document.querySelectorAll('.outer').forEach((v, i) => {
-            if (i=== 4) {
+            if (i === 4) {
               v.querySelector('title').innerHTML = array[0]
               v.querySelector('text').innerHTML = array[0]
               v.setAttribute('class', 'g-box outer')
@@ -379,7 +378,7 @@ export default {
     },
 
     // 鼠标悬浮第二环菜单按钮
-    menuOuterHover(index){
+    menuOuterHover(index) {
       // let bigArray = ['实体', '文本']
       document.querySelector('.outer.hover')
         ? document.querySelector('.outer.hover').classList.remove('hover')
@@ -389,7 +388,9 @@ export default {
       })
 
       document.querySelectorAll('.outer')[index].classList.add('hover')
-      document.querySelectorAll('.big-outer')[index].setAttribute('class', 'big-outer')
+      document
+        .querySelectorAll('.big-outer')
+        [index].setAttribute('class', 'big-outer')
       // switch (index) {
       //   case 0:
 
@@ -405,15 +406,15 @@ export default {
       //   }
       // })
     },
-    leaveMune(){
-      if(gisvis.contextMenu){
-        gisvis.contextMenu.destroy();
-        gisvis.contextMenu = null;
+    leaveMune() {
+      if (gisvis.contextMenu) {
+        gisvis.contextMenu.destroy()
+        gisvis.contextMenu = null
       }
       // emitter.emit(EventType.CONTEXT_MENU_REMOVE)
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <style lang="scss" scoped>
@@ -434,7 +435,7 @@ export default {
       stroke-width: 2;
     }
 
-    .g-box{
+    .g-box {
       fill: #25507d;
       cursor: pointer;
 
@@ -442,34 +443,35 @@ export default {
         fill: #4a91e9;
       }
 
-      .path-box{
+      .path-box {
         stroke: var(--sectorMenuHoverColor);
         stroke-width: 2;
       }
     }
-    .big-outer{
+    .big-outer {
       fill: transparent;
       cursor: default;
-      .path-box{
+      .path-box {
         stroke-width: 0;
       }
-      text, circle{
+      text,
+      circle {
         cursor: pointer;
       }
-      &:hover{
+      &:hover {
         fill: transparent;
-        circle{
+        circle {
           fill: #4a91e9;
         }
       }
     }
-    .hover{
+    .hover {
       fill: #4a91e9;
     }
-    .unshow{
+    .unshow {
       display: none;
     }
-    .edit{
+    .edit {
       stroke: var(--sectorMenuHoverColor);
       stroke-width: 2;
       fill: var(--sectorMenuColor);
@@ -478,7 +480,6 @@ export default {
     text {
       fill: white;
     }
-
   }
 }
 </style>

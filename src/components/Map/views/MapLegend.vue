@@ -2,9 +2,7 @@
   <div v-drag class="left-side">
     <div class="map-legend" v-if="allEntityBackEnd.length > 0">
       <div class="remove-all">
-        <el-button type="text" class="button">
-          所有实体({{ allEntityBackEnd.length }})
-        </el-button>
+        <el-button type="text" class="button">所有实体({{ allEntityBackEnd.length }})</el-button>
         <i
           :class="collapse ? 'el-icon-top-right' : 'el-icon-bottom-left'"
           @click="collapse = !collapse"
@@ -12,25 +10,14 @@
       </div>
       <div v-show="!collapse">
         <div class="title">
-          <el-button
-            :type="active == 1 ? 'primary' : ''"
-            @click="buttonChoice(1)"
-            >已知位置</el-button
-          >
-          <el-button
-            :type="active == 2 ? 'primary' : ''"
-            @click="buttonChoice(2)"
-            >未知位置</el-button
-          >
+          <el-button :type="active == 1 ? 'primary' : ''" @click="buttonChoice(1)">已知位置</el-button>
+          <el-button :type="active == 2 ? 'primary' : ''" @click="buttonChoice(2)">未知位置</el-button>
         </div>
         <div class="legend">
           <el-collapse v-for="(item, index) in tableData" :key="index">
             <el-collapse-item v-if="item.number > 0">
               <template slot="title">
-                <div
-                  class="titleItem"
-                  style="padding-left: 31px; font-size: 15px"
-                >
+                <div class="titleItem" style="padding-left: 31px; font-size: 15px">
                   <!-- <img :src="item.image" class="img" /> -->
                   <el-tooltip
                     class="item"
@@ -54,11 +41,7 @@
                     v-if="active == 1"
                     @click="changeVisibleEntities($event, index, item)"
                   ></i>
-                  <i
-                    class="el-icon-delete"
-                    title="移除"
-                    @click="removeEntities($event, item, index)"
-                  ></i>
+                  <i class="el-icon-delete" title="移除" @click="removeEntities($event, item, index)"></i>
                   <i
                     class="el-icon-aim"
                     title="切换攻击范围"
@@ -87,9 +70,11 @@
                     placement="top-start"
                   >
                     <div class="description">
-                      <span>{{
+                      <span>
+                        {{
                         ele.properties.name || ele.properties.名称
-                      }}</span>
+                        }}
+                      </span>
                     </div>
                   </el-tooltip>
                 </div>
@@ -128,34 +113,35 @@
 </template>
 
 <script>
-import { emitter, EventType } from "../src/EventEmitter";
-import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import { emitter, EventType } from '../src/EventEmitter'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 export default {
   directives: {
     drag(el) {
       el.onmousedown = function (e) {
-        var disx = e.pageX - el.offsetLeft;
-        var disy = e.pageY - el.offsetTop;
+        var disx = e.pageX - el.offsetLeft
+        var disy = e.pageY - el.offsetTop
         document.onmousemove = function (e) {
-          el.style.left = e.pageX - disx + "px";
-          el.style.top = e.pageY - disy + "px";
-        };
+          el.style.left = e.pageX - disx + 'px'
+          el.style.top = e.pageY - disy + 'px'
+        }
         document.onmouseup = function (e) {
-          document.onmouseup = document.onmousemove = null;
-        };
-        e.preventDefault();
-      };
+          document.onmouseup = document.onmousemove = null
+        }
+        e.preventDefault()
+      }
     },
   },
 
   computed: {
-    ...mapState("map", ["allEntityBackEnd"]),
+    ...mapState('map', ['allEntityBackEnd']),
+    ...mapState('map', ['gisLabelShow']),
   },
   props: {
     data: {
       type: Object,
       default() {
-        return {};
+        return {}
       },
     },
   },
@@ -165,47 +151,47 @@ export default {
       collapse: false, //默认展开
       legendData: [
         {
-          name: "机场",
-          category: "机场",
-          image: require("@/assets/img/facility.png"),
+          name: '机场',
+          category: '机场',
+          image: require('@/assets/img/facility.png'),
           number: 5,
           visible: true,
           listInfo: [
             {
-              name: "福建机场",
-              category: "福建机场",
-              image: require("@/assets/img/facility.png"),
+              name: '福建机场',
+              category: '福建机场',
+              image: require('@/assets/img/facility.png'),
               visible: true,
               lat: 12,
               log: 12,
             },
             {
-              name: "厦门机场",
-              category: "厦门机场",
-              image: require("@/assets/img/facility.png"),
+              name: '厦门机场',
+              category: '厦门机场',
+              image: require('@/assets/img/facility.png'),
               visible: true,
             },
           ],
         },
         {
-          name: "基地",
-          category: "基地",
-          image: require("@/assets/img/facility.png"),
+          name: '基地',
+          category: '基地',
+          image: require('@/assets/img/facility.png'),
           number: 5,
           visible: true,
           listInfo: [
             {
-              name: "福建基地",
-              category: "福建基地",
-              image: require("@/assets/img/facility.png"),
+              name: '福建基地',
+              category: '福建基地',
+              image: require('@/assets/img/facility.png'),
               visible: true,
               lat: 12,
               log: 12,
             },
             {
-              name: "厦门基地",
-              category: "厦门基地",
-              image: require("@/assets/img/facility.png"),
+              name: '厦门基地',
+              category: '厦门基地',
+              image: require('@/assets/img/facility.png'),
               visible: true,
             },
           ],
@@ -218,47 +204,47 @@ export default {
       arr1: [],
       arr2: [],
       countArr: [], //用来累计便于关系线的显示
-    };
+    }
   },
   created() {
-    emitter.on(EventType.LEGEND_DATA_CHANGE, this.handleLegendDataChange, this);
+    emitter.on(EventType.LEGEND_DATA_CHANGE, this.handleLegendDataChange, this)
     emitter.on(
       EventType.MapLegend_Collapse,
       () => {
-        this.collapse = false;
+        this.collapse = false
       },
       this
-    );
+    )
   },
 
   mounted() {},
   //样式的更新/实体的更新/全局的更新
   methods: {
-    ...mapMutations("map", [
-      "setallEntityBackEnd",
-      "removeEntityBackEnd",
-      "removeallEntityBackEnd",
+    ...mapMutations('map', [
+      'setallEntityBackEnd',
+      'removeEntityBackEnd',
+      'removeallEntityBackEnd',
     ]),
 
     buttonChoice(val) {
-      this.active = val;
-      this.$forceUpdate();
-      val == 1 ? (this.tableData = this.arr1) : (this.tableData = this.arr2);
-      this.$set(this.tableData, 0, this.tableData[0]);
+      this.active = val
+      this.$forceUpdate()
+      val == 1 ? (this.tableData = this.arr1) : (this.tableData = this.arr2)
+      this.$set(this.tableData, 0, this.tableData[0])
     },
     /**
      * 图例数据更新
      */
     handleLegendDataChange(data) {
-      this.setallEntityBackEnd(data);
-      this.resultArr = [...this.allEntityBackEnd];
+      this.setallEntityBackEnd(data)
+      this.resultArr = [...this.allEntityBackEnd]
       this.arr1 = this.allEntityBackEnd
         .map((item, index, arr) => {
           return {
             image:
-              (item.properties.hasOwnProperty("avatar") &&
+              (item.properties.hasOwnProperty('avatar') &&
                 item.properties.avatar) ||
-              require("@/assets/img/facility.png"),
+              require('@/assets/img/facility.png'),
             name: item.properties.name || item.properties.名称,
             category: item.properties.实体分类,
             number: this.resultArr.filter(
@@ -273,19 +259,24 @@ export default {
                 ele.properties.实体分类 == item.properties.实体分类 &&
                 ele.properties.latitude
             ), //分组对应的信息
-          };
+          }
         })
         .filter((item, index, arr) => {
-          let arrCategory = arr.map((ele) => ele.category);
-          return arrCategory.indexOf(item.category) == index;
-        });
+          let arrCategory = arr.map((ele) => ele.category)
+          return arrCategory.indexOf(item.category) == index
+        })
+      this.arr1.forEach((item) => {
+        item.listInfo.forEach((ele) => {
+          this.countArr.push(ele.id)
+        })
+      })
       this.arr2 = this.allEntityBackEnd
         .map((item, index, arr) => {
           return {
             image:
-              (item.properties.hasOwnProperty("avatar") &&
+              (item.properties.hasOwnProperty('avatar') &&
                 item.properties.avatar) ||
-              require("@/assets/img/facility.png"),
+              require('@/assets/img/facility.png'),
             name: item.properties.name || item.properties.名称,
             category: item.properties.实体分类,
             number: this.resultArr.filter(
@@ -300,16 +291,16 @@ export default {
                 ele.properties.实体分类 == item.properties.实体分类 &&
                 !ele.properties.latitude
             ), //分组对应的信息
-          };
+          }
         })
         .filter((item, index, arr) => {
-          let arrCategory = arr.map((ele) => ele.category);
-          return arrCategory.indexOf(item.category) == index;
-        });
+          let arrCategory = arr.map((ele) => ele.category)
+          return arrCategory.indexOf(item.category) == index
+        })
       this.active == 1
         ? (this.tableData = this.arr1)
-        : (this.tableData = this.arr2);
-      this.$set(this.tableData, 0, this.tableData[0]);
+        : (this.tableData = this.arr2)
+      this.$set(this.tableData, 0, this.tableData[0])
       // console.log("左下侧分组数据信息", this.legendData);
       // console.log("已知位置的数据信息", this.arr1);
       // console.log("未知位置的数据信息", this.arr2);
@@ -318,78 +309,78 @@ export default {
      * 清空地图上的所有实体
      */
     removeAllEntities() {
-      emitter.emit(EventType.REMOVE_ALL_ENTITIES);
-      emitter.emit(EventType.POPPER_REMOVE);
-      emitter.emit(EventType.CONTEXT_MENU_REMOVE);
-      emitter.emit(EventType.CLICK_ENTITY, null);
+      emitter.emit(EventType.REMOVE_ALL_ENTITIES)
+      emitter.emit(EventType.POPPER_REMOVE)
+      emitter.emit(EventType.CONTEXT_MENU_REMOVE)
+      emitter.emit(EventType.CLICK_ENTITY, null)
     },
     removeAll() {
-      this.removeallEntityBackEnd();
-      gisvis.viewer.entities.removeAll();
-      this.handleLegendDataChange([]);
-      emitter.emit(EventType.POPPER_REMOVE);
-      emitter.emit(EventType.CONTEXT_MENU_REMOVE);
-      emitter.emit(EventType.CLICK_BLANK);
-      gisvis.viewer.scene.postProcessStages.removeAll();
+      this.removeallEntityBackEnd()
+      gisvis.viewer.entities.removeAll()
+      this.handleLegendDataChange([])
+      emitter.emit(EventType.POPPER_REMOVE)
+      emitter.emit(EventType.CONTEXT_MENU_REMOVE)
+      emitter.emit(EventType.CLICK_BLANK)
+      gisvis.viewer.scene.postProcessStages.removeAll()
     },
     removeEntities(event, val, index) {
-      event.stopPropagation();
-      gisvis.emitter.emit(EventType.CLICK_BLANK);
+      event.stopPropagation()
+      gisvis.emitter.emit(EventType.CLICK_BLANK)
       //批量删除
       this.tableData.forEach((item) => {
         if (item.category == val.category) {
           item.listInfo.forEach((element) => {
-            gisvis.viewer.entities.removeById(element.id);
-            this.removeEntityBackEnd(element.id);
+            gisvis.viewer.entities.removeById(element.id)
+            this.removeEntityBackEnd(element.id)
             //批量删除存在的关系线
             gisvis.viewer.entities.values.forEach((ele) => {
-              let id = ele.id.toString();
+              let id = ele.id.toString()
               if (
-                id.split(",").length > 1 &&
-                ele.id.split(",").includes(element.id.toString())
+                id.split(',').length > 1 &&
+                ele.id.split(',').includes(element.id.toString())
               ) {
-                gisvis.viewer.entities.remove(ele);
+                gisvis.viewer.entities.remove(ele)
               }
-            });
-          });
+            })
+          })
         }
-      });
+      })
 
       if (gisvis.contextMenu) {
-        gisvis.contextMenu.destroy();
-        gisvis.contextMenu = null;
+        gisvis.contextMenu.destroy()
+        gisvis.contextMenu = null
       }
       if (gisvis.popper) {
-        gisvis.popper.destroy();
-        gisvis.popper = null;
+        gisvis.popper.destroy()
+        gisvis.popper = null
       }
-      this.tableData.splice(index, 1);
-      this.handleLegendDataChange([]);
+      this.tableData.splice(index, 1)
+      this.handleLegendDataChange([])
     },
     removeEntity(event, index, val, key) {
-      event.stopPropagation();
-      this.tableData[index].listInfo.splice(key, 1);
-      gisvis.emitter.emit(EventType.CLICK_BLANK);
-      this.removeEntityBackEnd(val.id);
-      gisvis.viewer.entities.removeById(val.id);
+      event.stopPropagation()
+      this.tableData[index].listInfo.splice(key, 1)
+      gisvis.emitter.emit(EventType.CLICK_BLANK)
+      this.removeEntityBackEnd(val.id)
+      gisvis.viewer.entities.removeById(val.id)
       //批量删除存在的关系线
       gisvis.viewer.entities.values.forEach((ele) => {
-        let id = ele.id.toString();
+        let id = ele.id.toString()
         if (
-          id.split(",").length > 1 &&
-          ele.id.split(",").includes(val.id.toString())
+          id.split(',').length > 1 &&
+          ele.id.split(',').includes(val.id.toString())
         ) {
-          gisvis.viewer.entities.remove(ele);
+          gisvis.viewer.entities.remove(ele)
         }
-      });
-      this.handleLegendDataChange([]);
+      })
+      this.handleLegendDataChange([])
       if (gisvis.contextMenu) {
-        gisvis.contextMenu.destroy();
-        gisvis.contextMenu = null;
+        gisvis.contextMenu.destroy()
+        gisvis.contextMenu = null
       }
       if (gisvis.popper) {
-        gisvis.popper.destroy();
-        gisvis.popper = null;
+        gisvis.popper.destroy()
+        gisvis.popper = null
       }
     },
     /**
@@ -398,123 +389,130 @@ export default {
     handleLegendItemClick(item) {
       let arr = this.resultArr.filter(
         (ele) => ele.properties.实体分类 == item.category
-      );
-      let lng = arr[arr.length - 1].properties.经度;
-      let lat = arr[arr.length - 1].properties.纬度;
+      )
+      let lng = arr[arr.length - 1].properties.经度
+      let lat = arr[arr.length - 1].properties.纬度
       gisvis.viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(lng, lat, h),
-      });
+      })
     },
     flyEntity(val) {
       if (val) {
-        emitter.emit(EventType.CLICK_BLANK);
-        let { 经度: lng, 纬度: lat } = val.properties;
+        emitter.emit(EventType.CLICK_BLANK)
+        let { 经度: lng, 纬度: lat } = val.properties
         gisvis.viewer.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(lng, lat, 1500),
-        });
+        })
       }
     },
     mapMark(val) {
-      this.collapse = true;
-      emitter.emit(EventType.CLICK_BLANK); //避免右键取消转到之前仍被选中的状态
+      this.collapse = true
+      emitter.emit(EventType.CLICK_BLANK) //避免右键取消转到之前仍被选中的状态
       emitter.emit(EventType.SET_MEASURE_TYPE, {
-        group: "基地",
-        groupCategory: "基地",
-        groupType: "基地",
-        image: "images/facility.png",
+        group: '基地',
+        groupCategory: '基地',
+        groupType: '基地',
+        image: 'images/facility.png',
         id: val.id,
         name: val.properties.name || val.properties.名称,
-      });
-      this.$message.warning("开始编辑位置");
+        labelShow: this.gisLabelShow,
+      })
+      this.$message.warning('开始编辑位置')
     },
     /**
      * 点击图例显示图标
      */
     handleLegendVisibleClick(item) {
-      item.visible = !item.visible;
+      item.visible = !item.visible
       this.resultArr
         .filter((ele) => ele.properties.实体分类 == item.category)
         .forEach((element) => {
-          console.log(gisvis.viewer.entities.getById(element.id));
-          gisvis.viewer.entities.getById(element.id).show = item.visible;
-        });
+          console.log(gisvis.viewer.entities.getById(element.id))
+          gisvis.viewer.entities.getById(element.id).show = item.visible
+        })
     },
     changeVisibleEntities(event, index, val) {
-      event.stopPropagation();
-      gisvis.emitter.emit(EventType.CLICK_BLANK);
-      val.visible = !val.visible;
+      event.stopPropagation()
+      gisvis.emitter.emit(EventType.CLICK_BLANK)
+      val.visible = !val.visible
       this.tableData[index].listInfo.forEach((item) => {
-        this.countArr.push(item.id);
-        item.visible = val.visible;
-        gisvis.viewer.entities.getById(item.id).show = val.visible;
+        item.visible = val.visible
+        gisvis.viewer.entities.getById(item.id).show = val.visible
         //批量隐藏存在的关系线
         if (!val.visibl) {
+          this.countArr = this.countArr.filter((vv) => vv != item.id)
           gisvis.viewer.entities.values.forEach((ele) => {
-            let id = ele.id.toString();
+            let id = ele.id.toString()
             if (
-              id.split(",").length > 1 &&
-              ele.id.split(",").includes(item.id.toString())
+              id.split(',').length > 1 &&
+              ele.id.split(',').includes(item.id.toString())
             ) {
-              ele.show = val.visible;
+              ele.show = false
             }
-          });
+          })
         }
-      });
+      })
       //只有当两个点都是被选中的点是和边对应的ID吻合时候才显示边
       if (val.visible) {
+        this.tableData[index].listInfo.forEach((item) => {
+          this.countArr.push(item.id)
+        })
         let arrIds = gisvis.viewer.entities.values
           .filter((ele) => {
-            let id = ele.id.toString();
-            return id.split(",").length > 1;
+            let id = ele.id.toString()
+            return id.split(',').length > 1
           })
-          .map((item) => item.id);
+          .map((item) => item.id)
         arrIds.forEach((item) => {
           if (
             item
-              .split(",")
-              .filter((ele) => !this.countArr.some((element) => ele == element))
-              .length == 0
+              .split(',')
+              .filter((ele) => this.countArr.some((element) => ele == element))
+              .length == 2
           ) {
-            gisvis.viewer.entities.getById(item).show = true;
+            gisvis.viewer.entities.getById(item).show = true
           }
-        });
+        })
       }
     },
     changeVisibleEntity(event, index, val, key) {
-      this.countArr.push(val.id);
-      event.stopPropagation();
-      gisvis.emitter.emit(EventType.CLICK_BLANK);
-      this.tableData[index].listInfo[key].visible = !val.visible;
-      gisvis.viewer.entities.getById(val.id).show = val.visible;
+      event.stopPropagation()
+      gisvis.emitter.emit(EventType.CLICK_BLANK)
+      this.tableData[index].listInfo[key].visible = !val.visible
+      gisvis.viewer.entities.getById(val.id).show = val.visible
       //批量隐藏存在的关系线
       if (!val.visible) {
+        this.countArr = this.countArr.filter((vv) => vv != val.id)
         gisvis.viewer.entities.values.forEach((ele) => {
-          let id = ele.id.toString();
+          let id = ele.id.toString()
           if (
-            id.split(",").length > 1 &&
-            ele.id.split(",").includes(val.id.toString())
+            id.split(',').length > 1 &&
+            ele.id.split(',').includes(val.id.toString())
           ) {
-            ele.show = val.visible;
+            ele.show = false
           }
-        });
+        })
       }
       if (val.visible) {
+        this.countArr.push(val.id)
+        console.log(this.countArr)
         let arrIds = gisvis.viewer.entities.values
           .filter((ele) => {
-            let id = ele.id.toString();
-            return id.split(",").length > 1;
+            let id = ele.id.toString()
+            return id.split(',').length > 1
           })
-          .map((item) => item.id);
+          .map((item) => item.id)
+        console.log(arrIds)
         arrIds.forEach((item) => {
           if (
             item
-              .split(",")
-              .filter((ele) => !this.countArr.some((element) => ele == element))
-              .length == 0
+              .split(',')
+              .filter((ele) => this.countArr.some((element) => ele == element))
+              .length == 2
           ) {
-            gisvis.viewer.entities.getById(item).show = true;
+            gisvis.viewer.entities.getById(item).show = true
           }
-        });
+        })
       }
       if (
         this.tableData[index].listInfo.every((item) => item.visible == false) ||
@@ -522,9 +520,9 @@ export default {
       ) {
         this.tableData[index].visible = this.tableData[
           index
-        ].listInfo[0].visible;
+        ].listInfo[0].visible
       }
-      this.$set(this.tableData, 0, this.tableData[0]);
+      this.$set(this.tableData, 0, this.tableData[0])
     },
     /**
      * 点击图例删除图标
@@ -532,52 +530,51 @@ export default {
     handleLegendDeleteClick(item) {
       this.legendData = this.legendData.filter(
         (ele) => ele.category != item.category
-      );
+      )
       this.resultArr
         .filter((ele) => ele.properties.实体分类 == item.category)
         .forEach((element) => {
-          gisvis.viewer.entities.removeById(element.id);
-        });
+          gisvis.viewer.entities.removeById(element.id)
+        })
     },
     /**
      * 点击攻击范围图标
      */
     handleAttackClick(item) {
-      const { type } = item;
-      const entityShow = this.entitiesVisibleCollection[type];
-      const attackShow = this.entitiesAttackAvailableCollection[type];
+      const { type } = item
+      const entityShow = this.entitiesVisibleCollection[type]
+      const attackShow = this.entitiesAttackAvailableCollection[type]
 
       if (!entityShow) {
-        return;
+        return
       }
 
       emitter.emit(EventType.SET_ATTACK_VISIBLE_BY_TYPE, {
         type,
         value: !attackShow,
-      });
+      })
     },
     changeEntitiesAttackRange(event, index, val) {
-      event.stopPropagation();
-      val.attackRange = !val.attackRange;
+      event.stopPropagation()
+      val.attackRange = !val.attackRange
       this.tableData[index].listInfo.forEach((item) => {
-        item.attackRange = val.attackRange;
+        item.attackRange = val.attackRange
         if (gisvis.viewer.entities.getById(item.id).ellipse) {
-          gisvis.viewer.entities.getById(item.id).ellipse.show =
-            val.attackRange;
+          gisvis.viewer.entities.getById(item.id).ellipse.show = val.attackRange
         } else {
           let params = {
             entities: [{ id: item.id }],
             radius: 250,
-            color: "#ffcc33",
-          };
-          gisvis.emitter.emit("gis-scope-render", params);
+            color: '#ffcc33',
+          }
+          gisvis.emitter.emit('gis-scope-render', params)
         }
-      });
-      this.$set(this.tableData, 0, this.tableData[0]);
+      })
+      this.$set(this.tableData, 0, this.tableData[0])
     },
     changeAttackRange(event, index, val, key) {
-      event.stopPropagation();
-      this.tableData[index].listInfo[key].attackRange = !val.attackRange;
+      event.stopPropagation()
+      this.tableData[index].listInfo[key].attackRange = !val.attackRange
       if (
         this.tableData[index].listInfo.every(
           (item) => item.attackRange == false
@@ -586,24 +583,24 @@ export default {
       ) {
         this.tableData[index].attackRange = this.tableData[
           index
-        ].listInfo[0].attackRange;
+        ].listInfo[0].attackRange
       }
       if (gisvis.viewer.entities.getById(val.id).ellipse) {
-        gisvis.viewer.entities.getById(val.id).ellipse.show = val.attackRange;
+        gisvis.viewer.entities.getById(val.id).ellipse.show = val.attackRange
       } else {
         // this.$message.info("当前选中的时候没有设置攻击范围");
         //设置一个默认攻击范围
         let params = {
           entities: [{ id: val.id }],
           radius: 250,
-          color: "#ffcc33",
-        };
-        gisvis.emitter.emit("gis-scope-render", params);
+          color: '#ffcc33',
+        }
+        gisvis.emitter.emit('gis-scope-render', params)
       }
-      this.$set(this.tableData, 0, this.tableData[0]);
+      this.$set(this.tableData, 0, this.tableData[0])
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>

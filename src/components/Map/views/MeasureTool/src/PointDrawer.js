@@ -10,7 +10,7 @@ class PointDrawer {
     this.firstPosition = null;
     this.firstLng = null;
     this.firstLat = null;
-      ({ scene: this.scene, clock: this.clock } = this.viewer);
+    ({ scene: this.scene, clock: this.clock } = this.viewer);
     ({
       canvas: this.canvas,
       camera: this.camera,
@@ -192,7 +192,7 @@ class PointDrawer {
       },
       newAdd: true,  //标记或者未知位置添加时候的标记
       label: {
-        show: true,
+        show: this.options.labelShow,
         text: this.options.hasOwnProperty('name') && this.options.name || '暂无名称',
         pixelOffset: new Cesium.Cartesian2(0, 24),
         font: "25px sans-serif",
@@ -233,7 +233,7 @@ class PointDrawer {
   cancelDraw() {
     //标记或者未知位置的直接删除 //移动实体的不能删除
     if (this.entity.newAdd) this.viewer.entities.remove(this.entity); //删除当前实体
-    if (!this.entity.hasOwnProperty('newAdd')) { //已知位置的移动取消就变为刚开始的位置
+    else { //已知位置的移动取消就变为刚开始的位置
       this.entity.position.setValue(this.firstPosition);
       this.entity.properties.lng.setValue(this.firstLng);
       this.entity.properties.lat.setValue(this.firstLat);

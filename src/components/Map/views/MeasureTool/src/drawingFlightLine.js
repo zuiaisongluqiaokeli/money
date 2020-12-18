@@ -64,7 +64,7 @@ export default {
       if (positions.length >= 2) {
         floatingPoint = viewer.entities.add({
           name: '空间直线距离',
-          id:`空间直线距离-${positions.length}`,
+          id: `空间直线距离-${positions.length}`,
           // position: Cesium.Cartesian3.fromDegrees(cartographic.longitude / Math.PI * 180, cartographic.latitude / Math.PI * 180,cartographic.height),
           position: positions[positions.length - 1],
           point: {
@@ -72,6 +72,10 @@ export default {
             color: Cesium.Color.RED,
             outlineColor: Cesium.Color.WHITE,
             outlineWidth: 2,
+            scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+            pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+              1.5e2, 1.0, 8.0e6, 0.2
+            )
           },
 
           label: {
@@ -81,7 +85,10 @@ export default {
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
             outlineWidth: 2,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(20, -20),
+            scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+            pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+              1.5e2, 1.0, 8.0e6, 0.2
+            )
           }
         });
       }
@@ -105,7 +112,7 @@ export default {
       function _(positions) {
         this.options = {
           name: '直线',
-          id:`直线-${positions.length}`,
+          id: `直线-${positions.length}`,
           polyline: {
             show: true,
             positions: [],

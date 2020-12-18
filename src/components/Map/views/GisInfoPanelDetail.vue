@@ -66,11 +66,7 @@
                       item.name !== 'longitude'
                     "
                   >
-                    <el-tooltip
-                      effect="dark"
-                      :content="item.name"
-                      placement="top-start"
-                    >
+                    <el-tooltip effect="dark" :content="item.name" placement="top-start">
                       <div class="description">
                         <span class="label">{{ item.name }}</span>
                       </div>
@@ -80,9 +76,7 @@
                 </div>
                 <div class="properties">
                   <span class="label">详细属性</span>
-                  <el-button type="text" @click="seeDetail('详细属性')">
-                    查看详细
-                  </el-button>
+                  <el-button type="text" @click="seeDetail('详细属性')">查看详细</el-button>
                 </div>
                 <!-- <div class="properties">
                   <span class="label">部署装备：</span>
@@ -95,7 +89,7 @@
                   <el-button type="text" @click="seeDetail('隶属')">
                     查看详细
                   </el-button>
-                </div> -->
+                </div>-->
               </div>
             </el-collapse-item>
             <el-collapse-item name="3" title="标签">
@@ -109,18 +103,14 @@
                     size="mini"
                     v-for="val in newVerticesData.labelsList"
                     :key="val"
-                    >{{ val }}
-                  </el-tag>
+                  >{{ val }}</el-tag>
                 </div>
                 <div v-else>暂无标签</div>
               </div>
             </el-collapse-item>
             <el-collapse-item name="4" title="相关文档">
               <div class="labels collapse-body">
-                <div
-                  v-if="fileData.length > 0"
-                  style="width: 96%; font-size: 14px"
-                >
+                <div v-if="fileData.length > 0" style="width: 96%; font-size: 14px">
                   <div
                     v-for="(item, index) in fileData"
                     :key="index"
@@ -129,13 +119,11 @@
                   >
                     <div>
                       <span :class="item.icon" class="file-icon"></span>
-                      <span
-                        class="file-name"
-                        @click="preview(item)"
-                        >{{
-                          item.name.substr(0, item.name.lastIndexOf("."))
-                        }}</span
-                      >
+                      <span class="file-name" @click="preview(item)">
+                        {{
+                        item.name.substr(0, item.name.lastIndexOf("."))
+                        }}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -163,11 +151,7 @@
       >
         <el-form-item v-for="(item, index) in seeDetailData" :key="index">
           <div class="seeDetailData">
-            <el-tooltip
-              effect="dark"
-              :content="item.name"
-              placement="top-start"
-            >
+            <el-tooltip effect="dark" :content="item.name" placement="top-start">
               <div class="description">
                 <span class="label">{{ item.name }}</span>
               </div>
@@ -182,9 +166,7 @@
           :label="item.id"
           :key="index"
           class="radio"
-        >
-          {{ item.name }}
-        </el-radio>
+        >{{ item.name }}</el-radio>
       </el-radio-group>
     </el-dialog>
 
@@ -195,25 +177,10 @@
       append-to-body
       :before-close="handleClosePreviewDialog"
     >
-      <iframe
-        v-if="previewUrl"
-        :src="previewUrl + '#toolbar=0'"
-        width="100%"
-        height="700"
-      ></iframe>
-      <img
-        v-if="previewImg"
-        :src="previewImg"
-        style="width: 100%; height: 100%"
-      />
-      <video
-        v-if="previewSrc"
-        style="width: 100%; height: 100%"
-        controls
-        autoplay
-      >
-        <source :src="previewSrc" :type="'video/' + videoType" />
-        抱歉，您的浏览器不支持html5播放
+      <iframe v-if="previewUrl" :src="previewUrl + '#toolbar=0'" width="100%" height="700"></iframe>
+      <img v-if="previewImg" :src="previewImg" style="width: 100%; height: 100%" />
+      <video v-if="previewSrc" style="width: 100%; height: 100%" controls autoplay>
+        <source :src="previewSrc" :type="'video/' + videoType" />抱歉，您的浏览器不支持html5播放
       </video>
       <audio
         v-if="previewMusic"
@@ -227,33 +194,33 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from "vuex";
-import { emitter, EventType } from "../src/EventEmitter";
-import * as graphVerticesDetail from "@/services/graph-vertices-detail";
-import * as sortManage from "@/services/sort-manage";
-import { geoNodeFindGroupData } from "@/assets/api/map";
+import { mapState, mapGetters, mapMutations } from 'vuex'
+import { emitter, EventType } from '../src/EventEmitter'
+import * as graphVerticesDetail from '@/services/graph-vertices-detail'
+import * as sortManage from '@/services/sort-manage'
+import { geoNodeFindGroupData } from '@/assets/api/map'
 export default {
-  name: "GisInfoPanel",
+  name: 'GisInfoPanel',
   data() {
     return {
       show: false,
       fixed: false,
-      previewUrl: "",
-      previewImg: "",
-      previewSrc: "",
-      previewMusic: "",
-      videoType: "mp4",
+      previewUrl: '',
+      previewImg: '',
+      previewSrc: '',
+      previewMusic: '',
+      videoType: 'mp4',
       previewDialog: false,
       blob: null,
       previewLoading: false,
       selectedEntity: {},
       errorImg: 'this.src="' + './img/gis/location.png"',
-      defaultImgSrc: "img/gis/location.png",
+      defaultImgSrc: 'img/gis/location.png',
       seeDetailData: [],
-      detailDialogTitle: "",
+      detailDialogTitle: '',
       radioData: [], //隶属
       detailDialogVisible: false,
-      checkedRadio: "",
+      checkedRadio: '',
       newVerticesData: {
         //  新增编辑实体数据
         name: null,
@@ -267,18 +234,18 @@ export default {
           // }
         ],
         labelsList: [], //实体标签（转逗号分割字符串）
-        type: "", //实体分类
+        type: '', //实体分类
       },
-      entityId: "",
-      categoryName: "", // 实体详情的实体分类
+      entityId: '',
+      categoryName: '', // 实体详情的实体分类
       fileData: [],
-    };
+    }
   },
   computed: {
-    ...mapState("graphInfo", ["id", "graphType", "name"]),
-    ...mapGetters("map", ["gisEntityIds", "gisLinesIds"]),
-    ...mapGetters("graphInfo", ["graphName"]),
-    ...mapState("map", ["gisEntities"]),
+    ...mapState('graphInfo', ['id', 'graphType', 'name']),
+    ...mapGetters('map', ['gisEntityIds', 'gisLinesIds']),
+    ...mapGetters('graphInfo', ['graphName']),
+    ...mapState('map', ['gisEntities']),
     // entity() {
     //   if (this.selectedEntity) {
     //     console.log(
@@ -330,36 +297,36 @@ export default {
     // },
   },
   methods: {
-    ...mapMutations("map", ["setselectedVertices"]),
+    ...mapMutations('map', ['setselectedVertices']),
     //记得改标记实体的ID
     async setSelectedEntity(val) {
-      this.entityId = val.id.entityId;
-      if (val.id.hasOwnProperty("entityId") && val.id.entityId !== "") {
+      this.entityId = val.id.entityId
+      if (val.id.hasOwnProperty('entityId') && val.id.entityId !== '') {
         // 拿之前的数据+现在的经纬度 发送数据
         let result = await graphVerticesDetail.vertexDetailView(
           val.id.entityId,
           this.id
-        );
+        )
         let propertiesJson = result.data.object.propsList.map((item) => ({
           name: item.key,
           value: item.value,
           primary: false,
-        }));
+        }))
         propertiesJson.forEach((item) => {
-          if (item.name == "name" || item.name == "名称") {
-            item.primary = true;
+          if (item.name == 'name' || item.name == '名称') {
+            item.primary = true
           }
-        });
+        })
         propertiesJson.push({
-          name: "纬度",
+          name: '纬度',
           value: val.id.properties.getValue().lat,
           primary: false,
-        });
+        })
         propertiesJson.push({
-          name: "经度",
+          name: '经度',
           value: val.id.properties.getValue().lng,
           primary: false,
-        });
+        })
         let newResult = await graphVerticesDetail.verticesUpdate({
           atlasId: parseInt(this.id),
           id: val.id.entityId,
@@ -368,198 +335,198 @@ export default {
           labelStr: result.data.object.labelsList.toString(),
           type: this.newVerticesData.type,
           graphType: this.graphType,
-        });
-        if(newResult.data.success==false){
+        })
+        if (newResult.data.success == false) {
           this.$message.error(newResult.data.msg)
           return
         }
         newResult.data.object.properties.latitude =
-          newResult.data.object.properties.纬度;
+          newResult.data.object.properties.纬度
         newResult.data.object.properties.longitude =
-          newResult.data.object.properties.经度;
+          newResult.data.object.properties.经度
         newResult.data.object.properties.实体分类 =
-          (newResult.data.object.properties.hasOwnProperty("实体分类") &&
+          (newResult.data.object.properties.hasOwnProperty('实体分类') &&
             newResult.data.object.properties.实体分类) ||
-          "暂未分类";
-        if(val.id.hasOwnProperty('newAdd')) delete val.id.newAdd,  //标记或者未知位置添加时候的标记
-        emitter.emit(EventType.LEGEND_DATA_CHANGE, [newResult.data.object]);//重新分组
+          '暂未分类'
+        gisvis.viewer.entities.getById(val.id.entityId).newAdd = false //标记或者未知位置添加时候的标记
+        emitter.emit(EventType.LEGEND_DATA_CHANGE, [newResult.data.object]) //重新分组
         let res = await graphVerticesDetail
           .vertexDetailView(val.id.entityId, this.id)
           .catch(() => {
             this.$message({
-              type: "error",
-              message: "获取实体详细信息请求失败",
-            });
-          });
+              type: 'error',
+              message: '获取实体详细信息请求失败',
+            })
+          })
         if (!res.data.success) {
           this.$message({
-            type: "error",
+            type: 'error',
             message: res.data.msg,
-          });
-          return;
+          })
+          return
         } else if (res.data.success) {
-          this.setselectedVertices(res.data.object);
-          this.newVerticesData.propertiesJson = [];
+          this.setselectedVertices(res.data.object)
+          this.newVerticesData.propertiesJson = []
           this.newVerticesData.avatar =
-            (res.data.object.properties.hasOwnProperty("avatar") &&
+            (res.data.object.properties.hasOwnProperty('avatar') &&
               res.data.object.properties.avatar) ||
-            "img/location.png";
+            'img/location.png'
           if (res.data.object.properties) {
-            let props = res.data.object.properties;
-            this.fileData = []; //清空
+            let props = res.data.object.properties
+            this.fileData = [] //清空
             for (let prop in props) {
-              if (typeof props[prop] === "string") {
-                props[prop] = props[prop].replace(/[\n\r\t]+/g, "<br />");
+              if (typeof props[prop] === 'string') {
+                props[prop] = props[prop].replace(/[\n\r\t]+/g, '<br />')
               }
-              if (prop !== "category") {
+              if (prop !== 'category') {
                 this.newVerticesData.propertiesJson.push({
                   name: prop, //属性名
                   value: props[prop], //属性值
                   primary: false, //主键
                   hidden: props[prop].length > 200, //内容字数大于200，提供判断是否显示所有内容
-                });
+                })
               }
-              if (prop === "docs") {
-                this.fileData = JSON.parse(props[prop]);
+              if (prop === 'docs') {
+                this.fileData = JSON.parse(props[prop])
                 this.fileData.forEach((item) => {
-                  item.type = item.name.slice(item.name.lastIndexOf(".") + 1);
-                  item.icon = this.makeIcons(item.name);
-                });
+                  item.type = item.name.slice(item.name.lastIndexOf('.') + 1)
+                  item.icon = this.makeIcons(item.name)
+                })
               }
-              if (prop === "avatar") {
-                this.avatar = props[prop];
+              if (prop === 'avatar') {
+                this.avatar = props[prop]
               }
-              if (prop === "实体分类") {
-                this.categoryName = props[prop];
+              if (prop === '实体分类') {
+                this.categoryName = props[prop]
               }
-              if (prop === "_实体分类ID") {
-                this.categoryId = props[prop];
+              if (prop === '_实体分类ID') {
+                this.categoryId = props[prop]
               }
-              if (prop === "name" || prop === "名称") {
-                this.newVerticesData.name = props[prop];
+              if (prop === 'name' || prop === '名称') {
+                this.newVerticesData.name = props[prop]
               }
             }
           }
-          this.newVerticesData.idStr = res.data.object.idStr;
-          this.newVerticesData.name = res.data.object.name;
+          this.newVerticesData.idStr = res.data.object.idStr
+          this.newVerticesData.name = res.data.object.name
           if (!res.data.object.labelsList) {
-            res.data.object.labelsList = [];
+            res.data.object.labelsList = []
           }
-          let some = res.data.object.labelsList.indexOf("DATAEXA_OBJECT");
+          let some = res.data.object.labelsList.indexOf('DATAEXA_OBJECT')
           if (some === -1) {
-            this.newVerticesData.labelsList = res.data.object.labelsList;
+            this.newVerticesData.labelsList = res.data.object.labelsList
           } else {
-            res.data.object.labelsList.splice(some, 1);
-            this.newVerticesData.labelsList = res.data.object.labelsList;
+            res.data.object.labelsList.splice(some, 1)
+            this.newVerticesData.labelsList = res.data.object.labelsList
           }
-          this.newVerticesData.type = res.data.object.type;
-          this.show = true;
+          this.newVerticesData.type = res.data.object.type
+          this.show = true
         }
       }
     },
     //用于判断，当前文件的格式，来控制显示什么图标，代码需要优化
     makeIcons(name) {
       name = name.toLowerCase()
-      if (name === "") return "";
+      if (name === '') return ''
       if (/\.txt$/.test(name)) {
-        return "file-txt";
+        return 'file-txt'
       } else if (/\.doc$|.docx$/.test(name)) {
-        return "file-word";
+        return 'file-word'
       } else if (/\.pdf$/.test(name)) {
-        return "file-pdf";
+        return 'file-pdf'
       } else if (/\.xlsx$|\.xls$/.test(name)) {
-        return "file-excel";
+        return 'file-excel'
       } else if (/\.png$|\.jpg$|\.jpeg$|\.gif$|\.bmp$/.test(name)) {
-        return "file-img";
+        return 'file-img'
       } else if (/\.mp4$|\.webm$/.test(name)) {
-        return "file-video";
+        return 'file-video'
       } else if (/\.mp3$|\.wav$/.test(name)) {
-        return "file-music";
+        return 'file-music'
       } else {
-        return "file";
+        return 'file'
       }
     },
     fixedPanel() {
-      this.fixed = !this.fixed;
-      let message = "面板已锁住";
+      this.fixed = !this.fixed
+      let message = '面板已锁住'
       if (!this.fixed) {
-        message = "面板已解锁";
+        message = '面板已解锁'
       }
       this.$message.warning({
         message,
         duration: 1500,
-      });
+      })
     },
     clickTabButton(event) {
-      if (this.entityId) this.show = !this.show;
+      if (this.entityId) this.show = !this.show
     },
     close() {
-      this.entityId = "";
-      this.selectedEntity = null;
-      !this.fixed && (this.show = false);
+      this.entityId = ''
+      this.selectedEntity = null
+      !this.fixed && (this.show = false)
     },
     async preview(file) {
-      this.fileName = file.name;
-      this.previewLoading = true;
-      const type = file.url.slice(file.url.lastIndexOf(".") + 1).toLowerCase();
+      this.fileName = file.name
+      this.previewLoading = true
+      const type = file.url.slice(file.url.lastIndexOf('.') + 1).toLowerCase()
       if (/pdf$/.test(type)) {
-        this.previewUrl = file.url;
+        this.previewUrl = file.url
       } else if (/jpg$|png$|jpeg$|gif$|bmp$/.test(type)) {
-        this.previewImg = file.url;
+        this.previewImg = file.url
       } else if (/mp4$|webm$/.test(type)) {
-        this.previewSrc = file.url;
-        this.videoType = type;
+        this.previewSrc = file.url
+        this.videoType = type
       } else if (/mp3$|wav$/.test(type)) {
-        this.previewMusic = file.url;
+        this.previewMusic = file.url
       } else {
-        const res = await sortManage.neo4jFilePreview(file.url, 0, null);
+        const res = await sortManage.neo4jFilePreview(file.url, 0, null)
         this.blob = new Blob([res.data], {
-          type: "application/pdf"
-        });
-        this.previewUrl = URL.createObjectURL(this.blob);
+          type: 'application/pdf',
+        })
+        this.previewUrl = URL.createObjectURL(this.blob)
       }
-      this.previewDialog = true;
-      this.previewLoading = false;
+      this.previewDialog = true
+      this.previewLoading = false
     },
     handleClosePreviewDialog() {
-      this.previewDialog = false;
-      this.previewUrl = "";
-      this.previewImg = "";
-      this.previewSrc = "";
-      this.previewMusic = "";
-      this.videoType = "mp4";
-      URL.revokeObjectURL(this.blob);
+      this.previewDialog = false
+      this.previewUrl = ''
+      this.previewImg = ''
+      this.previewSrc = ''
+      this.previewMusic = ''
+      this.videoType = 'mp4'
+      URL.revokeObjectURL(this.blob)
     },
     editDialog() {
-      emitter.emit(EventType.EDIT_CLICK_ENTITY, this.entityId);
+      emitter.emit(EventType.EDIT_CLICK_ENTITY, this.entityId)
     },
     async seeDetail(item) {
-      this.seeDetailData = this.newVerticesData.propertiesJson;
-      this.detailDialogTitle = item;
-      this.detailDialogVisible = true;
+      this.seeDetailData = this.newVerticesData.propertiesJson
+      this.detailDialogTitle = item
+      this.detailDialogVisible = true
     },
     async getGroupData() {
-      const res = await geoNodeFindGroupData(this.graphName);
-      const { success, object, msg } = res.data;
+      const res = await geoNodeFindGroupData(this.graphName)
+      const { success, object, msg } = res.data
 
       if (!success) {
-        this.$message.error(msg);
+        this.$message.error(msg)
       }
 
-      return object || [];
+      return object || []
     },
     removeEntity() {},
   },
   async created() {
-    emitter.on(EventType.CLICK_BLANK, this.close, this);
-    emitter.on(EventType.CLICK_ENTITY, this.setSelectedEntity, this);
+    emitter.on(EventType.CLICK_BLANK, this.close, this)
+    emitter.on(EventType.CLICK_ENTITY, this.setSelectedEntity, this)
     //this.radioData = await this.getGroupData();  //隶属数据
   },
   beforeDestroy() {
-    emitter.off(EventType.CLICK_BLANK, this.close);
-    emitter.off(EventType.CLICK_ENTITY, this.setSelectedEntity);
+    emitter.off(EventType.CLICK_BLANK, this.close)
+    emitter.off(EventType.CLICK_ENTITY, this.setSelectedEntity)
   },
-};
+}
 </script>
 
 <style scoped lang="scss">
@@ -725,31 +692,31 @@ export default {
   vertical-align: middle;
 }
 .file-txt {
-  background-image: url("~@/assets/icon/txt.png");
+  background-image: url('~@/assets/icon/txt.png');
 }
 .file-zip {
-  background-image: url("~@/assets/icon/zip.png");
+  background-image: url('~@/assets/icon/zip.png');
 }
 .file-pdf {
-  background-image: url("~@/assets/icon/pdf.png");
+  background-image: url('~@/assets/icon/pdf.png');
 }
 .file-word {
-  background-image: url("~@/assets/icon/word.png");
+  background-image: url('~@/assets/icon/word.png');
 }
 .file-excel {
-  background-image: url("~@/assets/icon/excel.png");
+  background-image: url('~@/assets/icon/excel.png');
 }
 .file-img {
-  background-image: url("~@/assets/icon/img.png");
+  background-image: url('~@/assets/icon/img.png');
 }
 .file-video {
-  background-image: url("~@/assets/icon/video.png");
+  background-image: url('~@/assets/icon/video.png');
 }
 .file-music {
-  background-image: url("~@/assets/icon/music.png");
+  background-image: url('~@/assets/icon/music.png');
 }
 .file-file {
-  background-image: url("~@/assets/icon/file.png");
+  background-image: url('~@/assets/icon/file.png');
 }
 .seeDetailData {
   display: flex;

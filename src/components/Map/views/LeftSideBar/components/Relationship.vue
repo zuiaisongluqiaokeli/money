@@ -23,18 +23,11 @@
           <el-form-item label="实体关系">
             <div class="relation">
               <div class="img-wrap">
-                <img
-                  :src="avatar[0]"
-                  alt="实体图片"
-                  class="img"
-                  :onerror="defaultAvatar"
-                />
+                <img :src="avatar[0]" alt="实体图片" class="img" :onerror="defaultAvatar" />
                 <div
                   class="name-text"
                   :title="selectedVertices[0] && selectedVertices[0].name"
-                >
-                  {{ selectedVertices[0] && selectedVertices[0].name }}
-                </div>
+                >{{ selectedVertices[0] && selectedVertices[0].name }}</div>
               </div>
               <div class="center">
                 <div
@@ -49,54 +42,30 @@
                   @click="setDirectionByClick(1)"
                 ></div>
                 <div class="input">
-                  <el-input
-                    v-model="addFormData.relationName"
-                    placeholder="关系名称"
-                    maxlength="20"
-                  ></el-input>
+                  <el-input v-model="addFormData.relationName" placeholder="关系名称" maxlength="20"></el-input>
                   <div class="text">点击箭头可设置关系指向</div>
                 </div>
               </div>
               <div class="img-wrap">
-                <img
-                  :src="avatar[1]"
-                  alt="实体图片"
-                  class="img"
-                  :onerror="defaultAvatar"
-                />
+                <img :src="avatar[1]" alt="实体图片" class="img" :onerror="defaultAvatar" />
                 <div
                   class="name-text"
                   :title="selectedVertices[1] && selectedVertices[1].name"
-                >
-                  {{ selectedVertices[1] && selectedVertices[1].name }}
-                </div>
+                >{{ selectedVertices[1] && selectedVertices[1].name }}</div>
               </div>
             </div>
           </el-form-item>
           <el-form-item label="关系属性">
             <div class="relation-props">
-              <div
-                class="prop"
-                v-for="(item, index) in addFormData.relationProps"
-                :key="index"
-              >
-                <el-input
-                  v-model="item.key"
-                  placeholder="属性名"
-                  class="input"
-                  maxlength="20"
-                ></el-input>
-                <el-input
-                  v-model="item.value"
-                  placeholder="属性值"
-                  class="input"
-                  maxlength="20"
-                ></el-input>
+              <div class="prop" v-for="(item, index) in addFormData.relationProps" :key="index">
+                <el-input v-model="item.key" placeholder="属性名" class="input" maxlength="20"></el-input>
+                <el-input v-model="item.value" placeholder="属性值" class="input" maxlength="20"></el-input>
                 <i class="el-icon-close icon" @click="deleteProp(index)"></i>
               </div>
               <div class="add-prop">
                 <span class="btn" @click="addProp">
-                  <i class="el-icon-plus"></i><span>新增关系属性</span>
+                  <i class="el-icon-plus"></i>
+                  <span>新增关系属性</span>
                 </span>
               </div>
             </div>
@@ -128,8 +97,7 @@
                     :key="index"
                     :value="item"
                     :label="item.type"
-                  >
-                  </el-option>
+                  ></el-option>
                 </el-select>
               </el-form-item>
             </div>
@@ -137,18 +105,11 @@
           <el-form-item label="实体关系">
             <div class="relation">
               <div class="img-wrap">
-                <img
-                  :src="avatar[0]"
-                  alt="实体图片"
-                  class="img"
-                  :onerror="defaultAvatar"
-                />
+                <img :src="avatar[0]" alt="实体图片" class="img" :onerror="defaultAvatar" />
                 <div
                   class="name-text"
                   :title="selectedVertices[0] && selectedVertices[0].name"
-                >
-                  {{ selectedVertices[0] && selectedVertices[0].name }}
-                </div>
+                >{{ selectedVertices[0] && selectedVertices[0].name }}</div>
               </div>
               <div class="center" v-if="showCenter">
                 <div
@@ -161,56 +122,32 @@
                   :class="{ 'is-active': editFormData.direction[1] }"
                 ></div>
                 <div class="input">
-                  <el-input
-                    v-model="editFormData.relationName"
-                    placeholder="关系名称"
-                    maxlength="20"
-                  ></el-input>
+                  <el-input v-model="editFormData.relationName" placeholder="关系名称" maxlength="20"></el-input>
                   <div class="change-direction">
                     <i class="el-icon-sort icon" @click="exchangeDirection"></i>
                   </div>
                 </div>
               </div>
               <div class="img-wrap">
-                <img
-                  :src="avatar[1]"
-                  alt="实体图片"
-                  class="img"
-                  :onerror="defaultAvatar"
-                />
+                <img :src="avatar[1]" alt="实体图片" class="img" :onerror="defaultAvatar" />
                 <div
                   class="name-text"
                   :title="selectedVertices[1] && selectedVertices[1].name"
-                >
-                  {{ selectedVertices[1] && selectedVertices[1].name }}
-                </div>
+                >{{ selectedVertices[1] && selectedVertices[1].name }}</div>
               </div>
             </div>
           </el-form-item>
           <el-form-item label="关系属性">
             <div class="relation-props">
-              <div
-                class="prop"
-                v-for="(item, index) in editFormData.relationProps"
-                :key="index"
-              >
-                <el-input
-                  v-model="item.key"
-                  placeholder="属性名"
-                  class="input"
-                  maxlength="20"
-                ></el-input>
-                <el-input
-                  v-model="item.value"
-                  placeholder="属性值"
-                  class="input"
-                  maxlength="20"
-                ></el-input>
+              <div class="prop" v-for="(item, index) in editFormData.relationProps" :key="index">
+                <el-input v-model="item.key" placeholder="属性名" class="input" maxlength="20"></el-input>
+                <el-input v-model="item.value" placeholder="属性值" class="input" maxlength="20"></el-input>
                 <i class="el-icon-close icon" @click="deleteProp(index)"></i>
               </div>
               <div class="add-prop">
                 <span class="btn" @click="addProp">
-                  <i class="el-icon-plus"></i><span>新增关系属性</span>
+                  <i class="el-icon-plus"></i>
+                  <span>新增关系属性</span>
                 </span>
               </div>
             </div>
@@ -250,18 +187,11 @@
           <el-form-item label="实体关系">
             <div class="relation">
               <div class="img-wrap">
-                <img
-                  :src="avatar[0]"
-                  alt="实体图片"
-                  class="img"
-                  :onerror="defaultAvatar"
-                />
+                <img :src="avatar[0]" alt="实体图片" class="img" :onerror="defaultAvatar" />
                 <div
                   class="name-text"
                   :title="selectedVertices[0] && selectedVertices[0].name"
-                >
-                  {{ selectedVertices[0] && selectedVertices[0].name }}
-                </div>
+                >{{ selectedVertices[0] && selectedVertices[0].name }}</div>
               </div>
               <div class="center" v-if="showCenter">
                 <div
@@ -276,28 +206,17 @@
                 <div class="text">{{ deleteFormData.relationName }}</div>
               </div>
               <div class="img-wrap">
-                <img
-                  :src="avatar[1]"
-                  alt="实体图片"
-                  class="img"
-                  :onerror="defaultAvatar"
-                />
+                <img :src="avatar[1]" alt="实体图片" class="img" :onerror="defaultAvatar" />
                 <div
                   class="name-text"
                   :title="selectedVertices[1] && selectedVertices[1].name"
-                >
-                  {{ selectedVertices[1] && selectedVertices[1].name }}
-                </div>
+                >{{ selectedVertices[1] && selectedVertices[1].name }}</div>
               </div>
             </div>
           </el-form-item>
           <el-form-item label="关系属性">
             <div class="relation-props">
-              <div
-                class="prop"
-                v-for="(item, index) in deleteFormData.relationProps"
-                :key="index"
-              >
+              <div class="prop" v-for="(item, index) in deleteFormData.relationProps" :key="index">
                 <el-form-item class="no-colon">
                   <div slot="label" class="key">{{ item.key }}</div>
                   {{ item.value }}
@@ -309,17 +228,17 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="saveDialog" type="primary">保 存</el-button>
-        <el-button @click="closeDialog"> 取 消 </el-button>
+        <el-button @click="closeDialog">取 消</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import { emitter, EventType } from "../../../src/EventEmitter";
-import * as graphVerticesDetail from "@/services/graph-vertices-detail";
-import * as sortManage from "@/services/sort-manage";
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import { emitter, EventType } from '../../../src/EventEmitter'
+import * as graphVerticesDetail from '@/services/graph-vertices-detail'
+import * as sortManage from '@/services/sort-manage'
 export default {
   components: {},
 
@@ -327,69 +246,69 @@ export default {
     return {
       loading: false,
       formData: {}, // 拉取的表单数据
-      type: "add", // 关系修改类型
+      type: 'add', // 关系修改类型
       currentTypeData: {}, // 当前关系数据
       addFormData: {
         direction: [false, true], // 关系方向
-        relationName: "", // 关系名称
-        relationProps: [{ key: "", value: "" }], // 关系属性
+        relationName: '', // 关系名称
+        relationProps: [{ key: '', value: '' }], // 关系属性
       },
       editFormData: {
-        currentDirection: "", // 当前关系方向
+        currentDirection: '', // 当前关系方向
         currentRelationName: {}, // 当前关系名称
         currentRelationNameList: [], // 当前关系名称列表
         direction: [false, false], // 关系方向
-        relationName: "", // 关系名称
+        relationName: '', // 关系名称
         relationProps: [], // 关系属性
       },
       deleteFormData: {
-        currentDirection: "", // 当前关系方向
+        currentDirection: '', // 当前关系方向
         currentRelationName: {}, // 当前关系名称
         currentRelationNameList: [], // 当前关系名称列表
         direction: [false, false], // 关系方向
-        relationName: "", // 关系名称
+        relationName: '', // 关系名称
         relationProps: [], // 关系属性
       },
-      defaultImg: "./img/default.png",
+      defaultImg: './img/default.png',
       dialogVisible: true,
-    };
+    }
   },
 
   computed: {
-    ...mapState("map", ["selectedVertices"]), //选中的两个点坐标数据
-    ...mapGetters("graphInfo", ["graphName"]),
-    ...mapState("graphInfo", ["id", "graphType"]),
-    ...mapState("graphInfo", ["name"]),
+    ...mapState('map', ['selectedVertices']), //选中的两个点坐标数据
+    ...mapGetters('graphInfo', ['graphName']),
+    ...mapState('graphInfo', ['id', 'graphType']),
+    ...mapState('graphInfo', ['name']),
     /**
      * 头像
      */
     avatar() {
       return this.selectedVertices.map(
-        (vertices) => vertices.properties.avatar || ""
-      );
+        (vertices) => vertices.properties.avatar || ''
+      )
     },
     /**
      * 默认头像
      */
     defaultAvatar() {
-      return `this.src = "${this.defaultImg}"`;
+      return `this.src = "${this.defaultImg}"`
     },
     /**
      * 是否展示实体关系中间的元素
      */
     showCenter() {
-      const name = this.currentTypeData.currentRelationName;
+      const name = this.currentTypeData.currentRelationName
 
-      return !!name && JSON.stringify(name) !== "{}";
+      return !!name && JSON.stringify(name) !== '{}'
     },
     /**
      * 当前边 id，缺省时为 -1
      */
     edgeId() {
       try {
-        return this.currentTypeData.currentRelationName.id;
+        return this.currentTypeData.currentRelationName.id
       } catch (error) {
-        return -1;
+        return -1
       }
     },
   },
@@ -401,77 +320,77 @@ export default {
           add: this.addFormData,
           edit: this.editFormData,
           delete: this.deleteFormData,
-        };
+        }
 
-        this.currentTypeData = map[newValue] || {};
+        this.currentTypeData = map[newValue] || {}
       },
       immediate: true,
     },
   },
   created() {
     //一开始就得查询数据
-    this.getFormData();
+    this.getFormData()
   },
   methods: {
-    ...mapMutations("canvasInfo", ["updateData"]),
-    ...mapMutations("map", ["updateGisLines", "deleteGisLines"]),
+    ...mapMutations('canvasInfo', ['updateData']),
+    ...mapMutations('map', ['updateGisLines', 'deleteGisLines']),
     /**
      * 关闭弹窗
      */
     closeDialog() {
-      this.$emit("before-close");
+      this.$emit('before-close')
     },
     /**
      * 拉取表单数据
      */
     async getFormData() {
-      console.log("选中的数据", this.selectedVertices);
-      this.loading = true;
-      this.type = "add";
-      const startId = this.selectedVertices[0].id;
-      const endId = this.selectedVertices[1].id;
+      console.log('选中的数据', this.selectedVertices)
+      this.loading = true
+      this.type = 'add'
+      const startId = this.selectedVertices[0].id
+      const endId = this.selectedVertices[1].id
       const { data } = await sortManage.nodeRelationShipList(
         this.id,
         startId,
         endId
-      );
-      this.loading = false;
-      this.formData = data;
+      )
+      this.loading = false
+      this.formData = data
     },
     /**
      * 新增关系时选择方向
      */
     setDirectionByClick(index) {
-      const boolean = !this.addFormData.direction[index];
+      const boolean = !this.addFormData.direction[index]
 
-      this.addFormData.direction.splice(index, 1, boolean);
+      this.addFormData.direction.splice(index, 1, boolean)
     },
     /**
      * 选择关系方向
      * @param {string} newValue
      */
     handleDirectionChange(newValue) {
-      this.currentTypeData.currentRelationNameList = this.formData[newValue];
+      this.currentTypeData.currentRelationNameList = this.formData[newValue]
       this.currentTypeData.direction = [
-        newValue === "reverse",
-        newValue === "forward",
-      ];
-      this.currentTypeData.currentRelationName = {};
-      this.handleRelationNameChange({});
+        newValue === 'reverse',
+        newValue === 'forward',
+      ]
+      this.currentTypeData.currentRelationName = {}
+      this.handleRelationNameChange({})
     },
     /**
      * 选择属性关系名称
      * @param {object} newValue
      */
     handleRelationNameChange(newValue) {
-      const { type, properties = {} } = newValue;
+      const { type, properties = {} } = newValue
 
-      this.currentTypeData.relationName = type;
+      this.currentTypeData.relationName = type
       this.currentTypeData.relationProps = Object.entries(properties).map(
         (prop) => {
-          return { key: prop[0], value: prop[1] };
+          return { key: prop[0], value: prop[1] }
         }
-      );
+      )
     },
     /**
      * 修改关系时切换方向
@@ -480,7 +399,7 @@ export default {
       if (this.editFormData.relationName) {
         this.editFormData.direction = this.editFormData.direction.map(
           (value) => !value
-        );
+        )
       }
     },
     /**
@@ -488,75 +407,75 @@ export default {
      */
     addProp() {
       this.currentTypeData.relationProps.push({
-        key: "",
-        value: "",
-      });
+        key: '',
+        value: '',
+      })
     },
     /**
      * 删除一条属性
      */
     deleteProp(index) {
-      this.currentTypeData.relationProps.splice(index, 1);
+      this.currentTypeData.relationProps.splice(index, 1)
     },
     /**
      * 保存关系
      * startId, endId, type, both, props, name
      */
     async saveDialog() {
-      const currentData = this.currentTypeData;
-      const Ids = [this.selectedVertices[0].id, this.selectedVertices[1].id];
+      const currentData = this.currentTypeData
+      const Ids = [this.selectedVertices[0].id, this.selectedVertices[1].id]
 
       // 反向关系
       if (currentData.direction[0]) {
-        [Ids[0], Ids[1]] = [Ids[1], Ids[0]];
+        ;[Ids[0], Ids[1]] = [Ids[1], Ids[0]]
       }
 
-      const startId = Ids[0];
-      const endId = Ids[1];
-      const type = currentData.relationName;
-      const both = currentData.direction.every((value) => value);
+      const startId = Ids[0]
+      const endId = Ids[1]
+      const type = currentData.relationName
+      const both = currentData.direction.every((value) => value)
       const props = currentData.relationProps.reduce((previous, current) => {
-        const key = current.key.trim();
-        const value = current.value;
+        const key = current.key.trim()
+        const value = current.value
 
         if (key) {
-          Object.assign(previous, { [key]: value });
+          Object.assign(previous, { [key]: value })
         }
 
-        return previous;
-      }, {});
-      const edgeId = this.edgeId;
-      const name = this.name;
-      if (this.type === "add") {
-        const hasDirection = currentData.direction.some((value) => value);
+        return previous
+      }, {})
+      const edgeId = this.edgeId
+      const name = this.name
+      if (this.type === 'add') {
+        const hasDirection = currentData.direction.some((value) => value)
         if (!hasDirection) {
-          return this.$message.error("关系指向必选");
+          return this.$message.error('关系指向必选')
         }
         if (!this.currentTypeData.relationName.trim()) {
-          return this.$message.error("关系名称必填");
+          return this.$message.error('关系名称必填')
         }
       }
 
-      if (this.type === "edit") {
+      if (this.type === 'edit') {
         if (!currentData.currentDirection) {
-          return this.$message.error("关系指向必选");
+          return this.$message.error('关系指向必选')
         }
-        if (JSON.stringify(currentData.currentRelationName) === "{}") {
-          return this.$message.error("关系名称必填");
+        if (JSON.stringify(currentData.currentRelationName) === '{}') {
+          return this.$message.error('关系名称必填')
         }
         if (!currentData.relationName.trim()) {
-          return this.$message.error("关系名称必填");
+          return this.$message.error('关系名称必填')
         }
       }
-      if (this.type === "delete") {
+      if (this.type === 'delete') {
         if (!currentData.currentDirection) {
-          return this.$message.error("关系指向必选");
+          return this.$message.error('关系指向必选')
         }
-        if (JSON.stringify(currentData.currentRelationName) === "{}") {
-          return this.$message.error("关系名称必填");
+        if (JSON.stringify(currentData.currentRelationName) === '{}') {
+          return this.$message.error('关系名称必填')
         }
-        this.deleteEdges();
-        return;
+        this.deleteEdges()
+        return
       }
 
       const { data } = await this.$api.changeType(
@@ -564,45 +483,66 @@ export default {
         endId,
         type,
         both,
-        JSON.stringify(props) === "{}" ? "" : JSON.stringify(props),
+        JSON.stringify(props) === '{}' ? '' : JSON.stringify(props),
         edgeId,
         name
-      );
-      let { object } = data;
+      )
+      let { object } = data
 
       if (!data.success) {
-        return this.$message.error(data.msg);
+        return this.$message.error(data.msg)
       }
       // 等待审核
-      if (data.code === "50001") {
-        this.$message.success(data.msg);
-        this.closeDialog();
+      if (data.code === '50001') {
+        this.$message.success(data.msg)
+        this.closeDialog()
 
-        return;
+        return
       }
-      await this.afterSave(object);
-      this.$message.success(data.msg);
-      //对数据划分哪个是起点哪个是终点
-      let center = {
-        id: this.selectedVertices[0].id,
-        lon: this.selectedVertices[0].properties.经度,
-        lat: this.selectedVertices[0].properties.纬度,
-        size: 5,
-        color: Cesium.Color.YELLOW,
-      };
-      let points = {
-        id: this.selectedVertices[1].id,
-        lon: this.selectedVertices[1].properties.经度,
-        lat: this.selectedVertices[1].properties.纬度,
-        size: 5,
-        color: Cesium.Color.YELLOW,
-      };
-      if (this.currentTypeData.direction[1]) {
-        emitter.emit(EventType.CREATE_Fly_LINES, { center, points });
-      } else {
-        emitter.emit(EventType.CREATE_Fly_LINES, { points, center });
+      await this.afterSave(object)
+      this.$message.success(data.msg)
+      //对数据划分哪个是起点哪个是终点,如果有关系就不再二次加关系
+      let arrIds = []
+      arrIds = gisvis.viewer.entities.values
+        .filter((ele) => {
+          let id = ele.id.toString()
+          return id.split(',').length > 1
+        })
+        .map((item) => item.id)
+      arrIds.push('001,0002') //给个初始值为了循环
+      if (
+        arrIds.every(
+          (item) =>
+            item
+              .split(',')
+              .filter((ele) =>
+                [this.selectedVertices[0].id, this.selectedVertices[1].id].some(
+                  (element) => ele == element
+                )
+              ).length != 2
+        )
+      ) {
+        let center = {
+          id: this.selectedVertices[0].id,
+          lon: this.selectedVertices[0].properties.经度,
+          lat: this.selectedVertices[0].properties.纬度,
+          size: 5,
+          color: Cesium.Color.YELLOW,
+        }
+        let points = {
+          id: this.selectedVertices[1].id,
+          lon: this.selectedVertices[1].properties.经度,
+          lat: this.selectedVertices[1].properties.纬度,
+          size: 5,
+          color: Cesium.Color.YELLOW,
+        }
+        if (this.currentTypeData.direction[1]) {
+          emitter.emit(EventType.CREATE_Fly_LINES, { center, points })
+        } else {
+          emitter.emit(EventType.CREATE_Fly_LINES, { points, center })
+        }
       }
-      this.closeDialog();
+      this.closeDialog()
 
       //   let props = currentData.relationProps.reduce((previous, current) => {
       //     const key = current.key.trim();
@@ -717,39 +657,39 @@ export default {
      * @param {string} edgeId 边 id
      */
     findEdge(edgeId) {
-      return sativis.getEdges().filter((edge) => edge.id === edgeId)[0];
+      return sativis.getEdges().filter((edge) => edge.id === edgeId)[0]
     },
     /**
      * 保存之后的更新数据
      * @param {array} res
      */
     async afterSave(res) {
-      const edges = [];
-      const removedEdge = [];
+      const edges = []
+      const removedEdge = []
       // edit 模式下只会返回一条数据
-      const [item] = res;
-      const targetId = item.id;
-      const targetEdge = this.findEdge(targetId);
+      const [item] = res
+      const targetId = item.id
+      const targetEdge = this.findEdge(targetId)
 
-      if (this.type === "add") {
-        edges.push(...res);
-      } else if (this.type === "edit") {
-        const currentEdgeId = this.edgeId;
+      if (this.type === 'add') {
+        edges.push(...res)
+      } else if (this.type === 'edit') {
+        const currentEdgeId = this.edgeId
 
         // 返回边的 id 不变，直接更新边的数据
         if (currentEdgeId === targetId) {
-          edges.push(item);
-          targetEdge.type = item.type;
-          targetEdge.property(item.properties);
-          targetEdge.setPropertiesList(item.propertiesList);
+          edges.push(item)
+          targetEdge.type = item.type
+          targetEdge.property(item.properties)
+          targetEdge.setPropertiesList(item.propertiesList)
         } else {
-          edges.push(item);
-          removedEdge.push(currentEdgeId);
+          edges.push(item)
+          removedEdge.push(currentEdgeId)
         }
       }
 
       //removedEdge.forEach((id) => sativis.removeEdge(id.toString()));
-      this.updateGisLines(edges);
+      this.updateGisLines(edges)
       // sativis.addEdges(edges);
       // sativis.render();
       // this.updateData({ edges });
@@ -759,7 +699,7 @@ export default {
      * startId, endId, type, both, edgeId, name
      */
     async deleteLabel(obj) {
-      const { startId, endId, type, both, edgeId, name } = obj;
+      const { startId, endId, type, both, edgeId, name } = obj
       const { data } = await this.$api.deleteLabel(
         startId,
         endId,
@@ -767,23 +707,23 @@ export default {
         both,
         edgeId,
         name
-      );
-      const targetEdge = this.edgeId;
+      )
+      const targetEdge = this.edgeId
 
       if (!data.success) {
-        return this.$message.error(data.msg);
+        return this.$message.error(data.msg)
       }
       // 开启审核
-      if (data.code === "50001") {
-        this.$message.success(data.msg);
-        this.closeDialog();
+      if (data.code === '50001') {
+        this.$message.success(data.msg)
+        this.closeDialog()
 
-        return;
+        return
       }
-      sativis.removeEdge(targetEdge);
-      this.updateData({ edges: [] });
-      this.$message.success(data.msg);
-      this.closeDialog();
+      sativis.removeEdge(targetEdge)
+      this.updateData({ edges: [] })
+      this.$message.success(data.msg)
+      this.closeDialog()
     },
     //删除关系(item相当于后端返回的)
     async deleteEdges() {
@@ -803,41 +743,41 @@ export default {
         vertexId: Number(this.selectedVertices[0].id),
         vertexIdStr: this.selectedVertices[0].id.toString(),
         vertexName: this.selectedVertices[0].name,
-      };
+      }
       let res = await graphVerticesDetail.relationDelete(some).catch(() => {
         this.$message({
-          type: "error",
-          message: "删除请求失败",
-        });
-        this.edgesListLoading = false;
-        return;
-      });
+          type: 'error',
+          message: '删除请求失败',
+        })
+        this.edgesListLoading = false
+        return
+      })
       if (!res && !res.data.success) {
         this.$message({
-          type: "error",
+          type: 'error',
           message: res.data.msg,
-        });
-        return;
+        })
+        return
       } else if (res && res.data && res.data.success) {
         if (!res.data.object) {
           this.$message({
-            type: "success",
-            message: "删除关系已进入审核阶段！",
-          });
+            type: 'success',
+            message: '删除关系已进入审核阶段！',
+          })
         } else {
           this.$message({
-            type: "success",
-            message: "删除关系成功！",
-          });
+            type: 'success',
+            message: '删除关系成功！',
+          })
           this.deleteGisLines(
             this.currentTypeData.currentRelationName.id.toString()
-          ); //vuex去掉这个
+          ) //vuex去掉这个
         }
-        this.closeDialog();
+        this.closeDialog()
       }
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -926,7 +866,7 @@ export default {
     }
 
     .triangle::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 4px;
       border-width: 8px 12px;

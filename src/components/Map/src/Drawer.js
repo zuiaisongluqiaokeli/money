@@ -25,11 +25,13 @@ class Drawer {
         this.viewer.entities.add({
           id: Number(e.id),
           entityId: Number(e.id),
+          //地图上的位置坐标
           position: Cesium.Cartesian3.fromDegrees(
             e.properties.longitude,
             e.properties.latitude,
             0
           ),
+          newAdd: false,
           billboard: {
             image: "img/location.png",
             width: 25,
@@ -43,7 +45,7 @@ class Drawer {
           label: {
             show: labelShow,
             // text: (e.properties.name || e.name).substring(0,10),
-            text: e.properties.hasOwnProperty('name')&&e.properties.name || e.name,
+            text: e.properties.hasOwnProperty('name') && e.properties.name || e.name,
             pixelOffset: new Cesium.Cartesian2(0, 24),
             font: "25px sans-serif",
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -57,12 +59,13 @@ class Drawer {
             )
           },
           properties: {
+            //经纬度
             lat: e.properties.latitude,
             lng: e.properties.longitude,
             properties: {
               ...e.properties
             },
-            name: e.properties.hasOwnProperty('name')&&e.properties.name || e.name,
+            name: e.properties.hasOwnProperty('name') && e.properties.name || e.name,
             id: Number(e.id),
             entityId: Number(e.id),
             labels: e.labels,

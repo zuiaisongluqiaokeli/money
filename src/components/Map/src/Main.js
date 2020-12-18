@@ -13,6 +13,7 @@ import Popper from "../views/Popper";
 import PolylineTrailMaterialProperty from "./PolylineTrailMaterialProperty"; //关系
 import * as RadarsEffects from "./RadarsEffects" //雷达
 import SimulatedSatellite from "./SimulatedSatellite" //轨迹线
+import CesiumCircleWaveMaterial from "./CesiumCircleWaveMaterial" //没有问题的雷达
 const _homePosition = [119.17968749999999, 25.522614647623293, 25000000];
 let _instance = null;
 
@@ -383,8 +384,8 @@ class Main {
   }
   //测量距离 (如果是绘制航线默认带上第一点坐标，每次先清空上次绘制的数据)
   measureLineSpace() {
-      this.measureTool.measureLineSpace()
-    } 
+    this.measureTool.measureLineSpace()
+  }
   //测量面积
   measureAreaSpace() {
     this.measureTool.measureAreaSpace()
@@ -464,9 +465,26 @@ class Main {
   /**
    * 圆形扩大扫描圈
    */
-  addCircleScan(val) {
-    let ScanPostStage = RadarsEffects.addCircleScan(this.viewer, val)
-    console.log("雷达", ScanPostStage)
+  addCircleScan(id) {
+    // let ScanPostStage = RadarsEffects.addCircleScan(this.viewer, val)
+    // console.log("雷达", ScanPostStage)
+    if (!this.viewer.entities.getById(id).ellipse) {
+      this.viewer.entities.getById(id).ellipse = {
+        show: true,
+        height: 0,
+        semiMinorAxis: 10000,
+        semiMajorAxis: 10000,
+        material: new Cesium.CircleWaveMaterialProperty({
+          duration: 2e3,
+          gradient: 0,
+          color: new Cesium.Color(1.0, 0.0, 0.0, 1.0),
+          count: 3
+        })
+      }
+    } else {
+      this.viewer.entities.getById(id).ellipse.show.setValue(!this.viewer.entities.getById(id).ellipse.show.getValue())
+    }
+    //判断该数组是否有属性，有的话就切换，没有就添加；没数组就增加内容
     // if (this.store.radarsData.every(item => item.name !== val.name)) {
     //   let ScanPostStage = RadarsEffects.addCircleScan(this.viewer, val)
     //   this.store.setallRadarsData(ScanPostStage)
@@ -490,11 +508,11 @@ class Main {
    */
   drawingEntityFlightLine(obj) {
     const { firstPoint, cartesian } = obj
-      this.arrData = []
-      this.measureTool.drawingEntityFlightLine(arrData => {
-        this.arrData = arrData
-        this.arrData.splice(0, 0, firstPoint)//添加初始点坐标
-      }, cartesian)//绘制的初始点坐标
+    this.arrData = []
+    this.measureTool.drawingEntityFlightLine(arrData => {
+      this.arrData = arrData
+      this.arrData.splice(0, 0, firstPoint)//添加初始点坐标
+    }, cartesian)//绘制的初始点坐标
   }
   /**
    * 轨迹飞行

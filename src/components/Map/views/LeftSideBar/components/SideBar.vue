@@ -77,7 +77,7 @@ import * as graphVerticesDetail from "@/services/graph-vertices-detail";
 export default {
   computed: {
     ...mapState("graphInfo", ["id", "graphType", "name"]),
-    ...mapState("map", ["selectedVertices"]),
+    ...mapState("map", ["selectedVertices",'gisLabelShow']),
   },
   components: {
     GisInfoPanelAdd,
@@ -172,6 +172,7 @@ export default {
           groupCategory: "基地",
           groupType: "基地",
           image: "images/facility.png",
+          labelShow:this.gisLabelShow,
         });
         this.$message.success("已成功创建标记点");
       }
@@ -186,7 +187,7 @@ export default {
         emitter.emit(EventType.POPPER_REMOVE);
         emitter.emit(EventType.RENDER_DATA, {
           entities: [entity],
-          labelShow: true,
+          labelShow: this.gisLabelShow,
         });
       } else {
         //修改的时候重新生成分组数据

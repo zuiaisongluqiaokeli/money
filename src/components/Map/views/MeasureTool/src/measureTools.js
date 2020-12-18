@@ -67,6 +67,10 @@ export default {
             color: Cesium.Color.RED,
             outlineColor: Cesium.Color.WHITE,
             outlineWidth: 2,
+            scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+            pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+              1.5e2, 1.0, 8.0e6, 0.2
+            )
           },
 
           label: {
@@ -76,7 +80,10 @@ export default {
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
             outlineWidth: 2,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-            pixelOffset: new Cesium.Cartesian2(20, -20),
+            scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+            pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+              1.5e2, 1.0, 8.0e6, 0.2
+            )
           }
         });
       }
@@ -207,7 +214,11 @@ export default {
           color: Cesium.Color.RED,
           outlineColor: Cesium.Color.WHITE,
           outlineWidth: 2,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+          pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+            1.5e2, 1.0, 8.0e6, 0.2
+          )
         }
       });
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -243,7 +254,10 @@ export default {
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(20, -40),
+          scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+          pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+            1.5e2, 1.0, 8.0e6, 0.2
+          ),
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
         }
       });

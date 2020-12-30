@@ -1,5 +1,5 @@
 <template>
-  <div class="popper" :style="position" :class="'placement-' + placement">
+  <div v-if="show" class="popper" :style="position" :class="'placement-' + placement">
     <div class="move" v-if="canMove" @click="handleMoveClick" title="移动位置">
       <i class="el-icon-rank"></i>
     </div>
@@ -8,22 +8,23 @@
 </template>
 
 <script>
-import { emitter, EventType } from "../../src/EventEmitter";
+import { emitter, EventType } from '../../src/EventEmitter'
 
 export default {
-  name: "Popper",
+  name: 'Popper',
   data() {
     return {
       position: {
         top: 0,
         left: 0,
       },
-      text: "",
-      defaultText: "未命名",
+      text: '',
+      defaultText: '未命名',
       canMove: false,
-      placement: "top",
+      show: true,
+      placement: 'top',
       html: null,
-    };
+    }
   },
 
   watch: {
@@ -32,15 +33,15 @@ export default {
   },
 
   beforeDestroy() {
-    this.$el.parentNode.removeChild(this.$el);
+    this.$el.parentNode.removeChild(this.$el)
   },
 
   methods: {
     handleMoveClick() {
-      emitter.emit(EventType.POPPER_MOVE);
+      emitter.emit(EventType.POPPER_MOVE)
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -56,7 +57,7 @@ export default {
   color: #4c4c4c;
 
   &.placement-top {
-    transform: translate(-50%, calc(-50% - 60px));
+    transform: translate(-50%, calc(-50% - 20px));
   }
 
   &.placement-right {

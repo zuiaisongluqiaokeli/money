@@ -6,7 +6,7 @@
 
 <script>
 import * as d3 from 'd3'
-// import { emitter, EventType } from "../../src/EventEmitter";
+import { emitter, EventType } from '../../src/EventEmitter'
 import { mapState } from 'vuex'
 
 export default {
@@ -17,7 +17,6 @@ export default {
     return {
       // 第一环
       dataInnerList: [
-        // { name: "标记", icon: "\ue831", angle: 1, action: "" },
         { name: '拓展', icon: '\ue70e', angle: 1, action: 'expand' },
         { name: '删除', icon: '\ue683', angle: 1, action: 'delete' },
         {
@@ -26,10 +25,10 @@ export default {
           angle: 1,
           action: 'SimulatedSatellite',
         },
-        { name: '一键部署', icon: '\ue813', angle: 1, action: 'oneDeployment' },
+        // { name: '一键部署', icon: '\ue813', angle: 1, action: 'oneDeployment' },
         { name: '范围搜索', icon: '\ue8ef', angle: 1, action: 'scopeSearch' },
         { name: '范围切换', icon: '\ue814', angle: 1, action: 'scopeChange' },
-        { name: '雷达切换', icon: '\ue831', angle: 1, action: 'radarShow' },
+        // { name: '雷达切换', icon: '\ue831', angle: 1, action: 'radarShow' },
       ],
       pieInnerData: [],
 
@@ -88,7 +87,7 @@ export default {
   methods: {
     handleClick(data) {
       // emitter.emit(EventType.CONTEXT_MENU_CLICK, data);
-      gisvis.emitter.emit('gis.context-menu-item-click', data)
+      emitter.emit('gis.context-menu-item-click', data)
     },
     /**
      * 初始化环形菜单，复制自`sectorMenu.vue`

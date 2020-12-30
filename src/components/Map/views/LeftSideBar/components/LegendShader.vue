@@ -3,11 +3,7 @@
     <div class="body">
       <ul class="list">
         <li class="item" v-for="(item, index) in shaderList" :key="index">
-          <el-color-picker
-            show-alpha
-            v-model="item.color"
-            :predefine="predefineColors"
-          ></el-color-picker>
+          <el-color-picker show-alpha v-model="item.color" :predefine="predefineColors"></el-color-picker>
           <div class="input">
             <select-tree
               v-model="item.typeName"
@@ -26,29 +22,27 @@
         <el-button type="text" @click="addNew">+ 新增着色</el-button>
       </div>
       <div class="btn">
-        <el-button type="primary" class="submit" @click="dialogSave"
-          >确 定</el-button
-        >
+        <el-button type="primary" class="submit" @click="dialogSave">确 定</el-button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import colorControl from "../../../src/ColorControl";
-import * as sortManage from "@/services/sort-manage";
-import { emitter, EventType } from "../../../src/EventEmitter";
-import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import SelectTree from "@/components/SelectTree";
+import colorControl from '../../../src/ColorControl'
+import * as sortManage from '@/services/sort-manage'
+import { emitter, EventType } from '../../../src/EventEmitter'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import SelectTree from '@/components/SelectTree'
 export default {
-  name: "LegendShader",
-  inject: ["provide"],
+  name: 'LegendShader',
+  inject: ['provide'],
   components: {
     SelectTree,
   },
   computed: {
-    ...mapState("graphInfo", ["id", "graphType"]),
-    ...mapState("map", ["allEntityBackEnd"]),
+    ...mapState('graphInfo', ['id', 'graphType']),
+    ...mapState('map', ['allEntityBackEnd']),
   },
 
   data() {
@@ -56,20 +50,20 @@ export default {
       shaderList: [], //循环列表
       shaderTemplate: {
         //暂存数据
-        typeName: "",
-        color: "",
-        value: "",
+        typeName: '',
+        color: '',
+        value: '',
       },
       predefineColors: [], //预定义颜色
       treeData: [],
-    };
+    }
   },
 
   created() {
     setTimeout(() => {
-      this.getCategory();
-      this.addNew();
-    }, 4000);
+      this.getCategory()
+      this.addNew()
+    }, 4000)
     // ({ gisvis } = this.provide());
     //this.predefineColors = this.getPredefineColors();
     // this.shaderList = this.getShaderList();
@@ -77,9 +71,9 @@ export default {
 
   methods: {
     async getCategory() {
-      const res = await sortManage.nodeCategoryQuery(this.id);
-      let data = res.data;
-      let treeData = [];
+      const res = await sortManage.nodeCategoryQuery(this.id)
+      let data = res.data
+      let treeData = []
       for (const item of data) {
         if (item.parentId === 0) {
           treeData.push({
@@ -87,10 +81,10 @@ export default {
             label: item.name,
             children: [],
             ...item,
-          });
+          })
         }
       }
-      this.formatTree(treeData, data);
+      this.formatTree(treeData, data)
       this.treeData = treeData
     },
 
@@ -104,49 +98,48 @@ export default {
               label: item2.name,
               children: [],
               ...item2,
-            });
+            })
           }
         }
-        this.formatTree(item.children, data);
+        this.formatTree(item.children, data)
       }
     },
     /**
      * 获取预定义颜色
      */
     getPredefineColors() {
-      return colorControl.getColorSet();
+      return colorControl.getColorSet()
     },
     /**
      * 删除一项
      */
     deleteItem(item) {
-      const index = this.shaderList.findIndex((shader) => shader === item);
+      const index = this.shaderList.findIndex((shader) => shader === item)
 
-      this.shaderList.splice(index, 1);
+      this.shaderList.splice(index, 1)
     },
     /**
      * 新增颜色着色
      */
     addNew() {
-      const color = colorControl.requireColor();
-      const temp = { ...this.shaderTemplate };
-
-      temp.color = color;
-      this.shaderList.push(temp);
+      const color = colorControl.requireColor()
+      const temp = { ...this.shaderTemplate }
+      temp.color = color
+      this.shaderList.push(temp)
     },
     selectedItems(event, item) {
-      item.value = event.label;
+      item.value = event.label
     },
     dialogSave() {
       this.shaderList.forEach((item, index) => {
         if (!item.value) {
-          this.shaderList.splice(index, 1);
+          this.shaderList.splice(index, 1)
         }
-      });
+      })
       this.shaderList.filter((item, index, arr) => {
-        let arrIds = arr.map((ele) => ele.value);
-        return arrIds.indexOf(item.value) == index;
-      });
+        let arrIds = arr.map((ele) => ele.value)
+        return arrIds.indexOf(item.value) == index
+      })
       this.shaderList.forEach((ele) => {
         this.allEntityBackEnd
           .filter((item) => item.properties.实体分类 == ele.value)
@@ -156,30 +149,30 @@ export default {
                 item.id
               ).ellipse.material = Cesium.Color.fromCssColorString(
                 ele.color
-              ).withAlpha(0.08);
-              gisvis.viewer.entities.getById(item.id).ellipse.show = true;
+              ).withAlpha(0.08)
+              gisvis.viewer.entities.getById(item.id).ellipse.show = true
               // gisvis.viewer.entities.getById(item.id).polyline.material.color.setValue(ele.color.withAlpha(1));
             } else {
               let params = {
                 entities: [{ id: item.id }],
                 radius: 250,
                 color: ele.color,
-              };
-              gisvis.emitter.emit("gis-scope-render", params);
+              }
+              gisvis.emitter.emit('gis-scope-render', params)
             }
-            item.attackRange = true;
-          });
-      });
-      gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, []);
+            item.attackRange = true
+          })
+      })
+      gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, [])
     },
     /**
      * 取消
      */
     cancel() {
-      this.$emit("before-close");
+      this.$emit('before-close')
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>

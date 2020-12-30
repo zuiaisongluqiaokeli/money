@@ -74,13 +74,13 @@ class SimulatedSatellite {
         start: start,
         stop: stop
       })]),
-      id:"airplain",
+      id: "airplain",
       position: property,
       // 根据所提供的速度计算点
       orientation: new Cesium.VelocityOrientationProperty(property),
       // 模型数据
       model: {
-        uri: 'Cesium/CesiumAir/Cesium_Air.glb',
+        uri: 'Cesium/Cesium3D/airplane.glb',
         minimumPixelSize: 60
       },
       path: {

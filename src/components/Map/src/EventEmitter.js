@@ -7,6 +7,8 @@ const _emitter = mitt(all);
 const EventType = {
   /** 【地图】 添加地图数据 */
   RENDER_DATA: "gis-render-data",
+  /** 【地图】 绘制HTML 弹窗 */
+  DrawHTMLPoper: "gis-draw-htmlPoper",
   /** 【地图】 鼠标右键 */
   RIGHT_CLICK: "gis-right-click",
   /** 【地图】 修改实体数据 */
@@ -28,7 +30,7 @@ const EventType = {
   /** 【地图】 测量距离 */
   MeasureAreaSpace: "gis-measure-areaSpace",
   /** 【地图】 测量距离 */
-  handleStopTimeLine:"gis-handleStop-TimeLine",
+  handleStopTimeLine: "gis-handleStop-TimeLine",
   /** 【地图】 绘制雷达效果 */
   RADAR_RENDER: "gis-radar-render",
   /** 【地图】 地图数据改变 */
@@ -63,12 +65,22 @@ const EventType = {
   DELETE_MEASURE_TYPE: "delete-measure-type",
   /** 【图例】 图例着色改变 */
   COLOR_SHADER_CHANGE: "color-shader-change",
+  /** 【Popper】 Popper创建 */
+  POPPER_CREATE: "popper-create",
   /** 【Popper】 Popper显示 */
   POPPER_SHOW: "popper-show",
+  /** 【Popper】 Popper隐藏 */
+  POPPER_HIDDEN: "popper-hidden",
   /** 【Popper】 Popper移动 */
   POPPER_MOVE: "popper-move",
   /** 【Popper】 Popper移除 */
   POPPER_REMOVE: "popper-remove",
+  /** 【Popper】 htmlPoper */
+  CREATE_HtmlPopper: 'create_htmlPoper',
+  /** 【Popper】 添加所有可拖拽气泡 */
+  addAllBubbles: 'addAllBubbles',
+  /** 【Popper】 删除所有可拖拽气泡 */
+  deleteAllBubbles: 'deleteAllBubbles',
   /** 【地图】 点击地图空白 */
   CLICK_BLANK: "click-blank",
   /** 【地图】 点击实体 */
@@ -80,7 +92,9 @@ const EventType = {
   /** 【右键菜单】 右键菜单点击 */
   CONTEXT_MENU_CLICK: "content-menu-click",
   /** 【地图】 高亮相关实体 */
-  HIGHLIGHT_RELATED_ENTITIES: "highlight-related-entities"
+  HIGHLIGHT_RELATED_ENTITIES: "highlight-related-entities",
+  /** 【地图】 绘制绿色选中框 */
+  createSelectEntityBox: "highlight-related-entities",
 };
 
 class EventEmitter {

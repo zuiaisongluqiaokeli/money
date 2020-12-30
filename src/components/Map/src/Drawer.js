@@ -45,13 +45,13 @@ class Drawer {
           label: {
             show: labelShow,
             // text: (e.properties.name || e.name).substring(0,10),
-            text: e.properties.hasOwnProperty('name') && e.properties.name || e.name,
+            text: (e.properties.hasOwnProperty('name') && e.properties.name || e.name).substring(0, 5) + '...',
             pixelOffset: new Cesium.Cartesian2(0, 24),
-            font: "25px sans-serif",
+            font: "15px sans-serif",
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
             fillColor: Cesium.Color.fromCssColorString(window.mapType === 'satellite' ? "#000000" : "#ffffff"),
-            // outlineColor:Cesium.Color.fromCssColorString(window.mapType==='satellite'?"#000000":"#ffffff"),
-            // outlineWidth:2,
+            outlineColor: Cesium.Color.fromCssColorString(window.mapType === 'satellite' ? "#ffffff" : "#000000"),
+            outlineWidth: 4,
             horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
             scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
             pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
@@ -65,7 +65,7 @@ class Drawer {
             properties: {
               ...e.properties
             },
-            name: e.properties.hasOwnProperty('name') && e.properties.name || e.name,
+            name: (e.properties.hasOwnProperty('name') && e.properties.name || e.name).substring(0, 5) + '...',
             id: Number(e.id),
             entityId: Number(e.id),
             labels: e.labels,

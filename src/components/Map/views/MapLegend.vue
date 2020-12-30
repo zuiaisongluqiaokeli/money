@@ -354,6 +354,10 @@ export default {
         gisvis.popper.destroy()
         gisvis.popper = null
       }
+      if (gisvis.addHtmlPopper) {
+        gisvis.addHtmlPopper.destroy()
+        gisvis.addHtmlPopper = null
+      }
       this.tableData.splice(index, 1)
       this.handleLegendDataChange([])
     },
@@ -414,10 +418,11 @@ export default {
         groupType: '基地',
         image: 'images/facility.png',
         id: val.id,
-        name: val.properties.name || val.properties.名称,
+        name:
+          (val.properties.name || val.properties.名称).substring(0, 5) + '...',
         labelShow: this.gisLabelShow,
       })
-      this.$message.warning('开始编辑位置')
+      this.$message.warning('开始编辑位置,鼠标右键取消')
     },
     /**
      * 点击图例显示图标

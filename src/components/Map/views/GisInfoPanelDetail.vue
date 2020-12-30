@@ -41,11 +41,28 @@
               <div class="collapse-body">
                 <div class="properties">
                   <span class="label">实体名称</span>
-                  <span class="value">{{ newVerticesData.name }}</span>
+                  <span
+                    :class="nameShow&&newVerticesData.name.length>100 ? 'text-hidden' : 'value'"
+                    v-html="newVerticesData.name"
+                  ></span>
+                  <span
+                    v-if="nameShow&&newVerticesData.name.length>100"
+                    style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
+                    @click="nameShow=!nameShow"
+                  >
+                    <i class="iconfont close-btn icon-down1" title="显示更多"></i>
+                  </span>
+                  <span
+                    v-if="!nameShow&&newVerticesData.name.length>100"
+                    style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
+                    @click="nameShow=!nameShow"
+                  >
+                    <i class="iconfont close-btn icon-up2" title="收起"></i>
+                  </span>
                 </div>
                 <div class="properties">
                   <span class="label">实体分类</span>
-                  <span class="value">{{ categoryName || "暂未分类" }}</span>
+                  <span class="value">{{ categoryName}}</span>
                 </div>
                 <div
                   v-for="(item, index) in newVerticesData.propertiesJson"
@@ -63,7 +80,8 @@
                       item.name !== 'pk_id' &&
                       item.name !== 'id' &&
                       item.name !== 'latitude' &&
-                      item.name !== 'longitude'
+                      item.name !== 'longitude'&&
+                      item.name !== 'locus'
                     "
                   >
                     <el-tooltip effect="dark" :content="item.name" placement="top-start">
@@ -71,7 +89,21 @@
                         <span class="label">{{ item.name }}</span>
                       </div>
                     </el-tooltip>
-                    <span class="value" v-html="item.value"></span>
+                    <span :class="item.hidden ? 'text-hidden' : 'value'" v-html="item.value"></span>
+                    <span
+                      v-if="item.hidden"
+                      style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
+                      @click="showMore(index)"
+                    >
+                      <i class="iconfont close-btn icon-down1" title="显示更多"></i>
+                    </span>
+                    <span
+                      v-if="!item.hidden && item.value.length > 100"
+                      style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
+                      @click="showMore(index)"
+                    >
+                      <i class="iconfont close-btn icon-up2" title="收起"></i>
+                    </span>
                   </template>
                 </div>
                 <div class="properties">
@@ -144,7 +176,7 @@
     >
       <el-form
         class="dialog-form"
-        label-width="40px"
+        label-width="10px"
         v-if="
           detailDialogTitle == '部署装备' || detailDialogTitle == '详细属性'
         "
@@ -211,6 +243,7 @@ export default {
       previewMusic: '',
       videoType: 'mp4',
       previewDialog: false,
+      nameShow: true,
       blob: null,
       previewLoading: false,
       selectedEntity: {},
@@ -237,7 +270,7 @@ export default {
         type: '', //实体分类
       },
       entityId: '',
-      categoryName: '', // 实体详情的实体分类
+      categoryName: '暂未分类', // 实体详情的实体分类
       fileData: [],
     }
   },
@@ -300,7 +333,7 @@ export default {
     ...mapMutations('map', ['setselectedVertices']),
     //记得改标记实体的ID
     async setSelectedEntity(val) {
-      this.entityId = val.id.entityId
+      ;(this.nameShow = true), (this.entityId = val.id.entityId)
       if (val.id.hasOwnProperty('entityId') && val.id.entityId !== '') {
         // 拿之前的数据+现在的经纬度 发送数据
         let result = await graphVerticesDetail.vertexDetailView(
@@ -374,6 +407,7 @@ export default {
           if (res.data.object.properties) {
             let props = res.data.object.properties
             this.fileData = [] //清空
+            this.categoryName = '暂未分类'
             for (let prop in props) {
               if (typeof props[prop] === 'string') {
                 props[prop] = props[prop].replace(/[\n\r\t]+/g, '<br />')
@@ -383,7 +417,7 @@ export default {
                   name: prop, //属性名
                   value: props[prop], //属性值
                   primary: false, //主键
-                  hidden: props[prop].length > 200, //内容字数大于200，提供判断是否显示所有内容
+                  hidden: props[prop].length > 100, //内容字数大于200，提供判断是否显示所有内容
                 })
               }
               if (prop === 'docs') {
@@ -403,7 +437,9 @@ export default {
                 this.categoryId = props[prop]
               }
               if (prop === 'name' || prop === '名称') {
-                this.newVerticesData.name = props[prop]
+                this.newVerticesData.name =
+                  (props.hasOwnProperty('name') && props.name) ||
+                  (props.hasOwnProperty('名称') && props.名称)
               }
             }
           }
@@ -445,6 +481,10 @@ export default {
       } else {
         return 'file'
       }
+    },
+    showMore(index) {
+      this.newVerticesData.propertiesJson[index].hidden = !this.newVerticesData
+        .propertiesJson[index].hidden
     },
     fixedPanel() {
       this.fixed = !this.fixed
@@ -621,13 +661,13 @@ export default {
         .properties {
           display: flex;
           color: var(--color-text-regular);
-          margin: 4px 0;
           flex-wrap: wrap;
           font-size: 14px;
+          margin: 2px 0;
           .label {
             display: block;
             text-align: left;
-            width: 100px;
+            width: 80px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -676,6 +716,11 @@ export default {
 }
 /deep/ .el-form-item {
   margin-bottom: 0;
+}
+.text-hidden {
+  display: inline-block;
+  height: 100px;
+  overflow: hidden;
 }
 .hide-panel {
   right: -23rem;
@@ -727,7 +772,7 @@ export default {
   .label {
     display: block;
     text-align: left;
-    width: 150px;
+    width: 125px;
     color: var(--color-text-primary);
     font-weight: var(--font-weight-primary-bold);
     font-size: var(--font-size-base);

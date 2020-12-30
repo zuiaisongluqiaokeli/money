@@ -1,4 +1,4 @@
-function CircleWaveMaterialProperty (options){
+export function CircleWaveMaterialProperty(options) {
     this.options = Cesium.defaultValue(options, Cesium.defaultValue.EMPTY_OBJECT);
 
     this._definitionChanged = new Cesium.Event();
@@ -26,13 +26,13 @@ function CircleWaveMaterialProperty (options){
 
 Object.defineProperties(CircleWaveMaterialProperty.prototype, {
     isConstant: {
-        get: function() {
+        get: function () {
             return false;
         }
     },
 
     definitionChanged: {
-        get: function() {
+        get: function () {
             return this._definitionChanged;
         }
     },
@@ -41,11 +41,11 @@ Object.defineProperties(CircleWaveMaterialProperty.prototype, {
 
 });
 
-CircleWaveMaterialProperty.prototype.getType = function(time) {
+CircleWaveMaterialProperty.prototype.getType = function (time) {
     return Cesium.Material.CircleWaveMaterialType;
 };
 
-CircleWaveMaterialProperty.prototype.getValue = function(time, result) {
+CircleWaveMaterialProperty.prototype.getValue = function (time, result) {
     if (!Cesium.defined(result)) {
         result = {};
     }
@@ -61,7 +61,7 @@ CircleWaveMaterialProperty.prototype.getValue = function(time, result) {
     return result;
 };
 
-CircleWaveMaterialProperty.prototype.equals = function(other) {
+CircleWaveMaterialProperty.prototype.equals = function (other) {
     return this === other ||
         (other instanceof CircleWaveMaterialProperty &&
 
@@ -129,9 +129,7 @@ Cesium.Material._materialCache.addMaterial(Cesium.Material.CircleWaveMaterialTyp
         },
         source: Cesium.Material.PolylineTrailSource
     },
-    translucent: function(material) {
+    translucent: function (material) {
         return !0;
     }
 });
-
-Cesium.CircleWaveMaterialProperty = CircleWaveMaterialProperty;

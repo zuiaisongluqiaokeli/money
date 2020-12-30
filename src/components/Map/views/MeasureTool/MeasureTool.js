@@ -41,8 +41,8 @@ class MeasureTool {
     measureTools.measureAreaSpace(this.viewer)
   }
   //绘制实体飞行线段
-  drawingEntityFlightLine(callback,cartesian) {
-    drawingFlightLine.measureLineSpace(this.viewer,callback,cartesian)
+  drawingEntityFlightLine(callback, cartesian) {
+    drawingFlightLine.measureLineSpace(this.viewer, callback, cartesian)
   }
   setDefaultOptions() {
     const {
@@ -68,9 +68,9 @@ class MeasureTool {
     Object.assign(options, this.options);
     this.pointDrawer = new PointDrawer(this.viewer, options);
     this.pointDrawer.entity = entity; //有实体不用初始化
-    this.pointDrawer.firstPosition = entity.position.getValue(); 
-    this.pointDrawer.firstLng = entity.properties.lng.getValue(); 
-    this.pointDrawer.firstLat = entity.properties.lat.getValue();  
+    this.pointDrawer.firstPosition = entity.position.getValue();  //初始位置
+    this.pointDrawer.firstLng = entity.properties.lng.getValue();
+    this.pointDrawer.firstLat = entity.properties.lat.getValue();
     this.pointDrawer.startDrawPoint(callback);
 
     return this.pointDrawer;

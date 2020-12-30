@@ -670,7 +670,6 @@ export default {
       const [item] = res
       const targetId = item.id
       const targetEdge = this.findEdge(targetId)
-
       if (this.type === 'add') {
         edges.push(...res)
       } else if (this.type === 'edit') {
@@ -687,8 +686,8 @@ export default {
           removedEdge.push(currentEdgeId)
         }
       }
-
-      //removedEdge.forEach((id) => sativis.removeEdge(id.toString()));
+      //用来批量删除
+      removedEdge.forEach((id) => sativis.removeEdge(id))
       this.updateGisLines(edges)
       // sativis.addEdges(edges);
       // sativis.render();

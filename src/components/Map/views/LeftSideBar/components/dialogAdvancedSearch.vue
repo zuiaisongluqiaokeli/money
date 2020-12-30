@@ -90,6 +90,7 @@
                 ref="table"
                 style="width: 100%"
                 @selection-change="handleSelectChange"
+                show-overflow-tooltip
                 :header-cell-style="{ 'text-align': 'left' }"
                 :cell-style="{ 'text-align': 'left' }"
                 row-key="id"
@@ -203,7 +204,21 @@
                         "
                       >
                         <span class="label">{{ item.name }}</span>
-                        <span class="value" v-html="item.value"></span>
+                        <span :class="item.hidden ? 'text-hidden' : 'value'" v-html="item.value"></span>
+                        <span
+                          v-if="item.hidden"
+                          style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
+                          @click="showMore(index)"
+                        >
+                          <i class="el-icon-arrow-down" title="显示更多"></i>
+                        </span>
+                        <span
+                          v-if="!item.hidden && item.value.length > 100"
+                          style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
+                          @click="showMore(index)"
+                        >
+                          <i class="el-icon-arrow-up" title="收起"></i>
+                        </span>
                       </template>
                     </div>
                     <!-- <div class="properties">
@@ -401,10 +416,10 @@ export default {
   async created() {
     this.verticesListLoading = true
     this.loadingText = '正在获取数据，请稍候...'
-    let a = await this.relationPropsGet()
-    let x = await this.getCategory()
-    let y = await this.getPropMapping() //获取字段映射
-    let z = await this.graphVerticesGet('search')
+    this.relationPropsGet()
+    this.getCategory()
+    this.getPropMapping() //获取字段映射
+    this.graphVerticesGet('search')
     //获取图谱所有结点属性
   },
   watch: {
@@ -426,6 +441,9 @@ export default {
       this.treeLoading = true
       const res = await sortManage.nodeCategoryQuery(this.id)
       let data = res.data
+      data.sort((a, b) => {
+        return a.sortOrder - b.sortOrder
+      })
       let treeData = []
       for (const item of data) {
         if (item.parentId === 0) {
@@ -693,6 +711,10 @@ export default {
         }
       }
     },
+    showMore(index) {
+      this.newVerticesData.propertiesJson[index].hidden = !this.newVerticesData
+        .propertiesJson[index].hidden
+    },
     //获取实体列表数据
     async JanusGraphVerticesGet(type) {
       let searchContent
@@ -800,7 +822,7 @@ export default {
                 name: prop, //属性名
                 value: props[prop], //属性值
                 primary: false, //主键
-                hidden: props[prop].length > 200, //内容字数大于200，提供判断是否显示所有内容
+                hidden: props[prop].length > 100, //内容字数大于200，提供判断是否显示所有内容
               })
             }
             if (prop === 'docs') {
@@ -1037,9 +1059,20 @@ export default {
     }
   }
 }
+.text-hidden {
+  display: inline-block;
+  height: 100px;
+  overflow: hidden;
+}
+/deep/ .el-collapse-item__arrow {
+  margin: 0 0px 0 auto;
+}
 /deep/ .pagination-container {
   position: absolute;
   right: 0;
+}
+/depp/ .el-tooltip__popper {
+  width: 30% !important;
 }
 .button-group {
   text-align: center;
@@ -1178,7 +1211,6 @@ export default {
         .properties {
           display: flex;
           color: var(--color-text-regular);
-          margin: 4px 0;
           flex-wrap: wrap;
           font-size: 14px;
           .label {

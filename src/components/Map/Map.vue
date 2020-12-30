@@ -8,6 +8,8 @@
     <!-- <MapInfoPanel></MapInfoPanel> -->
     <LeftSideBar />
     <RangeSetting v-if="showRangeSetting" :close="() => (this.showRangeSetting = false)"></RangeSetting>
+    <!-- 动态气泡框 -->
+    <div class="popperWrap" id="popperWrap"></div>
   </div>
 </template>
 
@@ -95,6 +97,7 @@ export default {
     //   Cesium.ScreenSpaceEventType.RIGHT_CLICK
     // );
     this.$el.addEventListener('contextmenu', (event) => event.preventDefault())
+    //gisvis.emitter.emit(EventType.DrawHTMLPoper)
     //listenMapEvents(gisvis, this.changeGisRightSelectedEntity);
     gisvis.emitter.on(
       'gis-right-click',
@@ -102,6 +105,7 @@ export default {
         const { entity, position, create, cartesian } = params
         this.rightEntityPosition = cartesian
         this.changeGisRightSelectedEntity(entity.id) //右侧实体
+        gisvis.emitter.emit(EventType.POPPER_HIDDEN)
         gisvis.contextMenu = new ContextMenu({}, this.$el)
         gisvis.contextMenu.instance.position = position
       },
@@ -195,10 +199,16 @@ export default {
                         item.properties.latitude = item.properties.纬度
                         item.properties.longitude = item.properties.经度
                         if (
-                          item.properties.hasOwnProperty('分类名称') &&
-                          item.properties.分类名称
+                          (item.properties.hasOwnProperty('分类名称') &&
+                            item.properties.分类名称) ||
+                          (item.properties.hasOwnProperty('实体分类') &&
+                            item.properties.实体分类)
                         ) {
-                          item.properties.实体分类 = item.properties.分类名称
+                          item.properties.实体分类 =
+                            (item.properties.hasOwnProperty('实体分类') &&
+                              item.properties.实体分类) ||
+                            (item.properties.hasOwnProperty('分类名称') &&
+                              item.properties.分类名称)
                         } else {
                           item.properties.实体分类 = '暂未分类'
                         }
@@ -251,6 +261,10 @@ export default {
             if (gisvis.popper) {
               gisvis.popper.destroy()
               gisvis.popper = null
+            }
+            if (gisvis.addHtmlPopper) {
+              gisvis.addHtmlPopper.destroy()
+              gisvis.addHtmlPopper = null
             }
             gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, [])
             // let tempEntities = this.gisEntities.filter(
@@ -322,7 +336,7 @@ export default {
                 longitude: this.gisRightSelectedEntity.properties.getValue()
                   .lng,
                 latitude: this.gisRightSelectedEntity.properties.getValue().lat,
-                height: 1000,
+                height: 10000,
               },
               cartesian: [{ ...this.rightEntityPosition }],
               state: 'fly',
@@ -344,8 +358,8 @@ export default {
             break
           //一键部署
           case 'oneDeployment':
-            emitter.emit(EventType.CLICK_BLANK)
-            emitter.emit(EventType.SET_MEASURE_TYPE, {
+            gisvis.emitter.emit(EventType.CLICK_BLANK)
+            gisvis.emitter.emit(EventType.SET_MEASURE_TYPE, {
               group: '基地',
               groupCategory: '基地',
               groupType: '基地',
@@ -353,6 +367,9 @@ export default {
             })
             this.$message.success('已成功创建关联部署点')
             break
+        }
+        if (action != 'scopeSearch') {
+          gisvis.emitter.emit(EventType.POPPER_SHOW)
         }
         if (gisvis.contextMenu) {
           gisvis.contextMenu.destroy()

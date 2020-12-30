@@ -113,19 +113,20 @@ export default {
         //右键飞行轨迹实体显示出来，显示的坐标是最后画线的经纬度
         let initTackData = JSON.parse(sessionStorage.getItem('initTackData'))
         if (initTackData) {
-          //更改经纬度
+          //更改地图上显示的经纬度
           gisvis.viewer.entities.getById(
             this.gisRightSelectedEntity.id
           ).position = Cesium.Cartesian3.fromDegrees(
             initTackData[initTackData.length - 1].longitude,
             initTackData[initTackData.length - 1].latitude
           )
+          //更改传给后端的经纬度
           gisvis.viewer.entities.getById(
             this.gisRightSelectedEntity.id
           ).properties.lat = initTackData[initTackData.length - 1].latitude
           gisvis.viewer.entities.getById(
             this.gisRightSelectedEntity.id
-          ).properties.lat = initTackData[initTackData.length - 1].longitude
+          ).properties.lng = initTackData[initTackData.length - 1].longitude
           gisvis.viewer.entities.getById(
             this.gisRightSelectedEntity.id
           ).show = true
@@ -171,7 +172,7 @@ export default {
       ]
       gisvis.emitter.emit(EventType.CLICK_BLANK)
       //找到有轨迹线的数据(4个值为一组，分别是时间，经度，纬度，高度)
-      trackEntities.forEach((item) => {
+      trackEntities.forEach((item, index) => {
         gisvis.viewer.entities.getById(item.id).show = false
         let locus = JSON.parse(item.properties.locus)
         let position = {
@@ -180,22 +181,29 @@ export default {
             Number(i)
           ),
         }
-        //是否显示轨迹
+        //是否显示轨迹，结合VUEX
         if (this.gisTrackShow) {
           let trackLinePositions = position.cartographicDegrees.filter(
-            (i, index) => index % 4 === 1 || index % 4 === 2
+            (i, Index) => Index % 4 === 1 || Index % 4 === 2
           )
+          let arrColor = [
+            Cesium.Color.fromCssColorString('#ff3366'), //玫红
+            Cesium.Color.fromCssColorString('#33ff66'), //绿色
+            Cesium.Color.fromCssColorString('#ffcc33'), //黄色
+            Cesium.Color.fromCssColorString('#ff33ee'), //紫色
+          ]
           //绘制线条
           gisvis.viewer.entities.add({
             id: 'track-line-' + item.id,
             polyline: {
               loop: false,
               material: new Cesium.PolylineDashMaterialProperty({
-                color: gisvis.viewer.entities
-                  .getById(item.id)
-                  .billboard.color.getValue(),
+                // color: gisvis.viewer.entities
+                //   .getById(item.id)
+                //   .billboard.color.getValue(),
+                color: arrColor[index % 4],
                 gapColor: Cesium.Color.TRANSPARENT, //裂口颜色
-                dashLength: 40,
+                dashLength: 8,
                 // dashPattern: 220
               }),
               positions: Cesium.Cartesian3.fromDegreesArray(trackLinePositions),
@@ -203,7 +211,6 @@ export default {
             },
           })
         }
-        //批量封装数据
         let data = {
           id: 'track-' + item.id,
           availability: locus.availability, //起始时间
@@ -213,24 +220,43 @@ export default {
             image: gisvis.viewer.entities
               .getById(item.id)
               .billboard.image.getValue(),
-            width: gisvis.viewer.entities
-              .getById(item.id)
-              .billboard.width.getValue(),
-            height: gisvis.viewer.entities
-              .getById(item.id)
-              .billboard.height.getValue(),
-            color: Cesium.Color.fromCssColorString('#ffcc33'),
+            width: 25,
+            height: 25,
+            color: {
+              rgba: [
+                gisvis.viewer.entities
+                  .getById(item.id)
+                  .billboard.color.getValue().red * 255,
+                gisvis.viewer.entities
+                  .getById(item.id)
+                  .billboard.color.getValue().green * 255,
+                gisvis.viewer.entities
+                  .getById(item.id)
+                  .billboard.color.getValue().blue * 255,
+                gisvis.viewer.entities
+                  .getById(item.id)
+                  .billboard.color.getValue().alpha * 255,
+              ],
+            },
           },
           label: {
             show: gisvis.viewer.entities.getById(item.id).label.show.valueOf(),
             text: gisvis.viewer.entities.getById(item.id).label.text.valueOf(),
             pixelOffset: { cartesian2: [0, 24] },
-            font: '12px sans-serif',
-            fillColor: Cesium.Color.fromCssColorString(
-              window.mapType === 'satellite' ? '#000000' : '#ffffff'
-            ),
-            // outlineColor:Cesium.Color.fromCssColorString(window.mapType==='satellite'?"#000000":"#ffffff"),
-            outlineWidth: 2,
+            font: '25px sans-serif',
+            fillColor: {
+              rgba:
+                window.mapType === 'satellite'
+                  ? [0, 0, 0, 255]
+                  : [255, 255, 255, 255],
+            },
+            outlineColor: {
+              rgba:
+                window.mapType === 'satellite'
+                  ? [255, 255, 255, 255]
+                  : [0, 0, 0, 255],
+            },
+            outlineWidth: 4,
             horizontalOrigin: 'CENTER',
             // scaleByDistance: new Cesium.NearFarScalar(1e2, 3, 9.0e6, 0.0),
             // pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
@@ -292,32 +318,38 @@ export default {
               }
             : undefined,
         }
-        trackCZML.push(data) //每个数组都绘制一个实体
+        trackCZML.push(data)
       })
-
       let czmlDataSource = new Cesium.CzmlDataSource()
       let dataSourcePromise = gisvis.viewer.dataSources.add(czmlDataSource)
       //载入数据
       czmlDataSource.load(trackCZML).then((instance) => {
+        console.log('load czml data')
         trackEntities.forEach((item) => {
           let entity = instance.entities.getById('track-' + item.id)
-          ;(entity.billboard.scaleByDistance = new Cesium.NearFarScalar(
+          entity.billboard.scaleByDistance = new Cesium.NearFarScalar(
             1.5e2,
-            1.5,
+            1.0,
             8.0e6,
-            0.0
-          )),
-            (entity.label.scaleByDistance = new Cesium.NearFarScalar(
-              1.5e2,
-              1.5,
-              8.0e6,
-              0.0
-            ))
+            0.2
+          )
+          entity.billboard.pixelOffsetScaleByDistance = new Cesium.NearFarScalar(
+            1.5e2,
+            1.0,
+            8.0e6,
+            0.2
+          )
+          entity.label.scaleByDistance = new Cesium.NearFarScalar(
+            1.5e2,
+            1.0,
+            8.0e6,
+            0.2
+          )
           entity.label.pixelOffsetScaleByDistance = new Cesium.NearFarScalar(
             1.5e2,
-            1.5,
+            1.0,
             8.0e6,
-            0.0
+            0.2
           )
         })
       })
@@ -336,6 +368,7 @@ export default {
       )
       this.multiplier = this.clockViewModel.multiplier
       if (trackEntities.length > 0) {
+        this.animationViewModel.pauseViewModel.command()
         //CZML的轨迹时间
         gisvis.viewer.clock.clockRange = 'CLAMPED'
         gisvis.viewer.clock.onTick.addEventListener((event) => {

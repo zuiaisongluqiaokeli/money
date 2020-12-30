@@ -10,17 +10,23 @@ import MeasureTool from "../views/MeasureTool";
 import ScreenSpaceEvent from "./ScreenSpaceEvent";
 import ContextMenu from "../views/ContextMenu/index";
 import Popper from "../views/Popper";
+import addHtmlPopper from "../views/addHtmlPopper";
+import dragPopper from "../views/dragPopper";
+import SelectEntityBox from "../views/selectEntityBox";
 import PolylineTrailMaterialProperty from "./PolylineTrailMaterialProperty"; //关系
 import * as RadarsEffects from "./RadarsEffects" //雷达
 import SimulatedSatellite from "./SimulatedSatellite" //轨迹线
-import CesiumCircleWaveMaterial from "./CesiumCircleWaveMaterial" //没有问题的雷达
+import { addHtmlPoper, addEntityLayer } from "./addHtmlPoper" //自定义HTML poper
+import { CircleWaveMaterialProperty } from "./CesiumCircleWaveMaterial" //没有问题的雷达(不要删这个)
 const _homePosition = [119.17968749999999, 25.522614647623293, 25000000];
 let _instance = null;
 
 class Main {
   legendData = null;
   popper = null;
-
+  addHtmlPopper = null;//添加动态HTML
+  selectEntityBoxArr = []//选中的绿框效果
+  dragPopperArr = [] //存储动态气泡框对象
   constructor(options = {}) {
     if (_instance) {
       // return _instance;
@@ -55,12 +61,12 @@ class Main {
     }
     this.arrData = [] //绘制飞行的数据
     _instance = this;
-    //监听
+    //监听鼠标事件
     this.screenSpaceEvent.handleLeftClick()
+    this.screenSpaceEvent.handleLeftCtrlClick()
     this.screenSpaceEvent.handleRightClick()
-    this.screenSpaceEvent.handleMiddleUp()
-    this.screenSpaceEvent.handleMiddleDown()
-    // this.screenSpaceEvent.handleMouseMove()
+    this.screenSpaceEvent.handleWheel()
+
   }
   /**
    * 初始化事件监听
@@ -72,9 +78,14 @@ class Main {
     emitter.on(EventType.COLOR_SHADER_CHANGE, this.handleColorShader, this); //着色
     emitter.on(EventType.CONTEXT_MENU_REMOVE, this.removeContextMenu, this);
     emitter.on(EventType.CONTEXT_MENU_CLICK, this.clickContextMenuItem, this);
-    emitter.on(EventType.POPPER_SHOW, this.showPopper, this); //名字提示语
+    emitter.on(EventType.POPPER_CREATE, this.createPopper, this);
+    emitter.on(EventType.POPPER_HIDDEN, this.hiddenPopper, this);
+    emitter.on(EventType.POPPER_SHOW, this.showPopper, this);
     emitter.on(EventType.POPPER_MOVE, this.movePopper, this);
     emitter.on(EventType.POPPER_REMOVE, this.removePopper, this);
+    emitter.on(EventType.CREATE_HtmlPopper, this.createHtmlPopper, this);//绘制HTML 弹窗
+    emitter.on(EventType.addAllBubbles, this.addAllBubbles, this);//添加所有可拖拽气泡
+    emitter.on(EventType.deleteAllBubbles, this.deleteAllBubbles, this);//删除所有可拖拽气泡
     emitter.on(EventType.RENDER_DATA, this.gisRender, this); //地图搜索/扩展等添加实体
     emitter.on(EventType.SCOPE_RENDER, this.gisScopeRender, this); //范围
     emitter.on(EventType.RADAR_RENDER, this.addCircleScan, this); //雷达
@@ -87,15 +98,64 @@ class Main {
     emitter.on(EventType.CREATE_Fly_LINES, this.createFlyLines, this); //关系之前线条
     emitter.on(EventType.SET_ENTITIES_VISIBLE_BY_TYPE, this.setEntitiesVisibleByType, this); //点击图例显示图标
     emitter.on(EventType.FLY_TO_ENTITY, this.flyToEntity, this);
-    emitter.on(EventType.SELECTED_ENTITY, this.setSelectedEntity, this);
     emitter.on(EventType.SET_ATTACK_VISIBLE_BY_TYPE, this.setAttackVisibleByType, this);
     emitter.on(EventType.DELETE_ENTITIES_BY_ID, this.deleteEntitiesById, this); //删除
     emitter.on(EventType.DELETE_ENTITIES_BY_TYPE, this.deleteEntitiesByType, this);
+    emitter.on(EventType.createSelectEntityBox, this.createSelectEntityBox, this);//绘制绿色选中框
+    emitter.on(EventType.removeSelectEntityBox, this.removeSelectEntityBox, this);//删除绿色选中框
   }
+  createSelectEntityBox(params) {
+    var {
+      position,
+      id
+    } = params;
+    var {
+      x,
+      y
+    } = position;
+    let obj = new SelectEntityBox({})
+    obj.instance.position = {
+      top: y + "px",
+      left: x + "px"
+    };
+    obj.id = id
+    this.selectEntityBoxArr.push(obj)
+    if (this.selectEntityBoxArr.length >= 3) {
+      this.selectEntityBoxArr[0].destroy()
+      this.selectEntityBoxArr.splice(0, 1)
+    }
+  }
+  removeSelectEntityBox() {
+    this.selectEntityBoxArr.forEach(item => {
+      item.destroy();
+    })
+    this.selectEntityBoxArr = []
+  }
+  //点空白移除
   handleClickBlank() {
     this.removePopper();
     this.removeContextMenu();
-    emitter.emit(EventType.SELECTED_ENTITY, null);
+    this.removeHtmlPopper()
+    this.store.setSelectedEntity(null);
+    this.viewer.selectedEntity = null;
+  }
+  removePopper() {
+    if (this.popper) {
+      this.popper.destroy();
+      this.popper = null;
+    }
+  }
+  removeContextMenu() {
+    if (this.contextMenu) {
+      this.contextMenu.destroy();
+      this.contextMenu = null;
+    }
+  }
+  removeHtmlPopper() {
+    if (this.addHtmlPopper) {
+      this.addHtmlPopper.destroy();
+      this.addHtmlPopper = null;
+    }
   }
   /**
    * 通过类别删除实体
@@ -123,7 +183,7 @@ class Main {
   /**
    * 显示Popper
    */
-  showPopper(params) {
+  createPopper(params) {
     var {
       position,
       name,
@@ -154,6 +214,14 @@ class Main {
       left: x + "px"
     };
   }
+  hiddenPopper() {
+    this.popper.instance.show = false;
+    this.popper.nowState = false //为了给旋转的时候加状态
+  }
+  showPopper() {
+    if (this.popper) this.popper.instance.show = true;
+    this.popper.nowState = true //为了给旋转的时候加状态
+  }
   /**
    * 移动Popper
    */
@@ -170,8 +238,45 @@ class Main {
       this.store.setMeasureType(null);
     });
   }
-  //静止滚动
+  //旋转调用
   handlePostRender() {
+    let arr = gisvis.viewer.entities.values.filter(item => item.hasOwnProperty('entityId'))
+    //追随地球经纬度
+    if (this.dragPopperArr.length) {
+      this.dragPopperArr.forEach((item, index) => {
+        let state = arr.filter(ele => item.id === ele.id).length //判断能否找到匹配的，没找到说明该元素给单点删除了
+        if (state) {
+          let cartesian = arr.filter(ele => item.id === ele.id)[0].position.getValue();
+          let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
+          let { x, y } = position;
+          item.instance.position = {
+            top: y + "px",
+            left: x + "px"
+          };
+          item.instance.$mount(); //重新计算位置
+        } else {
+          item.destroy()
+          this.dragPopperArr.splice(index, 1)
+        }
+      })
+    }
+    if (this.selectEntityBoxArr.length) {
+      this.selectEntityBoxArr.forEach((item, index) => {
+        let state = arr.filter(ele => item.id === ele.id).length //判断能否找到匹配的，没找到说明该元素给单点删除了
+        if (state) {
+          let cartesian = arr.filter(ele => item.id === ele.id)[0].position.getValue();
+          let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
+          let { x, y } = position;
+          item.instance.position = {
+            top: y + "px",
+            left: x + "px"
+          };
+        } else {
+          item.destroy()
+          this.selectEntityBoxArr.splice(index, 1)
+        }
+      })
+    }
     if (!this.store.selectedEntity) {
       return
     }
@@ -191,25 +296,162 @@ class Main {
           left: x + "px"
         };
       }
+      if (this.addHtmlPopper) {
+        this.addHtmlPopper.instance.position = {
+          top: y + "px",
+          left: x + "px"
+        };
+      }
     }
   }
+  addAllBubbles() {
+    let arr = gisvis.viewer.entities.values.filter(item => item.hasOwnProperty('entityId'))
+    arr.forEach((item, index) => {
+      let obj = new dragPopper({ data: { index } })
+      obj.id = item.id
+      obj.instance.text = item.label.name
+      let cartesian = item.position.getValue();
+      let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
+      obj.instance.position = {
+        top: position.y + "px",
+        left: position.x + "px"
+      };
+      this.dragPopperArr.push(obj)
+    })
+  }
+  deleteAllBubbles() {
+    this.handleClickBlank()
+    this.dragPopperArr.forEach(item => {
+      item.destroy();
+    })
+    this.dragPopperArr = []  //销毁实体就要清除数组内容，不然都是null，旋转的时候报异常
+  }
   /**
-   * 移除Popper
+   * 显示Popper
    */
-  removePopper() {
-    if (this.popper) {
-      this.popper.destroy();
-      this.popper = null;
+  createHtmlPopper(params) {
+    var {
+      position,
+      name,
+    } = params;
+    if (!name) name = '未命名'
+    var {
+      x,
+      y
+    } = position;
+
+    if (!this.addHtmlPopper) {
+      this.addHtmlPopper = new addHtmlPopper({});
     }
+    this.addHtmlPopper.instance.text = name;
+    this.addHtmlPopper.instance.position = {
+      top: y + "px",
+      left: x + "px"
+    };
+    // let sStartFlog = false,
+    //   s1 = 0.001,
+    //   s2 = s1,
+    //   s3 = s1,
+    //   s4 = s1
+    // setTimeout(() => sStartFlog = true, 300)
+    // let rotation = Cesium.Math.toRadians(30);
+    // let rotation2 = Cesium.Math.toRadians(30);
+    //添加底座一 外环
+    // this.viewer.entities.add({
+    //   id: "BaseOuterRing",
+    //   position: Cesium.Cartesian3.fromDegrees(105.26416540884085, 39.118028382212415),
+    //   ellipse: {
+    //     //3000是半径
+    //     // semiMinorAxis : 3000, //直接这个大小 会有一个闪白的材质 因为cesium材质默认是白色 所以我们先将大小设置为0
+    //     // semiMajorAxis : 3000,
+    //     semiMinorAxis: new Cesium.CallbackProperty(function () {
+    //       if (sStartFlog) {
+    //         s1 = s1 + 3000 / 20;
+    //         if (s1 >= 3000) {
+    //           s1 = 3000;
+    //         }
+    //       }
+    //       return s1;
+    //     }, false),
+    //     semiMajorAxis: new Cesium.CallbackProperty(function () {
+    //       if (sStartFlog) {
+    //         s2 = s2 + 3000 / 20;
+    //         if (s2 >= 3000) {
+    //           s2 = 3000
+    //         }
+    //       }
+    //       return s2;
+    //     }, false),
+    //     material: "images/circle2.png",
+    //     rotation: new Cesium.CallbackProperty(function () {
+    //       rotation += 0.05;
+    //       return rotation;
+    //     }, false),
+    //     stRotation: new Cesium.CallbackProperty(function () {
+    //       rotation += 0.05;
+    //       return rotation;
+    //     }, false),
+    //     zIndex: 2,
+    //   }
+    // });
+    //添加底座二 内环
+    // this.viewer.entities.add({
+    //   id: "BaseInnerRing",
+    //   position: Cesium.Cartesian3.fromDegrees(105.26416540884085, 39.118028382212415),
+    //   ellipse: {
+    //     semiMinorAxis: new Cesium.CallbackProperty(function () {
+    //       if (sStartFlog) {
+    //         s3 = s3 + 3000 / 20;
+    //         if (s3 >= 3000 / 2) {
+    //           s3 = 3000 / 2;
+    //         }
+    //       }
+    //       return s3;
+    //     }, false),
+    //     semiMajorAxis: new Cesium.CallbackProperty(function () {
+    //       if (sStartFlog) {
+    //         s4 = s4 + 3000 / 20;
+    //         if (s4 >= 3000 / 2) {
+    //           s4 = 3000 / 2;
+    //         }
+    //       }
+    //       return s4;
+    //     }, false),
+    //     material: "images/circle1.png",
+    //     rotation: new Cesium.CallbackProperty(function () {
+    //       rotation2 -= 0.03
+    //       return rotation2
+    //     }, false),
+    //     stRotation: new Cesium.CallbackProperty(function () {
+    //       rotation2 -= 0.03
+    //       return rotation2
+    //     }, false),
+    //     zIndex: 3
+    //   }
+    // })
   }
   /**
-   * 设置选中实体
+   * 设置选中实体(这里是完整的结构数据)
    */
   setSelectedEntity(entity) {
     this.store.setSelectedEntity(entity);
-    if (entity === null) {
-      this.viewer.selectedEntity = null;
-    }
+    //地图转到背面的时候隐藏popper*********
+    // this.viewer.scene.preRender.addEventListener(() => {
+    //   if (this.store.selectedEntity) {
+    //     let element = entity.id
+    //     const p = Cesium.Cartesian3.fromDegrees(element.properties.lng, element.properties.lat, 0)
+    //     let j = this.viewer.scene.camera.position, n = this.viewer.scene.globe.ellipsoid.cartesianToCartographic(j).height;
+    //     if (!(n += 1 * this.viewer.scene.globe.ellipsoid.maximumRadius, Cesium.Cartesian3.distance(j, p) > n)) {
+    //       if (this.popper && this.popper.nowState) this.popper.instance.show = true;
+    //       if (this.addHtmlPopper) this.addHtmlPopper.instance.show = true;
+    //       this.viewer._selectionIndicator.viewModel.selectionIndicatorElement.getElementsByTagName('svg:svg')[0].style.display = 'block'
+    //     } else {
+    //       if (this.popper) this.popper.instance.show = false;
+    //       if (this.addHtmlPopper) this.addHtmlPopper.instance.show = false;
+    //       this.viewer._selectionIndicator.viewModel.selectionIndicatorElement.getElementsByTagName('svg:svg')[0].style.display = 'none'
+    //     }
+    //   }
+    // })
   }
   /**
    * 右键菜单显示
@@ -223,7 +465,6 @@ class Main {
       x,
       y
     } = position;
-    console.log(this.contextMenu);
     if (!this.contextMenu) {
       if (create) {
         this.contextMenu = new ContextMenu({}, this.el);
@@ -238,15 +479,6 @@ class Main {
     };
   }
   /**
-   * 移除Popper
-   */
-  removePopper() {
-    if (this.popper) {
-      this.popper.destroy();
-      this.popper = null;
-    }
-  }
-  /**
    * 飞入到实体
    */
   flyToEntity(entity) {
@@ -259,15 +491,6 @@ class Main {
     this.viewer.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(lng, lat, h)
     });
-  }
-  /**
-   * 右键菜单移除
-   */
-  removeContextMenu() {
-    if (this.contextMenu) {
-      this.contextMenu.destroy();
-      this.contextMenu = null;
-    }
   }
   /**
    * 清空实体
@@ -287,7 +510,6 @@ class Main {
     const {
       action
     } = data;
-    console.log(action);
   }
   /**
    * 通过类别设置实体可见性
@@ -390,6 +612,28 @@ class Main {
   measureAreaSpace() {
     this.measureTool.measureAreaSpace()
   }
+  //绘制HTML poper
+  drawHTMLPoper() {
+    addHtmlPoper(this.viewer, true)
+    addEntityLayer({
+      id: 'box5',
+      position: [118.486419, 32.86446, 40000],//高度为 boxHeightMax
+      element: `<div class='ysc-dynamic-layer ys-css3-box' id='box5'>
+                <div class='line'></div>
+                <div class='main'>
+                    <div class="">风吹过已静下</div>
+                    <div class="">将心意再还谁</div>
+                </div>
+              </div>`,
+      offset: [10, -250],
+      boxHeight: 20000,//中间立方体的高度
+      boxHeightDif: 500,//中间立方体的高度增长差值，越大增长越快
+      boxHeightMax: 40000,//中间立方体的最大高度
+      boxSide: 10000,//立方体的边长
+      boxMaterial: Cesium.Color.DEEPSKYBLUE.withAlpha(0.5),
+      circleSize: 3000,//大圆的大小，小圆的大小默认为一半
+    })
+  }
   /**
    * 添加地图数据,每次先清除上次左键选中的效果
    */
@@ -474,7 +718,7 @@ class Main {
         height: 0,
         semiMinorAxis: 10000,
         semiMajorAxis: 10000,
-        material: new Cesium.CircleWaveMaterialProperty({
+        material: new CircleWaveMaterialProperty({
           duration: 2e3,
           gradient: 0,
           color: new Cesium.Color(1.0, 0.0, 0.0, 1.0),
@@ -482,20 +726,9 @@ class Main {
         })
       }
     } else {
+      //show是对象
       this.viewer.entities.getById(id).ellipse.show.setValue(!this.viewer.entities.getById(id).ellipse.show.getValue())
     }
-    //判断该数组是否有属性，有的话就切换，没有就添加；没数组就增加内容
-    // if (this.store.radarsData.every(item => item.name !== val.name)) {
-    //   let ScanPostStage = RadarsEffects.addCircleScan(this.viewer, val)
-    //   this.store.setallRadarsData(ScanPostStage)
-    // } else {
-    //   this.store.radarsData.filter(item => item.name !== val.name)
-    //   this.store.radarsData.forEach(item => {
-    //       if (item.name == val.name) {
-    //         this.viewer.scene.postProcessStages.remove(item);
-    //       }
-    //     })
-    // }
   }
   /**
    * 区域雷达扫描
@@ -520,7 +753,7 @@ class Main {
   simulatedSatelliteFun() {
     let time = 0 //拟定假的时间
     this.arrData.forEach(item => {
-      item.height = this.arrData[1].height //默认高度
+      item.height = this.arrData[0].height //默认高度
       item.time = time
       time += 200
     })

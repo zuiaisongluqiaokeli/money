@@ -25,29 +25,16 @@
             <i class="el-icon-edit edit" @click="onEdit"></i>
           </div>
           <!-- 针对特殊的字段显示特殊的操作 -->
-          <GroupInfo
-            v-if="groupInfoVisible"
-            :data="infoData"
-            :edit="edit"
-            ref="groupInfo"
-          />
+          <GroupInfo v-if="groupInfoVisible" :data="infoData" :edit="edit" ref="groupInfo" />
           <CategoryInfo
             v-if="categoryInfoVisible"
             :data="infoData"
             :edit="edit"
             ref="categoryInfo"
           />
-          <div
-            class="footer"
-            v-if="edit"
-            style="text-align: center; margin-bottom: 20px;"
-          >
-            <el-button type="primary" @click="submitEdit" size="small"
-              >确定</el-button
-            >
-            <el-button type="default" @click="cancelEdit" size="small"
-              >取消</el-button
-            >
+          <div class="footer" v-if="edit" style="text-align: center; margin-bottom: 20px;">
+            <el-button type="primary" @click="submitEdit" size="small">确定</el-button>
+            <el-button type="default" @click="cancelEdit" size="small">取消</el-button>
           </div>
         </div>
       </div>
@@ -64,9 +51,7 @@
           v-for="(item, index) in detailData"
           :label="item.key"
           :key="index"
-        >
-          {{ item.value }}
-        </el-form-item>
+        >{{ item.value }}</el-form-item>
       </el-form>
     </el-dialog>
   </div>
@@ -585,7 +570,7 @@ export default {
       const position = viewer.scene.cartesianToCanvasCoordinates(cartesian);
 
       viewer.selectedEntity = newEntity;
-      emitter.emit(EventType.POPPER_SHOW, {
+      emitter.emit(EventType.POPPER_CREATE, {
         position,
         name,
         canMove: true,

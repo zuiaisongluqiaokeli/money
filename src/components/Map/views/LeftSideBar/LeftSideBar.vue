@@ -5,20 +5,20 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import SideBar from "./components/SideBar";
-import MapSceneMode from "./components/MapSceneMode";
-import MapImagery from "./components/MapImagery";
-import MapDelete from "./components/MapDelete";
-import MapClassifySearch from "./components/MapClassifySearch";
-import chartView from "../chartView";
-import LegendShader from "./components/LegendShader";
-import Setting from "./components/Setting";
-import MapMark from "./components/MapMark";
-import MapSearchAdd from "./components/MapSearchAdd";
-import MapSwitch from "./components/MapSwitch";
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import SideBar from './components/SideBar'
+import MapSceneMode from './components/MapSceneMode'
+import MapImagery from './components/MapImagery'
+import MapDelete from './components/MapDelete'
+import MapClassifySearch from './components/MapClassifySearch'
+import chartView from '../chartView'
+import LegendShader from './components/LegendShader'
+import Setting from './components/Setting'
+import MapMark from './components/MapMark'
+import MapSearchAdd from './components/MapSearchAdd'
+import MapSwitch from './components/MapSwitch'
 export default {
-  name: "LeftSideBar",
+  name: 'LeftSideBar',
   components: {
     SideBar,
     MapImagery,
@@ -36,19 +36,19 @@ export default {
     return {
       listMap: [
         {
-          label: "主页",
-          type: "home",
-          name: "",
-          icon: "iconfont icon-fanhuishouye",
+          label: '主页',
+          type: 'home',
+          name: '',
+          icon: 'iconfont icon-fanhuishouye',
         },
         {
-          label: "地形",
-          type: "imagery",
-          name: "MapImagery",
-          icon: "iconfont icon-map",
+          label: '地形',
+          type: 'imagery',
+          name: 'MapImagery',
+          icon: 'iconfont icon-map',
           component: MapImagery,
           tip: false,
-          placement: "right-start",
+          placement: 'right-start',
         },
         // {
         //   label: "模式",
@@ -60,13 +60,13 @@ export default {
         //   placement: "right-start"
         // },
         {
-          label: "清空所有",
-          type: "delete",
-          name: "MapDelete",
-          icon: "iconfont icon-tool-delete-circle",
-          component: "",
+          label: '清空所有',
+          type: 'delete',
+          name: 'MapDelete',
+          icon: 'iconfont icon-tool-delete-circle',
+          component: '',
           tip: false,
-          placement: "right",
+          placement: 'right',
         },
         // 丐版,不配拥有这个功能
         // {
@@ -79,15 +79,15 @@ export default {
         //   placement: "right"
         // },
         {
-          label: "设置",
-          type: "switch",
-          name: "switch",
-          icon: "iconfont icon-home-tool",
+          label: '设置',
+          type: 'switch',
+          name: 'switch',
+          icon: 'iconfont icon-home-tool',
           component: MapSwitch,
           tip: false,
-          placement: "right",
+          placement: 'right',
         },
-        
+
         // {
         //   label: "图表配置",
         //   type: "chartOption",
@@ -98,48 +98,48 @@ export default {
         //   placement: "right"
         // },
         {
-          label: "标记",
-          type: "mark",
-          name: "mark",
-          icon: "el-icon-circle-plus-outline",
+          label: '标记',
+          type: 'mark',
+          name: 'mark',
+          icon: 'el-icon-circle-plus-outline',
           component: MapMark,
           tip: false,
-          placement: "right",
+          placement: 'right',
         },
         {
-          label: "设置关系",
-          type: "relationship",
-          name: "relationship",
-          icon: "iconfont icon-tool-link",
+          label: '设置关系',
+          type: 'relationship',
+          name: 'relationship',
+          icon: 'iconfont icon-tool-link',
           component: MapSearchAdd,
           tip: false,
-          placement: "right",
+          placement: 'right',
+        },
+        {
+          label: '规则展示',
+          type: 'setting',
+          name: 'setting',
+          icon: 'iconfont icon-tool-setting',
+          component: Setting,
+          tip: false,
+          placement: 'right',
         },
         // {
-        //   label: "规则展示",
-        //   type: "setting",
-        //   name: "setting",
-        //   icon: "iconfont icon-tool-setting",
-        //   component: Setting,
+        //   label: '着色',
+        //   type: 'LegendShader',
+        //   name: 'LegendShader',
+        //   icon: 'el-icon-magic-stick',
+        //   component: LegendShader,
         //   tip: false,
-        //   placement: "right",
+        //   placement: 'right',
         // },
-        {
-          label: "着色",
-          type: "LegendShader",
-          name: "LegendShader",
-          icon: "el-icon-magic-stick",
-          component: LegendShader,
-          tip: false,
-          placement: "right",
-        },
       ],
-      drawerTitle: "",
+      drawerTitle: '',
       drawerVisible: false,
       componentVisible: false,
       drawerComponent: null,
       // component: null
-    };
+    }
   },
 
   computed: {
@@ -179,30 +179,30 @@ export default {
      * 关闭抽屉
      */
     closeDrawer() {
-      this.drawerVisible = false;
-      this.drawerComponent = null;
+      this.drawerVisible = false
+      this.drawerComponent = null
     },
     /**
      * 关闭组件
      */
     closeComponent() {
-      this.componentVisible = false;
-      this.component = null;
+      this.componentVisible = false
+      this.component = null
     },
     /**
      * 处理传来的关闭抽屉事件
      */
     handleDrawerBeforeClose() {
-      this.closeDrawer();
+      this.closeDrawer()
     },
     /**
      * 处理组件传来的关闭事件
      */
     handleComponentBeforeClose() {
-      this.closeComponent();
+      this.closeComponent()
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>

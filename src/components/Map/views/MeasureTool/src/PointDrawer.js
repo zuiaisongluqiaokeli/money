@@ -65,15 +65,15 @@ class PointDrawer {
       this.popper = null;
       //Map.mutations.updateGisEntities([].concat([this.entity], Map.state.gisEntities))
       // 相机飞往该点
-      let center = Cesium.Cartesian3.fromDegrees(
-        longitude,
-        latitude,
-        1500
-      );
-      this.viewer.camera.flyTo({
-        destination: center,
-        duration: 2
-      });
+      // let center = Cesium.Cartesian3.fromDegrees(
+      //   longitude,
+      //   latitude,
+      //   1500
+      // );
+      // this.viewer.camera.flyTo({
+      //   destination: center,
+      //   duration: 2
+      // });
       callback(this.entity);
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -97,7 +97,7 @@ class PointDrawer {
       const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
       const longitude = Cesium.Math.toDegrees(cartographic.longitude);
       const latitude = Cesium.Math.toDegrees(cartographic.latitude);
-      const alt = Math.abs(cartographic.height) * 100;
+      const alt = Math.abs(cartographic.height) * 10000;
       const cartesian3 = Cesium.Cartesian3.fromDegrees(longitude, latitude);
       this.position = cartesian3;
       if (this.entity === null) {
@@ -190,16 +190,20 @@ class PointDrawer {
         height: 25,
         color: Cesium.Color.fromCssColorString("#ffcc33"),
       },
+      // model: {
+      //   uri: "Cesium/Cesium3D/ShanghaiPudong.gltf",
+      //   minimumPixelSize: 60
+      // },
       newAdd: true,  //标记或者未知位置添加时候的标记
       label: {
         show: this.options.labelShow,
         text: this.options.hasOwnProperty('name') && this.options.name || '暂无名称',
         pixelOffset: new Cesium.Cartesian2(0, 24),
-        font: "25px sans-serif",
+        font: "15px sans-serif",
         style: Cesium.LabelStyle.FILL_AND_OUTLINE,
         fillColor: Cesium.Color.fromCssColorString(window.mapType === 'satellite' ? "#000000" : "#ffffff"),
-        // outlineColor:Cesium.Color.fromCssColorString(window.mapType==='satellite'?"#000000":"#ffffff"),
-        // outlineWidth:2,
+        outlineColor: Cesium.Color.fromCssColorString(window.mapType === 'satellite' ? "#ffffff" : "#000000"),
+        outlineWidth: 4,
         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
         scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
         pixelOffsetScaleByDistance: new Cesium.NearFarScalar(

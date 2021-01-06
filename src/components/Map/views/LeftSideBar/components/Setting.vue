@@ -1,9 +1,9 @@
 <template>
-  <div class="tool-tag" ref="showPanel">
+  <div class="tool-tag">
     <div class="body">
       <div class="main-box">
         <div class="tab-content">
-          <!-- <el-form ref="form" label-width="50px">
+          <el-form ref="form" label-width="50px">
             <el-form-item label="标签">
               <el-select
                 v-model="verticeFilter.labels"
@@ -16,12 +16,7 @@
                 default-first-option
                 placeholder="请选择标签"
               >
-                <el-option
-                  v-for="model in allLabels"
-                  :key="model"
-                  :label="model"
-                  :value="model"
-                ></el-option>
+                <el-option v-for="model in allLabels" :key="model" :label="model" :value="model"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item
@@ -37,12 +32,7 @@
                 placeholder="请选择属性"
                 class="select-input"
               >
-                <el-option
-                  v-for="item in allProperties"
-                  :key="item"
-                  :label="item"
-                  :value="item"
-                ></el-option>
+                <el-option v-for="item in allProperties" :key="item" :label="item" :value="item"></el-option>
               </el-select>
               <el-select
                 v-model="item.operation"
@@ -57,18 +47,14 @@
                   :value="item.value"
                 ></el-option>
               </el-select>
-              <el-input
-                v-model="item.value"
-                class="select-input"
-                placeholder="请输入内容"
-              ></el-input>
-              <el-autocomplete v-model="item.value"
+              <el-input v-model="item.value" class="select-input" placeholder="请输入内容"></el-input>
+              <!-- <el-autocomplete v-model="item.value"
                               :fetch-suggestions="getPropValueOptions"
                               placeholder="请输入内容"
                               :trigger-on-focus="false"
                               @focus="getFocusData(verticeFilter.labels, item.key)"
                               class="select-input">
-              </el-autocomplete>
+              </el-autocomplete>-->
               <el-button
                 type="text"
                 icon="el-icon-close"
@@ -83,19 +69,8 @@
                 @click="additem(natureIndex)"
               ></el-button>
             </el-form-item>
-          </el-form>-->
-          <el-form ref="form" class="set" label-width="80px">
-            <el-form-item label="分类名称">
-              <select-tree
-                v-model="verticeSet.typeName"
-                :popper-append-to-body="false"
-                :data="treeData"
-                @change="selectedItems($event)"
-                :propSet="{ children: 'children', label: 'label' }"
-                placeholder="请选择分类名称"
-                ref="selectTree"
-              />
-            </el-form-item>
+          </el-form>
+          <el-form ref="form" class="set" label-width="50px">
             <el-form-item label="尺寸">
               <el-input-number v-model="verticeSet.size" :min="1"></el-input-number>
             </el-form-item>
@@ -122,7 +97,7 @@
             </el-form-item>
             <el-form-item label="图标">
               <div class="icon-select">
-                <el-select v-model="verticeSet.icon" clearable :popper-append-to-body="false">
+                <el-select v-model="verticeSet.avatar" clearable :popper-append-to-body="false">
                   <el-option
                     v-for="val in iconList"
                     :key="val.name"
@@ -130,14 +105,14 @@
                     :value="val.src"
                   ></el-option>
                 </el-select>
-                <img v-if="verticeSet.icon" :src="verticeSet.icon" />
+                <img v-if="verticeSet.avatar" :src="verticeSet.avatar" />
               </div>
             </el-form-item>
             <el-form-item label="范围">
               <div class="range-setting">
                 <el-switch class="switch" v-model="verticeSet.range.enable"></el-switch>
                 <div v-show="verticeSet.range.enable">
-                  <!-- <div class="range-item">
+                  <div class="range-item">
                     属性：
                     <el-select
                       v-model="verticeSet.range.property"
@@ -154,7 +129,7 @@
                         :value="item"
                       ></el-option>
                     </el-select>
-                  </div>-->
+                  </div>
                   <div class="range-item">
                     范围：
                     <el-input class="range-input" v-model="verticeSet.range.value" size="small"></el-input>公里
@@ -196,8 +171,6 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
-import SelectTree from '@/components/SelectTree'
-import * as sortManage from '@/services/sort-manage'
 import * as d3 from 'd3'
 
 export default {
@@ -218,8 +191,6 @@ export default {
       },
       reset: false,
       verticeSet: {
-        typeName: '', //类型名称
-        typeValue: '',
         size: 1,
         prop: '',
         text: '',
@@ -233,7 +204,6 @@ export default {
           color: '',
         },
       },
-      treeData: [],
       iconList: [
         { name: '定位', src: './img/gis/location.png' },
         { name: '人', src: './img/gis/walk.png' },
@@ -305,55 +275,10 @@ export default {
       ],
     }
   },
-  components: {
-    SelectTree,
-  },
-  directives: {
-    // 自定义函数防抖指令
-    throttle: {
-      inserted(el, binding) {
-        let timer
-        el.addEventListener('keydown', (e) => {
-          if (
-            e.keyCode === 37 ||
-            e.keyCode === 39 ||
-            e.keyCode === 13 ||
-            e.keyCode === 38 ||
-            e.keyCode === 40
-          ) {
-            return
-          }
-          clearTimeout(timer)
-          timer = setTimeout(() => {
-            binding.value()
-          }, 500)
-        })
-      },
-    },
-    // 搜索下拉框点击外部下拉框收起
-    clickOutside: {
-      bind(el, binding, vnode) {
-        el.clickOutsideEvent = (event) => {
-          if (!(el === event.target || el.contains(event.target))) {
-            vnode.context[binding.expression](event)
-          }
-        }
-        document.body.addEventListener('click', el.clickOutsideEvent)
-      },
-      unbind(el) {
-        document.body.removeEventListener('click', el.clickOutsideEvent)
-      },
-    },
-    focus: {
-      inserted(el) {
-        el.focus()
-      },
-    },
-  },
+  components: {},
   computed: {
     ...mapState('map', ['allEntityBackEnd']),
-    ...mapState('graphInfo', ['id', 'graphType']),
-    ...mapGetters('map', ['allLabels', 'allProperties']), //所有实体标签/属性
+    ...mapGetters('map', ['allLabels', 'allProperties']),
   },
   watch: {
     show(n) {
@@ -380,42 +305,6 @@ export default {
     ...mapMutations('canvasInfo', ['setClearTag']),
     ...mapActions('canvasInfo', ['revertCanvas']),
     ...mapMutations('map', ['updateInitTack']),
-    async getCategory() {
-      const res = await sortManage.nodeCategoryQuery(this.id)
-      let data = res.data
-      let treeData = []
-      for (const item of data) {
-        if (item.parentId === 0) {
-          treeData.push({
-            id: item.id,
-            label: item.name,
-            children: [],
-            ...item,
-          })
-        }
-      }
-      this.formatTree(treeData, data)
-      this.treeData = treeData
-    },
-    // 递归返回的数据，形成树结构
-    formatTree(treeData, data) {
-      for (const item of treeData) {
-        for (const item2 of data) {
-          if (item.id === item2.parentId) {
-            item.children.push({
-              id: item2.id,
-              label: item2.name,
-              children: [],
-              ...item2,
-            })
-          }
-        }
-        this.formatTree(item.children, data)
-      }
-    },
-    selectedItems(event) {
-      this.verticeSet.typeValue = event.label
-    },
     // 实体搜索添加属性
     additem: function (natureIndex, index) {
       this.verticeFilter.props.push({
@@ -427,16 +316,13 @@ export default {
     deletItem(natureIndex, index) {
       this.verticeFilter.props.splice(natureIndex, 1)
     },
-    //所有实体与设置的属性
     getFilters(vertices, filters) {
       // 标签过滤节点
       let verticeByLabel = []
-      //找被包含的标签的数据
       verticeByLabel = vertices.filter((v) =>
         filters.labels.some((l) => v.labels.includes(l))
       )
       let length = filters.props.length
-      //筛选条件
       let verticeByProp = vertices.filter((vertice) => {
         let flag = false
 
@@ -465,13 +351,11 @@ export default {
       })
       return Array.from(new Set(verticeByLabel.concat(verticeByProp)))
     },
-    //重置或修改样式
     showVertice() {
-      this.updateInitTack(true) //开始时间轴
+      this.updateInitTack(true)
       if (this.reset) {
-        //拿地图上的重置，设置头像/偏移量/比例等等
         this.allEntityBackEnd
-          .filter((item) => item.properties.longitude)
+          .filter((item) => gisvis.viewer.entities.getById(item.id))
           .forEach((e) => {
             gisvis.viewer.entities.getById(e.id).billboard &&
               (gisvis.viewer.entities.getById(e.id).billboard.scale = 1)
@@ -484,16 +368,12 @@ export default {
             ).billboard.color = Cesium.Color.fromCssColorString('#ffcc33')
             gisvis.viewer.entities
               .getById(e.id)
-              .billboard.image.setValue('./img/location.png')
+              .billboard.image.setValue('./img/gis/location.png')
             gisvis.viewer.entities.getById(e.id).ellipse = undefined
           })
       }
-      //依据属性查找相关的节点
-      //let entities = this.getFilters(this.gisEntities, this.verticeFilter);
-      let arr = this.allEntityBackEnd.filter(
-        (item) => item.properties.longitude
-      )
-      arr.forEach((e) => {
+      let entities = this.getFilters(this.allEntityBackEnd, this.verticeFilter)
+      entities.forEach((e) => {
         gisvis.viewer.entities.getById(
           e.id
         ).billboard.scale = this.verticeSet.size
@@ -510,22 +390,21 @@ export default {
           ).billboard.color = Cesium.Color.fromCssColorString(
             this.verticeSet.color
           ))
-        this.verticeSet.icon &&
+        this.verticeSet.avatar &&
           gisvis.viewer.entities
             .getById(e.id)
-            .billboard.image.setValue(this.verticeSet.icon)
+            .billboard.image.setValue(this.verticeSet.avatar)
       })
-      //有范围去批量生成
       if (this.verticeSet.range.enable) {
         let params = {
-          entities: arr,
-          //areaProperty: this.verticeSet.range.property,
+          entities: entities,
+          areaProperty: this.verticeSet.range.property,
           radius: this.verticeSet.range.value,
           color: this.verticeSet.range.color,
         }
         gisvis.emitter.emit('gis-scope-render', params)
       } else {
-        arr.forEach((e) => {
+        entities.forEach((e) => {
           if (gisvis.viewer.entities.getById(e.id).ellipse) {
             gisvis.viewer.entities.getById(e.id).ellipse.show.setValue(false)
           }
@@ -533,21 +412,7 @@ export default {
       }
     },
   },
-  //点击外部隐藏下拉树
-  created() {
-    document.addEventListener('click', (e) => {
-      if (this.$refs.showPanel) {
-        let isSelf = this.$refs.showPanel.contains(e.target)
-        if (!isSelf) {
-          this.$refs.selectTree.$refs.select.blur()
-        }
-      }
-    })
-  },
   mounted() {
-    setTimeout(() => {
-      this.getCategory()
-    }, 4000)
     // this.iconList.forEach(val=>val.src.indexOf('data')<0&&(val.src=window.location.origin+'/'+val.src))
   },
 }
@@ -560,7 +425,7 @@ export default {
   padding: 12px 0;
 
   .body {
-    width: 384px;
+    width: 500px;
     margin: 0 10px;
 
     .main-box {
@@ -587,7 +452,7 @@ export default {
 
         .set {
           padding-top: 10px;
-          // border-top: 1px solid var(--border-color-base);
+          border-top: 1px solid var(--border-color-base);
         }
 
         .el-select {
@@ -639,6 +504,10 @@ export default {
     .active {
       color: var(--color-text-primary) !important;
     }
+  }
+
+  /deep/ .el-select .el-tag.el-tag--info {
+    color: #fafafa;
   }
 
   /deep/ input::-webkit-input-placeholder {

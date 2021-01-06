@@ -19,10 +19,10 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import { emitter, EventType } from '../src/EventEmitter'
+import PrimitiveTriangles from '../src/PrimitiveTriangles.js'
 export default {
   name: 'RangeSetting',
   props: {
@@ -33,7 +33,7 @@ export default {
   },
   data() {
     return {
-      range: 500,
+      range: 1000,
       labels: [],
       keyword: '',
     }
@@ -59,7 +59,7 @@ export default {
     ...mapMutations('home', ['changeLoading']),
     dialogSave() {
       gisvis.emitter.emit(EventType.POPPER_SHOW)
-      gisvis.emitter.emit('gis-scope-search', {
+      gisvis.emitter.emit(EventType.SCOPE_SEARCH, {
         lon: this.gisRightSelectedEntity.properties.lng.getValue(),
         lat: this.gisRightSelectedEntity.properties.lat.getValue(), //纬度
         r: Number(this.range),
@@ -71,6 +71,95 @@ export default {
       setTimeout(() => {
         gisvis.viewer.scene.postProcessStages.removeAll()
       }, 6000)
+
+      //let primitiveTriangles = null
+      //画立体扇形
+      /*
+        @center 中心点
+        @radius 半径
+        @rotate 旋转角度（正东为0，顺时针为正方向）
+        @angle 扇形角度
+        */
+      // function drawSector(center, radius, rotate, angle) {
+      //   let vertex = []
+      //   let ellipsoid = viewer.scene.globe.ellipsoid
+      //   if (angle > 180) angle = 180
+      //   for (let i = 0; i < angle; i++) {
+      //     if (i >= 90) {
+      //       let bx = (-radius / 111201) * Math.cos((i * Math.PI) / 180)
+      //       let bz = radius * Math.sin((i * Math.PI) / 180)
+      //       let bxx = bx * Math.cos((rotate * Math.PI) / 180)
+      //       let byy = bx * Math.sin((rotate * Math.PI) / 180)
+      //       let tx = (-radius / 111201) * Math.cos(((i + 1) * Math.PI) / 180)
+      //       let tz = radius * Math.sin(((i + 1) * Math.PI) / 180)
+      //       let txx = tx * Math.cos((rotate * Math.PI) / 180)
+      //       let tyy = tx * Math.sin((rotate * Math.PI) / 180)
+      //       vertex.push(Cesium.Cartesian3.fromDegrees(center.x, center.y, 0))
+      //       vertex.push(
+      //         Cesium.Cartesian3.fromDegrees(center.x - bxx, center.y - byy, bz)
+      //       )
+      //       vertex.push(
+      //         Cesium.Cartesian3.fromDegrees(center.x - txx, center.y - tyy, tz)
+      //       )
+      //     } else {
+      //       let bx = (radius / 111201) * Math.cos((i * Math.PI) / 180)
+      //       let bz = radius * Math.sin((i * Math.PI) / 180)
+      //       let bxx = bx * Math.cos((rotate * Math.PI) / 180)
+      //       let byy = bx * Math.sin((rotate * Math.PI) / 180)
+      //       let tx = (radius / 111201) * Math.cos(((i + 1) * Math.PI) / 180)
+      //       let tz = radius * Math.sin(((i + 1) * Math.PI) / 180)
+      //       let txx = tx * Math.cos((rotate * Math.PI) / 180)
+      //       let tyy = tx * Math.sin((rotate * Math.PI) / 180)
+      //       vertex.push(Cesium.Cartesian3.fromDegrees(center.x, center.y, 0))
+      //       vertex.push(
+      //         Cesium.Cartesian3.fromDegrees(center.x + bxx, center.y + byy, bz)
+      //       )
+      //       vertex.push(
+      //         Cesium.Cartesian3.fromDegrees(center.x + txx, center.y + tyy, tz)
+      //       )
+      //     }
+      //   }
+      //   if (!primitiveTriangles) {
+      //     primitiveTriangles = new PrimitiveTriangles({
+      //       viewer: viewer,
+      //       Cartesians: vertex,
+      //       Colors: [0, 1, 1, 0.5, 0, 0, 1, 0.5, 0, 1, 1, 0.5],
+      //     })
+      //   } else {
+      //     primitiveTriangles.updateCartesianPositionColor(vertex, [
+      //       0,
+      //       1,
+      //       1,
+      //       0.5,
+      //       0,
+      //       0,
+      //       1,
+      //       0.5,
+      //       0,
+      //       1,
+      //       1,
+      //       0.5,
+      //     ])
+      //   }
+      // }
+
+      // let index = 0
+      // var timeId = setInterval(() => {
+      //   if (index > 360) {
+      //     index = 0
+      //   }
+      //   drawSector(
+      //     {
+      //       x: Number(gisvis.popper.instance.position.left.split('px')[0]),
+      //       y: Number(gisvis.popper.instance.position.top.split('px')[0]),
+      //     },
+      //     1000000,
+      //     index,
+      //     45
+      //   )
+      //   index += 10
+      // }, 50)
+
       // setTimeout(() => {
       //   this.$api
       //     .getGisExpand(
@@ -82,47 +171,49 @@ export default {
       //     .then((res) => {
       //       if (res.data.success) {
       //         if (res.data.object) {
-      //           let result = res.data.object;
+      //           let result = res.data.object
       //           //找余下的
       //           let entities = result.vertices.filter((v) => {
       //             return !this.allEntityBackEnd
       //               .map((item) => item.id)
-      //               .includes(v.id);
-      //           });
+      //               .includes(v.id)
+      //           })
       //           if (entities.length) {
       //             result.vertices.forEach((item) => {
-      //               item.properties.latitude = item.properties.纬度;
-      //               item.properties.longitude = item.properties.经度;
-      //             });
+      //               item.properties.latitude = item.properties.纬度
+      //               item.properties.longitude = item.properties.经度
+      //             })
       //             let gisData = {
       //               entities: result.vertices,
       //               labelShow: true,
-      //             };
-      //             gisvis.emitter.emit("gis-render-data", gisData);
+      //             }
+      //             gisvis.emitter.emit('gis-render-data', gisData)
       //           } else {
-      //             gisvis.viewer.entities.removeById("marsRadarScan");
-      //             this.$message.success({ message: "无搜索结果" });
+      //             gisvis.viewer.entities.removeById('marsRadarScan')
+      //             this.$message.success({ message: '无搜索结果' })
       //           }
       //         } else {
-      //           gisvis.viewer.entities.removeById("marsRadarScan");
-      //           this.$message.success({ message: "无搜索结果" });
+      //           gisvis.viewer.entities.removeById('marsRadarScan')
+      //           this.$message.success({ message: '无搜索结果' })
       //         }
       //       } else {
-      //         gisvis.viewer.entities.removeById("marsRadarScan");
+      //         gisvis.viewer.entities.removeById('marsRadarScan')
       //         this.$message.error({
-      //           message: res.data.msg || res.data.errorMsg || "搜索失败",
+      //           message: res.data.msg || res.data.errorMsg || '搜索失败',
       //           duration: 1500,
-      //         });
+      //         })
       //       }
+      //       window.clearInterval(timeId)
       //     })
       //     .catch(() => {
-      //       gisvis.viewer.entities.removeById("marsRadarScan");
+      //       gisvis.viewer.entities.removeById('marsRadarScan')
       //       this.$message.error({
-      //         message: "服务端异常，请联系管理员",
+      //         message: '服务端异常，请联系管理员',
       //         duration: 1500,
-      //       });
-      //     });
-      // }, 1000);
+      //       })
+      //       window.clearInterval(timeId)
+      //     })
+      // }, 1000)
       if (gisvis.contextMenu) {
         gisvis.contextMenu.destroy()
         gisvis.contextMenu = null

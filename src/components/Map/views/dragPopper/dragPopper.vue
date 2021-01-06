@@ -15,7 +15,7 @@
           <path
             xmlns="http://www.w3.org/2000/svg"
             d="M2,2 L10,6 L2,10 L6,6 L2,2"
-            style="fill: #FFFFFF;"
+            :style="{'fill': bgColor}"
           />
         </marker>
       </defs>
@@ -30,7 +30,7 @@
         y1="0"
         x2="50"
         y2="50"
-        stroke="#FFFFFF"
+        :stroke="bgColor"
         stroke-width="2"
         :marker-end="`url(#arrow${index})`"
         stroke-dasharray="10 10"
@@ -43,10 +43,58 @@
       <div
         class="item item1"
         :class="'popper1'+index"
+        :style="{'border-color':bgColor}"
       >陆军参谋部；3个集团军司令部；4个军司令部（其中1个为空降军司令部）；2个装甲师；3个机械化师；2个轻步师；1个步兵师；1个空中突击师；1个空降师；1个步兵营群；1个空降营群；7个航空旅（其中1个航空旅为集团军直辖，4个航空旅为军直辖，2个航空旅为训练旅）；2个装甲骑兵团；6个炮兵旅；1个战区防空司令部；9个"爱国者"地空导弹营，3个"复仇者"地空导弹营</div>
     </div>
+
+    <!-- <div class="divpoint divpoint-theme item item1" :style="{'border-color':bgColor}">
+        <div class="divpoint-wrap">
+          <div class="area" :class="'popper1'+index">
+            <div class="arrow-lt"></div>
+            <div class="b-t" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
+            <div class="b-r" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
+            <div class="b-b" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
+            <div class="b-l" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
+            <div class="arrow-rb"></div>
+            <div class="label-wrap">
+              <div class="title">陆军参谋部</div>
+              <div class="label-content">
+                <div class="data-li">
+                  <div class="data-label">集团军司令部</div>
+                  <div class="data-value">
+                    <span class="label-num">3</span>
+                    <span class="label-unit">个</span>
+                  </div>
+                </div>
+                <div class="data-li">
+                  <div class="data-label">军司令部</div>
+                  <div class="data-value">
+                    <span class="label-num">4</span>
+                    <span class="label-unit">个</span>
+                  </div>
+                </div>
+                <div class="data-li">
+                  <div class="data-label">步兵营群</div>
+                  <div class="data-value">
+                    <span class="label-tag data-value-status-1" alt="中间状态">1号</span>
+                    <span class="label-tag data-value-status-0" alt="关闭状态">2号</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="b-t-l" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
+          <div class="b-b-r" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
+        </div>
+        <div class="arrow"></div>
+      </div>
+    </div>-->
     <div :class="'placement-' + placement">
-      <div class="item item2" :style="position" :class="'popper2'+index"></div>
+      <div
+        class="item item2"
+        :class="'popper2'+index"
+        :style="{'border-color':bgColor,'top':position.top,'left':position.left}"
+      ></div>
     </div>
   </div>
 </template>
@@ -87,6 +135,7 @@ export default {
       placement: 'top',
       html: null,
       pointerEvent: 'auto',
+      bgColor: '#FFFFFF',
     }
   },
 
@@ -216,7 +265,7 @@ export default {
 .lineWrap {
   position: absolute;
   left: 0%;
-  top: -7%;
+  top: -50px;
   overflow: visible;
 }
 .item {
@@ -233,7 +282,14 @@ export default {
   top: 50%;
   text-align: left;
   color: #ffffff;
-  border: 1px solid #ffffff;
+  border: 1px solid;
+  border-radius: 5px;
+}
+.item1 {
+  cursor: move;
+  width: 300px;
+  display: inline-block;
+  text-indent: 2em;
 }
 .item2 {
   transform: translate(-50%, -50%);
@@ -241,10 +297,192 @@ export default {
   width: 50px;
   pointer-events: none;
 }
-.item1 {
-  cursor: move;
-  width: 300px;
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* 2020-4-9 14:01:37 | 版权所有 火星科技 http://marsgis.cn */
+.divpoint-wrap {
+  position: relative;
+  padding: 30px;
+}
+.divpoint .area {
+  position: relative;
+  min-width: 180px;
+}
+.divpoint .b-t {
+  position: absolute;
+  top: 0;
+  left: 44px;
+  right: 0;
+  height: 1px;
+  z-index: 10;
+}
+.divpoint .b-r {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 44px;
+  width: 1px;
+  z-index: 10;
+}
+.divpoint .b-b {
+  position: absolute;
+  left: 0;
+  right: 44px;
+  bottom: 0;
+  height: 1px;
+  z-index: 10;
+}
+.divpoint .b-l {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  z-index: 10;
+}
+.divpoint .b-t-l {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 62px;
+  transform: rotate(45deg) translate(52px, -22px);
+  z-index: 10;
+}
+.divpoint .b-b-r {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 1px;
+  height: 62px;
+  transform: rotate(45deg) translate(-52px, 22px);
+  z-index: 10;
+}
+.divpoint .label-wrap {
+  padding-left: 12px;
+  color: #fff;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.divpoint .title {
+  margin-top: 20px;
+  padding: 0 12px 0 30px;
+  height: 36px;
+  line-height: 36px;
+  position: relative;
+}
+.divpoint .title::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  height: 2px;
+}
+.divpoint .label-content {
+  padding: 15px 0;
+}
+.divpoint .data-li {
+  padding: 4px 45px 4px 0;
+  display: flex;
+  justify-content: space-between;
+}
+.data-value,
+.divpoint .data-label {
   display: inline-block;
-  text-indent: 2em;
+}
+.divpoint .data-value {
+  font-size: 14px;
+}
+.divpoint .label-num {
+  margin-right: 3px;
+  color: #f09e28;
+  font-weight: 600;
+}
+.divpoint .label-tag {
+  display: inline-block;
+  position: relative;
+  margin-right: 6px;
+  padding: 0 6px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #909399;
+  border-radius: 4px;
+}
+.divpoint .label-tag::after {
+  content: attr(alt);
+  display: inline-block;
+  position: absolute;
+  bottom: -22px;
+  right: -35px;
+  z-index: -1;
+  padding: 2px 4px;
+  color: #fff;
+  font-size: 14px;
+  background-color: #333;
+  border-radius: 3px;
+  opacity: 0;
+  transition: all 0.3s ease-in;
+}
+.divpoint .label-tag:hover::after {
+  opacity: 1;
+  z-index: 11;
+}
+.divpoint .data-value-status-0 {
+  background-color: #f0285c;
+}
+.divpoint .data-value-status-1 {
+  background-color: #35b15b;
+}
+.divpoint .data-value-status-2 {
+  background-color: #f09e28;
+}
+.divpoint .arrow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 45px;
+  height: 2px;
+  transform: rotate(-45deg) translate(5px, -15px);
+}
+// .divpoint-theme .b-b,
+// .divpoint-theme .b-b-r,
+// .divpoint-theme .b-l,
+// .divpoint-theme .b-r,
+// .divpoint-theme .b-t,
+// .divpoint-theme .b-t-l {
+//   background-color: #29baf1;
+//   box-shadow: 0 0 10px 2px #29baf1;
+// }
+// .divpoint-theme .area {
+//   background-image: linear-gradient(
+//       135deg,
+//       transparent 30px,
+//       #28bbf06c 30px,
+//       #28bbf06c 50%,
+//       transparent 50%
+//     ),
+//     linear-gradient(
+//       -45deg,
+//       transparent 30px,
+//       #28bbf06c 30px,
+//       #28bbf06c 50.1%,
+//       transparent 50%
+//     );
+// }
+.divpoint-theme .title {
+  background-image: linear-gradient(135deg, transparent 25px, #29baf1 25px);
+}
+.divpoint-theme .arrow,
+.divpoint-theme .title::before {
+  background-color: #29baf1;
 }
 </style>

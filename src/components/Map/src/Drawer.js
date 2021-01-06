@@ -9,8 +9,8 @@ class Drawer {
    * @param {number} [layerId] 图层id
    */
   drawEntities(entitiesData, labelShow, layerId = 0) {
-    const data = entitiesData || [];
-    if (!data.length) {
+    const data = entitiesData
+    if (data == undefined) {
       return;
     }
     let entityIndex = -1;
@@ -130,16 +130,19 @@ class Drawer {
       return;
     }
     data.forEach(e => {
-      // let propertyValue = e.properties[areaProperty]
-      // if (typeof propertyValue === 'string') {
-      //   const result = propertyValue.match(/\d+(\.\d*)?/)
-      //   propertyValue = result ? Number(result[0]) : 0
-      // }
-      if (radius) {
+      let propertyValue = null
+      if (areaProperty) {
+        propertyValue = e.properties[areaProperty]
+        if (typeof propertyValue === 'string') {
+          const result = propertyValue.match(/\d+(\.\d*)?/)
+          propertyValue = result ? Number(result[0]) : 0
+        }
+      }
+      if (propertyValue || radius) {
         this.viewer.entities.getById(e.id).ellipse = {
           show: true,
-          semiMajorAxis: (radius) * 1000,
-          semiMinorAxis: (radius) * 1000,
+          semiMajorAxis: (propertyValue || radius) * 1000,
+          semiMinorAxis: (propertyValue || radius) * 1000,
           material: Cesium.Color.fromCssColorString(
             color || "#00ff00"
           ).withAlpha(0.08),

@@ -1,5 +1,6 @@
 import Popper from "../../Popper";
 import { emitter, EventType } from "../../../src/EventEmitter";
+import VuexStore from '@/store/index'
 class PointDrawer {
   constructor(viewer, options) {
     this.viewer = viewer;
@@ -74,6 +75,7 @@ class PointDrawer {
       //   destination: center,
       //   duration: 2
       // });
+      VuexStore.state.map.isCover = false
       callback(this.entity);
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -189,6 +191,10 @@ class PointDrawer {
         width: 25,
         height: 25,
         color: Cesium.Color.fromCssColorString("#ffcc33"),
+        scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.2),
+        pixelOffsetScaleByDistance: new Cesium.NearFarScalar(
+          1.5e2, 1.0, 8.0e6, 0.2
+        )
       },
       // model: {
       //   uri: "Cesium/Cesium3D/ShanghaiPudong.gltf",
@@ -245,6 +251,7 @@ class PointDrawer {
     this.entity = null;
     if (this.popper) this.popper.destroy();
     this.handler.destroy();
+    VuexStore.state.map.isCover = false
   }
 }
 

@@ -1,15 +1,22 @@
 <template>
   <div class="map" id="mapMap">
+    <!-- 鹰眼图模式 -->
     <div id="eye" v-show="$store.state.map.eyeMap"></div>
     <div id="cesium" class="cesium"></div>
+    <!-- 左下侧分组数据信息 -->
     <MapLegend />
+    <!-- 时间轴 -->
     <Timeline></Timeline>
+    <!-- 右侧展示详细面板信息 -->
     <GisInfoPanelDetail></GisInfoPanelDetail>
     <!-- <MapInfoPanel></MapInfoPanel> -->
+    <!-- 左侧菜单栏 -->
     <LeftSideBar />
+    <!-- 搜索范围设置弹窗 -->
     <RangeSetting v-if="showRangeSetting" :close="() => (this.showRangeSetting = false)"></RangeSetting>
     <!-- 动态气泡框 -->
     <div class="popperWrap" id="popperWrap"></div>
+    <canvas id="canvas-a" class="canvas" width="300" height="300"></canvas>
   </div>
 </template>
 
@@ -236,6 +243,14 @@ export default {
           //范围搜索（打开半径弹窗）
           case 'scopeSearch':
             this.showRangeSetting = true
+            //静态雷达效果
+            // new Cesium.RadarPrimitive(viewer, {
+            //   position: Cesium.Cartesian3.fromDegrees(117.224, 31.819, 128),
+            //   angle: 50,
+            //   radius: 300000,
+            //   color: { red: 1, green: 0, blue: 0, alpha: 0.4 },
+            //   lineColor: { red: 1, green: 1, blue: 1, alpha: 0.9 },
+            // })
             break
           //删除
           case 'delete':
@@ -299,6 +314,7 @@ export default {
             } else {
               let params = {
                 entities: [{ id: this.gisRightSelectedEntity.id }],
+                areaProperty: null,
                 radius: 200,
                 color: '#ffcc33',
               }
@@ -310,7 +326,7 @@ export default {
             }
             gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, [])
             break
-          //雷达
+          //雷达扩散效果
           case 'radarShow':
             // gisvis.emitter.emit(EventType.RADAR_RENDER, {
             //   lon: this.gisRightSelectedEntity.properties.lng.getValue(),
@@ -548,6 +564,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#canvas-a {
+  top: 10px;
+  display: none;
+}
 #eye {
   position: absolute;
   width: 15%;

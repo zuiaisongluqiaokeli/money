@@ -1,5 +1,6 @@
 <template>
   <div class="left-side-bar">
+    <div class="cover" v-show="$store.state.map.isCover"></div>
     <SideBar :data="listMap" />
   </div>
 </template>
@@ -232,5 +233,20 @@ export default {
   .el-drawer__body {
     position: relative;
   }
+}
+.cover {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  background: rgba(0, 0, 0, 0.4);
+  width: 100%;
+  /*宽度设置为100%，这样才能使隐藏背景层覆盖原页面*/
+  height: 100%;
+  filter: alpha(opacity=60);
+  /*设置透明度为60%*/
+  opacity: 0.6;
+  /*非IE浏览器下设置透明度为60%*/
+  display: block;
+  z-index: 999;
 }
 </style>

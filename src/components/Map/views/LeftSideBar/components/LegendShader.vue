@@ -156,6 +156,7 @@ export default {
               let params = {
                 entities: [{ id: item.id }],
                 radius: 250,
+                areaProperty: null,
                 color: ele.color,
               }
               gisvis.emitter.emit('gis-scope-render', params)

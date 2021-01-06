@@ -275,7 +275,7 @@ export default {
   },
 
   computed: {
-    ...mapState('map', ['selectedVertices']), //选中的两个点坐标数据
+    ...mapState('map', ['selectedVertices', 'gisLines']), //选中的两个点坐标数据
     ...mapGetters('graphInfo', ['graphName']),
     ...mapState('graphInfo', ['id', 'graphType']),
     ...mapState('graphInfo', ['name']),
@@ -664,7 +664,7 @@ export default {
      * @param {array} res
      */
     async afterSave(res) {
-      const edges = []
+      let edges = []
       const removedEdge = []
       // edit 模式下只会返回一条数据
       const [item] = res
@@ -685,10 +685,13 @@ export default {
           edges.push(item)
           removedEdge.push(currentEdgeId)
         }
+        //用来批量删除
+        removedEdge.forEach((id) => sativis.removeEdge(id))
       }
-      //用来批量删除
-      removedEdge.forEach((id) => sativis.removeEdge(id))
-      this.updateGisLines(edges)
+      this.updateGisLines({
+        edges,
+        choiceSelect: this.currentTypeData.currentRelationName,
+      })
       // sativis.addEdges(edges);
       // sativis.render();
       // this.updateData({ edges });

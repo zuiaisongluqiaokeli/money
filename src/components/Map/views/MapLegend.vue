@@ -1,5 +1,6 @@
 <template>
   <div v-drag class="left-side">
+    <div class="cover" v-show="$store.state.map.isCover"></div>
     <div class="map-legend" v-if="allEntityBackEnd.length > 0">
       <div class="remove-all">
         <el-button type="text" class="button">所有实体({{ allEntityBackEnd.length }})</el-button>
@@ -25,7 +26,7 @@
                     :content="`${item.category}(${item.number})`"
                     placement="top-start"
                   >
-                    <div class="description">
+                    <div class="description" :style="{'width':(active == 1?'110px':'157px')}">
                       <span>{{ `${item.category}(${item.number})` }}</span>
                     </div>
                   </el-tooltip>
@@ -69,7 +70,7 @@
                     :content="ele.properties.name || ele.properties.名称"
                     placement="top-start"
                   >
-                    <div class="description">
+                    <div class="description" :style="{'width':(active == 1?'110px':'157px')}">
                       <span>
                         {{
                         ele.properties.name || ele.properties.名称
@@ -423,6 +424,7 @@ export default {
         labelShow: this.gisLabelShow,
       })
       this.$message.warning('开始编辑位置,鼠标右键取消')
+      this.$store.state.map.isCover = true
     },
     /**
      * 点击图例显示图标
@@ -570,6 +572,7 @@ export default {
           let params = {
             entities: [{ id: item.id }],
             radius: 250,
+            areaProperty: null,
             color: '#ffcc33',
           }
           gisvis.emitter.emit('gis-scope-render', params)
@@ -599,6 +602,7 @@ export default {
           entities: [{ id: val.id }],
           radius: 250,
           color: '#ffcc33',
+          areaProperty: null,
         }
         gisvis.emitter.emit('gis-scope-render', params)
       }
@@ -771,10 +775,24 @@ export default {
   padding: 5px;
 }
 .description {
-  width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.cover {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  background: rgba(0, 0, 0, 0.4);
+  width: 100%;
+  /*宽度设置为100%，这样才能使隐藏背景层覆盖原页面*/
+  height: 100%;
+  filter: alpha(opacity=60);
+  /*设置透明度为60%*/
+  opacity: 0.6;
+  /*非IE浏览器下设置透明度为60%*/
+  display: block;
+  z-index: 999;
 }
 </style>
 

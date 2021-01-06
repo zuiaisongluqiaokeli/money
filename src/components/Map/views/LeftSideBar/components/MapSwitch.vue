@@ -1,7 +1,7 @@
 <template>
   <div id="map-switch" class="map-switch">
     <div>
-      <span>名称：</span>
+      <span>地图实体名称：</span>
       <el-switch class="switch" v-model="label"></el-switch>
     </div>
     <div>
@@ -28,22 +28,26 @@
       <el-switch class="switch" v-model="globalSatellites"></el-switch>
     </div>
     <div>
-      <span>气泡框：</span>
+      <span>基地信息气泡窗：</span>
       <el-switch class="switch" v-model="bubbleBox"></el-switch>
+    </div>
+    <div>
+      <span>更改气泡窗颜色：</span>
+      <el-color-picker v-model="changeBubbleBoxColor" show-alpha :predefine="predefineColors"></el-color-picker>
     </div>
     <div>
       <span>鹰眼图：</span>
       <el-switch class="switch" v-model="eyeMap"></el-switch>
     </div>
 
-    <div>
+    <!-- <div>
       <span>切换飞机视角：</span>
       <el-tooltip class="item" effect="dark" content="开始轨迹飞行时才可以切换" placement="top-start">
         <el-switch class="switch" v-model="changePlaneView"></el-switch>
       </el-tooltip>
-    </div>
+    </div>-->
     <div>
-      <span>测量：</span>
+      <span>测量工具：</span>
       <el-tooltip class="item" effect="dark" content="左键绘制右键完成" placement="top-start">
         <el-button type="primary" icon="el-icon-add" @click="measureLineSpace">距离</el-button>
       </el-tooltip>
@@ -76,6 +80,16 @@ export default {
       gridLatitudeLongitude: false,
       trackedEntity: {}, //切换飞机视角对象
       eyeMap: this.$store.state.map.eyeMap,
+      changeBubbleBoxColor: '#FFFFFF',
+      predefineColors: [
+        '#FFFFFF',
+        '#ff8c00',
+        '#ffd700',
+        '#90ee90',
+        '#00ced1',
+        '#1e90ff',
+        '#c71585',
+      ],
     }
   },
   components: {},
@@ -139,6 +153,10 @@ export default {
       } else {
         emitter.emit(EventType.deleteAllBubbles)
       }
+    },
+    //拖拽气泡窗颜色更改
+    changeBubbleBoxColor(val) {
+      emitter.emit(EventType.changeBubbleBoxColor, val)
     },
     eyeMap(val) {
       if (val) this.changeEyeMap(true)
@@ -277,11 +295,13 @@ export default {
   overflow: auto;
   div {
     margin: 5px 0;
+    display: flex;
+    align-items: center;
   }
 }
 span {
   display: inline-block;
   text-align: right;
-  width: 100px;
+  width: 125px;
 }
 </style>

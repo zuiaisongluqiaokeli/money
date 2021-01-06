@@ -163,6 +163,7 @@ export default {
           labelShow: this.gisLabelShow,
         })
         this.$message.success('已成功创建标记点')
+        this.$store.state.map.isCover = true
       }
     },
     //val 代表ID ，entity代表返回的结果,新增需要重绘/修改不用

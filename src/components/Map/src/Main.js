@@ -86,10 +86,11 @@ class Main {
     emitter.on(EventType.CREATE_HtmlPopper, this.createHtmlPopper, this);//绘制HTML 弹窗
     emitter.on(EventType.addAllBubbles, this.addAllBubbles, this);//添加所有可拖拽气泡
     emitter.on(EventType.deleteAllBubbles, this.deleteAllBubbles, this);//删除所有可拖拽气泡
+    emitter.on(EventType.changeBubbleBoxColor, this.changeBubbleBoxColor, this);//拖拽气泡窗颜色更改
     emitter.on(EventType.RENDER_DATA, this.gisRender, this); //地图搜索/扩展等添加实体
     emitter.on(EventType.SCOPE_RENDER, this.gisScopeRender, this); //范围
-    emitter.on(EventType.RADAR_RENDER, this.addCircleScan, this); //雷达
-    emitter.on(EventType.SCOPE_SEARCH, this.addRadarScan, this); //雷达扫描
+    emitter.on(EventType.RADAR_RENDER, this.addCircleScan, this); //雷达扩散效果
+    emitter.on(EventType.SCOPE_SEARCH, this.addRadarScan, this); //雷达扫描(漂移不准)
     emitter.on(EventType.Simulated_Satellite, this.simulatedSatelliteFun, this); //扫描
     emitter.on(EventType.MeasureLineSpace, this.measureLineSpace, this); //测量距离
     emitter.on(EventType.MeasureAreaSpace, this.measureAreaSpace, this); //测量面积
@@ -325,6 +326,11 @@ class Main {
       item.destroy();
     })
     this.dragPopperArr = []  //销毁实体就要清除数组内容，不然都是null，旋转的时候报异常
+  }
+  changeBubbleBoxColor(val) {
+    this.dragPopperArr.forEach(item => {
+      item.instance.bgColor = val
+    })
   }
   /**
    * 显示Popper
@@ -824,7 +830,7 @@ class Main {
       midPointCartesian
     );
     midPointCartographic.height =
-      Cesium.Cartesian3.distance(startPoint, endPoint) / 5;
+      Cesium.Cartesian3.distance(startPoint, endPoint);
     let midPoint = new Cesium.Cartesian3();
     Cesium.Ellipsoid.WGS84.cartographicToCartesian(
       midPointCartographic,

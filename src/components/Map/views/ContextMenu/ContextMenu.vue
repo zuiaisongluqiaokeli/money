@@ -19,12 +19,12 @@ export default {
       dataInnerList: [
         { name: '拓展', icon: '\ue70e', angle: 1, action: 'expand' },
         { name: '删除', icon: '\ue683', angle: 1, action: 'delete' },
-        {
-          name: '轨迹飞行',
-          icon: '\ue814',
-          angle: 1,
-          action: 'SimulatedSatellite',
-        },
+        // {
+        //   name: '轨迹飞行',
+        //   icon: '\ue814',
+        //   angle: 1,
+        //   action: 'SimulatedSatellite',
+        // },
         // { name: '一键部署', icon: '\ue813', angle: 1, action: 'oneDeployment' },
         { name: '范围搜索', icon: '\ue8ef', angle: 1, action: 'scopeSearch' },
         { name: '范围切换', icon: '\ue814', angle: 1, action: 'scopeChange' },
@@ -349,7 +349,8 @@ export default {
       document.querySelectorAll('.big-outer').forEach((v, i) => {
         v.setAttribute('class', 'unshow big-outer')
       })
-      switch (index) {
+      switch (
+        index
         // case 0:
         //   array = ['实体', '文本']
         //   document.querySelectorAll('.g-box')[index].classList.add('hover')
@@ -362,17 +363,18 @@ export default {
         //   })
         //   break
         //第一层0-5，第二层0-11
-        case 2:
-          array = ['设置航线']
-          document.querySelectorAll('.g-box')[index].classList.add('hover')
-          document.querySelectorAll('.outer').forEach((v, i) => {
-            if (i === 4) {
-              v.querySelector('title').innerHTML = array[0]
-              v.querySelector('text').innerHTML = array[0]
-              v.setAttribute('class', 'g-box outer')
-            }
-          })
-          break
+        // case 2:
+        //   array = ['设置航线']
+        //   document.querySelectorAll('.g-box')[index].classList.add('hover')
+        //   document.querySelectorAll('.outer').forEach((v, i) => {
+        //     if (i === 4) {
+        //       v.querySelector('title').innerHTML = array[0]
+        //       v.querySelector('text').innerHTML = array[0]
+        //       v.setAttribute('class', 'g-box outer')
+        //     }
+        //   })
+        //   break
+      ) {
       }
     },
 

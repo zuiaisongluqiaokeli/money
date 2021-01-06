@@ -419,7 +419,6 @@ export default {
     this.relationPropsGet()
     this.getCategory()
     this.getPropMapping() //获取字段映射
-    this.graphVerticesGet('search')
     //获取图谱所有结点属性
   },
   watch: {
@@ -470,6 +469,7 @@ export default {
         children: treeData,
         parentsName: '',
       })
+      this.graphVerticesGet('search')
     },
     // 递归返回的数据，形成树结构
     formatTree(treeData, data) {

@@ -31,7 +31,7 @@ const EventType = {
   MeasureAreaSpace: "gis-measure-areaSpace",
   /** 【地图】 测量距离 */
   handleStopTimeLine: "gis-handleStop-TimeLine",
-  /** 【地图】 绘制雷达效果 */
+  /** 【地图】 绘制雷达扩散效果*/
   RADAR_RENDER: "gis-radar-render",
   /** 【地图】 地图数据改变 */
   DATA_CHANGE: "data-change",
@@ -81,6 +81,8 @@ const EventType = {
   addAllBubbles: 'addAllBubbles',
   /** 【Popper】 删除所有可拖拽气泡 */
   deleteAllBubbles: 'deleteAllBubbles',
+  /** 【Popper】 拖拽气泡窗颜色更改 */
+  changeBubbleBoxColor: "changeBubbleBoxColor",
   /** 【地图】 点击地图空白 */
   CLICK_BLANK: "click-blank",
   /** 【地图】 点击实体 */
@@ -95,6 +97,8 @@ const EventType = {
   HIGHLIGHT_RELATED_ENTITIES: "highlight-related-entities",
   /** 【地图】 绘制绿色选中框 */
   createSelectEntityBox: "highlight-related-entities",
+  /** 【地图】 绘制关系飞行线 */
+  CREATE_Fly_LINES: "create-fly-lines",
 };
 
 class EventEmitter {

@@ -18,6 +18,7 @@ import Setting from './components/Setting'
 import MapMark from './components/MapMark'
 import MapSearchAdd from './components/MapSearchAdd'
 import MapSwitch from './components/MapSwitch'
+import MapShowSet from './components/MapShowSet'
 export default {
   name: 'LeftSideBar',
   components: {
@@ -31,6 +32,7 @@ export default {
     LegendShader,
     MapMark,
     MapSearchAdd,
+    MapShowSet,
   },
 
   data() {
@@ -43,13 +45,13 @@ export default {
           icon: 'iconfont icon-fanhuishouye',
         },
         {
-          label: '地形',
-          type: 'imagery',
-          name: 'MapImagery',
-          icon: 'iconfont icon-map',
-          component: MapImagery,
+          label: '清空所有',
+          type: 'delete',
+          name: 'MapDelete',
+          icon: 'iconfont icon-tool-delete-circle',
+          component: '',
           tip: false,
-          placement: 'right-start',
+          placement: 'right',
         },
         // {
         //   label: "模式",
@@ -61,13 +63,13 @@ export default {
         //   placement: "right-start"
         // },
         {
-          label: '清空所有',
-          type: 'delete',
-          name: 'MapDelete',
-          icon: 'iconfont icon-tool-delete-circle',
-          component: '',
+          label: '地形',
+          type: 'imagery',
+          name: 'MapImagery',
+          icon: 'iconfont icon-map',
+          component: MapImagery,
           tip: false,
-          placement: 'right',
+          placement: 'right-start',
         },
         // 丐版,不配拥有这个功能
         // {
@@ -122,6 +124,15 @@ export default {
           name: 'setting',
           icon: 'iconfont icon-tool-setting',
           component: Setting,
+          tip: false,
+          placement: 'right',
+        },
+        {
+          label: '显示设置',
+          type: 'MapShowSet',
+          name: 'MapShowSet',
+          icon: 'iconfont icon-timeline',
+          component: MapShowSet,
           tip: false,
           placement: 'right',
         },

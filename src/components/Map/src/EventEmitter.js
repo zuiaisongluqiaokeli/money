@@ -97,8 +97,18 @@ const EventType = {
   HIGHLIGHT_RELATED_ENTITIES: "highlight-related-entities",
   /** 【地图】 绘制绿色选中框 */
   createSelectEntityBox: "highlight-related-entities",
+  /** 【地图】 删除绿色选中框 */
+  removeSelectEntityBox: "removeSelectEntityBox",
+  /** 【地图】 隐藏绿色选中框 */
+  hideSelectEntityBox: "hideSelectEntityBox",
+  /** 【地图】 显示绿色选中框 */
+  showSelectEntityBox: "showSelectEntityBox",
   /** 【地图】 绘制关系飞行线 */
   CREATE_Fly_LINES: "create-fly-lines",
+  /** 【地图】 扩展批量生成关系之前线条 */
+  CREATE_Fly_LINES_MANY: "create-fly-lines-many",
+  /** 【地图】 融合 */
+  mergeCircles: 'mergeCircles',
 };
 
 class EventEmitter {
@@ -156,7 +166,10 @@ class EventEmitter {
 
 const emitter = new EventEmitter();
 
-export { EventType, emitter };
+export {
+  EventType,
+  emitter
+};
 
 export default {
   EventType,

@@ -15,10 +15,10 @@ const i18n = new VueI18n({
 //图片懒加载
 import VueLazyLoad from 'vue-lazyload'
 Vue.use(VueLazyLoad, {
-  preLoad: 1,
-  error: require('./assets/img/img.jpg'),
-  loading: require('./assets/img/img.jpg'),
-  attempt: 2,
+    preLoad: 1,
+    error: require('./assets/img/img.jpg'),
+    loading: require('./assets/img/img.jpg'),
+    attempt: 2,
 })
 //滚动到指定位置
 let options = {
@@ -37,10 +37,10 @@ let options = {
 import VueScrollTo from "vue-scrollto";
 Vue.use(VueScrollTo, options);
 //标准金币
-import {VMoney} from 'v-money'
-Vue.directive('money',VMoney)
+import { VMoney } from 'v-money'
+Vue.directive('money', VMoney)
 //提示语
-import VTooltip from 'v-tooltip' 
+import VTooltip from 'v-tooltip'
 Vue.use(VTooltip)
 //点击元素波动效果
 import Ripple from 'vue-ripple-directive'
@@ -186,3 +186,21 @@ Vue.prototype.$throw = (error) => errorHandler(error, this);
 window.onerror = function (msg, url, line) {
     console.log('ONE ERROR HANDLER TO RULE THEM ALL:', msg, url, line);
 }
+
+//全局拖拽
+Vue.directive('drag',
+    function (el) {
+        el.onmousedown = function (e) {
+            var disx = e.pageX - el.offsetLeft;
+            var disy = e.pageY - el.offsetTop;
+            document.onmousemove = function (e) {
+                el.style.left = e.pageX - disx + 'px';
+                el.style.top = e.pageY - disy + 'px';
+            }
+            document.onmouseup = function (e) {
+                document.onmouseup = document.onmousemove = null
+            }
+            e.preventDefault();
+        }
+    }
+)

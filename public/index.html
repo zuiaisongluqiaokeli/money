@@ -8,12 +8,21 @@
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
   <title>臭兜兜</title>
 </head>
+
 <body>
   <div id="app"></div>
 </body>
 <script src="./iconfont/iconfont.js"></script>
+<script src="../publicMap/Cesium/Cesium.js"></script>
+<!--天地图插件-->
+<script src="https://api.tianditu.gov.cn/cdn/plugins/cesium/cesiumTdt.js"></script>
+<!-- 罗盘 -->
+<script src="../publicMap/Cesium/viewerCesiumNavigationMixin.js"></script>
+
 </html>
 <style>
+  @import "../publicMap/Cesium/Widgets/widgets.css";
+
   .icon {
     width: 2em;
     height: 2em;
@@ -21,5 +30,4 @@
     fill: currentColor;
     overflow: hidden;
   }
-  </style>
-  
+</style>

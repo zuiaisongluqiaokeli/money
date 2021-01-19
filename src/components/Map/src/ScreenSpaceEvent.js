@@ -3,7 +3,7 @@ import {
   emitter,
   EventType
 } from "./EventEmitter";
-
+import VuexStore from '@/store/index'
 let _instance = null;
 
 class ScreenSpaceEvent {
@@ -140,7 +140,7 @@ class ScreenSpaceEvent {
   /**
    * 左键双击处理
    */
-  handleDblclick() {
+  handleDoubleclick() {
     const {
       scene
     } = this.viewer;
@@ -148,17 +148,17 @@ class ScreenSpaceEvent {
 
     // TODO 好像有问题呢
     handler.setInputAction(event => {
-      if (this.viewer.trackedEntity) {
-        const position = this.viewer.trackedEntity.position.getValue();
-        const cartographic = Cesium.Cartographic.fromCartesian(position);
-        const lng = Cesium.Math.toDegrees(cartographic.longitude);
-        const lat = Cesium.Math.toDegrees(cartographic.latitude);
+      // if (this.viewer.trackedEntity) {
+      //   const position = this.viewer.trackedEntity.position.getValue();
+      //   const cartographic = Cesium.Cartographic.fromCartesian(position);
+      //   const lng = Cesium.Math.toDegrees(cartographic.longitude);
+      //   const lat = Cesium.Math.toDegrees(cartographic.latitude);
 
-        this.viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(lng, lat, 1500)
-        });
-        this.viewer.trackedEntity = null;
-      }
+      //   this.viewer.camera.flyTo({
+      //     destination: Cesium.Cartesian3.fromDegrees(lng, lat, 1500)
+      //   });
+      //   this.viewer.trackedEntity = null;
+      // }
     }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
   }
   /**
@@ -213,6 +213,7 @@ class ScreenSpaceEvent {
           position,
           id: currentEntity.id.entityId,
         });
+        sessionStorage.setItem('checkSelectEntityBox', JSON.stringify(true))
       }
 
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.CTRL);

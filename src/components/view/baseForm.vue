@@ -2,13 +2,20 @@
     <div ref="print">
         <div class="crumbs no-print">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item> <i class="el-icon-lx-calendar"></i> 表单 </el-breadcrumb-item>
+                <el-breadcrumb-item>
+                    <i class="el-icon-lx-calendar"></i> 表单
+                </el-breadcrumb-item>
                 <el-breadcrumb-item>基本表单</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
             <div class="form-box">
-                <el-form ref="dialogForm" :model="dialogForm" label-width="300px" :rules="dialogFormRules">
+                <el-form
+                    ref="dialogForm"
+                    :model="dialogForm"
+                    label-width="300px"
+                    :rules="dialogFormRules"
+                >
                     <el-form-item label="下拉树结构(插件封装，得到的是ID)" id="firstForm">
                         <treeselect
                             size="small"
@@ -35,7 +42,12 @@
                         <label slot="label">下拉树结构</label>
                         <label slot="label" style="color: blue">(dropdown)</label>
                         <label slot="label">
-                            <el-tooltip class="item" effect="light" :content="`你选中的数据是:${dialogForm.treeName}`" placement="top">
+                            <el-tooltip
+                                class="item"
+                                effect="light"
+                                :content="`你选中的数据是:${dialogForm.treeName}`"
+                                placement="top"
+                            >
                                 <i class="el-icon-info"></i>
                             </el-tooltip>
                         </label>
@@ -105,13 +117,24 @@
                                     @node-click="nodeClick"
                                 />
                             </template>
-                            <template slot="empty"> 暂时没有数据 </template>
+                            <template slot="empty">暂时没有数据</template>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="菜单图标">
-                        <el-popover placement="bottom-start" width="450" trigger="click" @show="$refs['iconSelect'].reset()">
+                        <el-popover
+                            placement="bottom-start"
+                            width="450"
+                            trigger="click"
+                            @show="$refs['iconSelect'].reset()"
+                        >
                             <IconSelect ref="iconSelect" @selected="selected" />
-                            <el-input slot="reference" v-model="dialogForm.icon" style="width: 450px" placeholder="点击选择图标" readonly>
+                            <el-input
+                                slot="reference"
+                                v-model="dialogForm.icon"
+                                style="width: 450px"
+                                placeholder="点击选择图标"
+                                readonly
+                            >
                                 <SvgIcon
                                     v-if="dialogForm.icon"
                                     slot="prefix"
@@ -136,7 +159,11 @@
                         </el-col>
                         <el-col class="line" :span="2">-</el-col>
                         <el-col :span="11">
-                            <el-time-picker placeholder="选择时间" v-model="dialogForm.date2" style="width: 100%"></el-time-picker>
+                            <el-time-picker
+                                placeholder="选择时间"
+                                v-model="dialogForm.date2"
+                                style="width: 100%"
+                            ></el-time-picker>
                         </el-col>
                     </el-form-item>
                     <el-form-item label="日期时间">
@@ -153,7 +180,11 @@
                         />
                     </el-form-item>
                     <el-form-item label="城市级联">
-                        <el-cascader :options="treeData" :props="{ checkStrictly: true }" v-model="dialogForm.cities"></el-cascader>
+                        <el-cascader
+                            :options="treeData"
+                            :props="{ checkStrictly: true }"
+                            v-model="dialogForm.cities"
+                        ></el-cascader>
                     </el-form-item>
                     <el-form-item label="输入框输入过滤">
                         <el-autocomplete
@@ -163,10 +194,20 @@
                             @select="handleSelect"
                         ></el-autocomplete>
                     </el-form-item>
-                    <el-form-item label="下拉里面的内容懒加载（详细看LazyLoadOption组件）"> </el-form-item>
+                    <el-form-item label="下拉里面的内容懒加载（详细看LazyLoadOption组件）"></el-form-item>
                     <el-form-item label="全选功能">
-                        <el-select v-model="dialogForm.chooseData" multiple placeholder="请选择" class="height:100%" size="small">
-                            <el-option label="全选" value="全选" :disabled="dialogForm.chooseData.length > 1"></el-option>
+                        <el-select
+                            v-model="dialogForm.chooseData"
+                            multiple
+                            placeholder="请选择"
+                            class="height:100%"
+                            size="small"
+                        >
+                            <el-option
+                                label="全选"
+                                value="全选"
+                                :disabled="dialogForm.chooseData.length > 1"
+                            ></el-option>
                             <el-option
                                 v-for="item in chooseData"
                                 :key="item.value"
@@ -177,24 +218,58 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="只能输入两位小树">
-                        <el-input @input="inputNumberTofixed" v-model="dialogForm.inputNumberTofixed"></el-input>
+                        <el-input
+                            @input="inputNumberTofixed"
+                            v-model="dialogForm.inputNumberTofixed"
+                        ></el-input>
                     </el-form-item>
                     <el-form-item label="自动写入标准金额">
                         <el-input v-model.lazy="dialogForm.standardMonsy" v-money="standardMonsy"></el-input>
                     </el-form-item>
                     <el-form-item label="属性">
-                        <el-row v-for="(item, index) in dialogForm.addDynamicForm" :key="index" style="margin-bottom: 10px">
-                            <el-col :span="20"><el-input v-model="item.name"></el-input><el-input v-model="item.value"></el-input></el-col>
-                            <el-col :span="4" style="font-size: 25px; text-align: center"
-                                ><i class="el-icon-circle-plus-outline" @click="addDynamicForm"></i>
-                                <i class="el-icon-remove-outline" @click="deleteDynamicForm(index)"></i
-                            ></el-col>
+                        <el-row
+                            v-for="(item, index) in dialogForm.addDynamicForm"
+                            :key="index"
+                            style="margin-bottom: 10px"
+                        >
+                            <el-col :span="20">
+                                <el-input v-model="item.name"></el-input>
+                                <el-input v-model="item.value"></el-input>
+                            </el-col>
+                            <el-col :span="4" style="font-size: 25px; text-align: center">
+                                <i class="el-icon-circle-plus-outline" @click="addDynamicForm"></i>
+                                <i class="el-icon-remove-outline" @click="deleteDynamicForm(index)"></i>
+                            </el-col>
                         </el-row>
+                    </el-form-item>
+                    <el-form-item
+                        v-for="(item, index) in dialogForm.addDynamicForm"
+                        :key="index"
+                        :label="index == 0 ? '属性' : ''"
+                    >
+                        <el-input v-model="item.name"></el-input>
+                        <el-input v-model="item.value"></el-input>
+
+                        <i
+                            class="el-icon-circle-plus-outline"
+                            @click="addDynamicForm"
+                            v-show="dialogForm.addDynamicForm.length > 1"
+                        ></i>
+                        <i
+                            class="el-icon-remove-outline"
+                            @click="deleteDynamicForm(index)"
+                            v-show="index + 1 === dialogForm.addDynamicForm.length"
+                        ></i>
                     </el-form-item>
                     <el-form-item label="树结构">
                         <label slot="label">树结构</label>
                         <label slot="label">
-                            <el-tooltip class="item" effect="light" content="新增复制节点和拖拽功能" placement="top">
+                            <el-tooltip
+                                class="item"
+                                effect="light"
+                                content="新增复制节点和拖拽功能"
+                                placement="top"
+                            >
                                 <i class="el-icon-info"></i>
                             </el-tooltip>
                         </label>
@@ -224,7 +299,13 @@
                                 <span class="custom-tree-node" slot-scope="{ node, data }">
                                     <span class="name">{{ node.label }}</span>
                                     <span class="btn">
-                                        <el-tooltip class="item" :open-delay="1000" effect="light" content="新增子节点" placement="top">
+                                        <el-tooltip
+                                            class="item"
+                                            :open-delay="1000"
+                                            effect="light"
+                                            content="新增子节点"
+                                            placement="top"
+                                        >
                                             <el-button
                                                 type="text"
                                                 icon="el-icon-plus"
@@ -234,7 +315,13 @@
                                                 <!-- 新增子节点 -->
                                             </el-button>
                                         </el-tooltip>
-                                        <el-tooltip class="item" :open-delay="1000" effect="light" content="编辑" placement="top">
+                                        <el-tooltip
+                                            class="item"
+                                            :open-delay="1000"
+                                            effect="light"
+                                            content="编辑"
+                                            placement="top"
+                                        >
                                             <el-button
                                                 type="text"
                                                 icon="el-icon-edit-outline"
@@ -244,7 +331,13 @@
                                                 <!-- 编辑 -->
                                             </el-button>
                                         </el-tooltip>
-                                        <el-tooltip class="item" :open-delay="1000" effect="light" content="删除" placement="top">
+                                        <el-tooltip
+                                            class="item"
+                                            :open-delay="1000"
+                                            effect="light"
+                                            content="删除"
+                                            placement="top"
+                                        >
                                             <el-button
                                                 type="text"
                                                 style="color: red"
@@ -268,14 +361,23 @@
                         <el-button type="primary" @click="openStepDialog">step封装(全屏等待)</el-button>
                         <el-button type="primary" @click="printPage">打印页面</el-button>
                     </el-form-item>
-                    <el-form-item label="公交站显示屏"
-                        >嵌套三元表达式： :class="active==index?'yellow':item.state?'green':'gray'"</el-form-item
-                    >
+                    <el-form-item
+                        label="公交站显示屏"
+                    >嵌套三元表达式： :class="active==index?'yellow':item.state?'green':'gray'"</el-form-item>
                     <el-form-item label="审批流组件">
-                        <WorkFlowTable ref="WorkFlowTable" @print="printWorkFlowTable" :approvalCallBack="approvalCallBack" />
+                        <WorkFlowTable
+                            ref="WorkFlowTable"
+                            @print="printWorkFlowTable"
+                            :approvalCallBack="approvalCallBack"
+                        />
                     </el-form-item>
                     <el-form-item label="一个折叠一个内容，并且国家可以多选">
-                        <el-collapse v-for="(item, index) in dialogForm.classify" :key="index" class="country" :value="item.value">
+                        <el-collapse
+                            v-for="(item, index) in dialogForm.classify"
+                            :key="index"
+                            class="country"
+                            :value="item.value"
+                        >
                             <el-collapse-item :title="item.name" :name="item.value">
                                 <div class="category-box flex-h">
                                     <span
@@ -286,21 +388,31 @@
                                         "
                                         class="category-item"
                                         @click="classifyFn(item.value, subitem.id, subIndex, subitem.status)"
-                                        >{{ subitem.name }}</span
-                                    >
+                                    >{{ subitem.name }}</span>
                                     <span class="category-item">更多</span>
                                 </div>
                             </el-collapse-item>
                         </el-collapse>
                     </el-form-item>
-                    <el-form-item label="cron表达式(在具体的时间做什么事)" style="margin-top: -10px; margin-bottom: 0px">
-                        <Cron v-if="showCronBox" v-model="dialogForm.cronExpression" @closeDialog="showCronBox = false"></Cron>
-                        <span style="color: #e6a23c; font-size: 12px"
-                            >corn从左到右（用空格隔开）：秒 分 小时 月份中的日期 月份 星期中的日期 年份</span
-                        >
+                    <el-form-item
+                        label="cron表达式(在具体的时间做什么事)"
+                        style="margin-top: -10px; margin-bottom: 0px"
+                    >
+                        <Cron
+                            v-if="showCronBox"
+                            v-model="dialogForm.cronExpression"
+                            @closeDialog="showCronBox = false"
+                        ></Cron>
+                        <span
+                            style="color: #e6a23c; font-size: 12px"
+                        >corn从左到右（用空格隔开）：秒 分 小时 月份中的日期 月份 星期中的日期 年份</span>
                     </el-form-item>
                     <el-form-item label="Cron">
-                        <el-input v-model="dialogForm.cronExpression" auto-complete="off" @focus="showCronBox = !showCronBox">
+                        <el-input
+                            v-model="dialogForm.cronExpression"
+                            auto-complete="off"
+                            @focus="showCronBox = !showCronBox"
+                        >
                             <el-button
                                 slot="append"
                                 :icon="showCronBox ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
@@ -325,11 +437,22 @@
             <!-- 富文本框 -->
             <div>
                 <el-card style="height: 610px">
-                    <quill-editor v-model="content" ref="myQuillEditor" style="height: 500px" :options="editorOption"></quill-editor>
+                    <quill-editor
+                        v-model="content"
+                        ref="myQuillEditor"
+                        style="height: 500px"
+                        :options="editorOption"
+                    ></quill-editor>
                 </el-card>
             </div>
 
-            <el-dialog title="tab" :visible.sync="dialogTabVisible" width="80%" :close-on-click-modal="false" :before-close="handleClose">
+            <el-dialog
+                title="tab"
+                :visible.sync="dialogTabVisible"
+                width="80%"
+                :close-on-click-modal="false"
+                :before-close="handleClose"
+            >
                 <TabDialog v-if="dialogTabVisible" ref="TabDialog" />
             </el-dialog>
             <el-dialog

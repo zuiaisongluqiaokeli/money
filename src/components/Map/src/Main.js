@@ -13,19 +13,25 @@ import Popper from "../views/Popper";
 import addHtmlPopper from "../views/addHtmlPopper";
 import dragPopper from "../views/dragPopper";
 import SelectEntityBox from "../views/selectEntityBox";
-import PolylineTrailMaterialProperty from "./PolylineTrailMaterialProperty"; //关系
+import PolylineTrailMaterialProperty from "./PolylineTrailMaterialProperty"; //关系线条
 import * as RadarsEffects from "./RadarsEffects" //雷达
 import SimulatedSatellite from "./SimulatedSatellite" //轨迹线
-import { addHtmlPoper, addEntityLayer } from "./addHtmlPoper" //自定义HTML poper
-import { CircleWaveMaterialProperty } from "./CesiumCircleWaveMaterial" //没有问题的雷达(不要删这个)
+import MergeCircles from "./MergeCircles" //融合
+import {
+  addHtmlPoper,
+  addEntityLayer
+} from "./addHtmlPoper" //自定义HTML poper
+import {
+  CircleWaveMaterialProperty
+} from "./CesiumCircleWaveMaterial" //没有问题的雷达(不要删这个)
 const _homePosition = [119.17968749999999, 25.522614647623293, 25000000];
 let _instance = null;
 
 class Main {
   legendData = null;
   popper = null;
-  addHtmlPopper = null;//添加动态HTML
-  selectEntityBoxArr = []//选中的绿框效果
+  addHtmlPopper = null; //添加动态HTML
+  selectEntityBoxArr = [] //选中的绿框效果
   dragPopperArr = [] //存储动态气泡框对象
   constructor(options = {}) {
     if (_instance) {
@@ -64,6 +70,8 @@ class Main {
     //监听鼠标事件
     this.screenSpaceEvent.handleLeftClick()
     this.screenSpaceEvent.handleLeftCtrlClick()
+    //去除双击事件
+    this.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
     this.screenSpaceEvent.handleRightClick()
     this.screenSpaceEvent.handleWheel()
 
@@ -83,10 +91,10 @@ class Main {
     emitter.on(EventType.POPPER_SHOW, this.showPopper, this);
     emitter.on(EventType.POPPER_MOVE, this.movePopper, this);
     emitter.on(EventType.POPPER_REMOVE, this.removePopper, this);
-    emitter.on(EventType.CREATE_HtmlPopper, this.createHtmlPopper, this);//绘制HTML 弹窗
-    emitter.on(EventType.addAllBubbles, this.addAllBubbles, this);//添加所有可拖拽气泡
-    emitter.on(EventType.deleteAllBubbles, this.deleteAllBubbles, this);//删除所有可拖拽气泡
-    emitter.on(EventType.changeBubbleBoxColor, this.changeBubbleBoxColor, this);//拖拽气泡窗颜色更改
+    emitter.on(EventType.CREATE_HtmlPopper, this.createHtmlPopper, this); //绘制HTML 弹窗
+    emitter.on(EventType.addAllBubbles, this.addAllBubbles, this); //添加所有可拖拽气泡
+    emitter.on(EventType.deleteAllBubbles, this.deleteAllBubbles, this); //删除所有可拖拽气泡
+    emitter.on(EventType.changeBubbleBoxColor, this.changeBubbleBoxColor, this); //拖拽气泡窗颜色更改
     emitter.on(EventType.RENDER_DATA, this.gisRender, this); //地图搜索/扩展等添加实体
     emitter.on(EventType.SCOPE_RENDER, this.gisScopeRender, this); //范围
     emitter.on(EventType.RADAR_RENDER, this.addCircleScan, this); //雷达扩散效果
@@ -96,14 +104,18 @@ class Main {
     emitter.on(EventType.MeasureAreaSpace, this.measureAreaSpace, this); //测量面积
     emitter.on(EventType.drawingEntityFlightLine, this.drawingEntityFlightLine, this); //绘制实体飞行线段
     emitter.on(EventType.REMOVE_ALL_ENTITIES, this.removeAllEntities, this); //清空实体
-    emitter.on(EventType.CREATE_Fly_LINES, this.createFlyLines, this); //关系之前线条
+    emitter.on(EventType.CREATE_Fly_LINES, this.createFlyLines, this); //关系线条
+    emitter.on(EventType.CREATE_Fly_LINES_MANY, this.createFlyLinesMany, this); //扩展批量生成关系线条
     emitter.on(EventType.SET_ENTITIES_VISIBLE_BY_TYPE, this.setEntitiesVisibleByType, this); //点击图例显示图标
     emitter.on(EventType.FLY_TO_ENTITY, this.flyToEntity, this);
     emitter.on(EventType.SET_ATTACK_VISIBLE_BY_TYPE, this.setAttackVisibleByType, this);
     emitter.on(EventType.DELETE_ENTITIES_BY_ID, this.deleteEntitiesById, this); //删除
     emitter.on(EventType.DELETE_ENTITIES_BY_TYPE, this.deleteEntitiesByType, this);
-    emitter.on(EventType.createSelectEntityBox, this.createSelectEntityBox, this);//绘制绿色选中框
-    emitter.on(EventType.removeSelectEntityBox, this.removeSelectEntityBox, this);//删除绿色选中框
+    emitter.on(EventType.createSelectEntityBox, this.createSelectEntityBox, this); //绘制绿色选中框
+    emitter.on(EventType.removeSelectEntityBox, this.removeSelectEntityBox, this); //删除绿色选中框
+    emitter.on(EventType.hideSelectEntityBox, this.hideSelectEntityBox, this); //隐藏绿色选中框
+    emitter.on(EventType.showSelectEntityBox, this.showSelectEntityBox, this); //显示绿色选中框
+    emitter.on(EventType.mergeCircles, this.mergeCircles, this); //显示绿色选中框
   }
   createSelectEntityBox(params) {
     var {
@@ -131,6 +143,16 @@ class Main {
       item.destroy();
     })
     this.selectEntityBoxArr = []
+  }
+  hideSelectEntityBox() {
+    this.selectEntityBoxArr.forEach(item => {
+      item.instance.show = false
+    })
+  }
+  showSelectEntityBox() {
+    this.selectEntityBoxArr.forEach(item => {
+      item.instance.show = true
+    })
   }
   //点空白移除
   handleClickBlank() {
@@ -216,12 +238,12 @@ class Main {
     };
   }
   hiddenPopper() {
-    this.popper.instance.show = false;
-    this.popper.nowState = false //为了给旋转的时候加状态
+    if (this.popper) this.popper.instance.show = false;
+    if (this.popper) this.popper.nowState = false //为了给旋转的时候加状态
   }
   showPopper() {
     if (this.popper) this.popper.instance.show = true;
-    this.popper.nowState = true //为了给旋转的时候加状态
+    if (this.popper) this.popper.nowState = true //为了给旋转的时候加状态
   }
   /**
    * 移动Popper
@@ -233,7 +255,7 @@ class Main {
     } = this.store;
 
     this.removePopper(); //删除当前可移动的popper
-    emitter.emit(EventType.CLICK_BLANK);//移动的时候避免取消报错
+    emitter.emit(EventType.CLICK_BLANK); //移动的时候避免取消报错
     //selectedEntity.id是传入的实体对象
     this.measureTool.movePoint(selectedEntity.id, {}, entity => {
       this.store.setMeasureType(null);
@@ -249,7 +271,10 @@ class Main {
         if (state) {
           let cartesian = arr.filter(ele => item.id === ele.id)[0].position.getValue();
           let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
-          let { x, y } = position;
+          let {
+            x,
+            y
+          } = position;
           item.instance.position = {
             top: y + "px",
             left: x + "px"
@@ -267,7 +292,10 @@ class Main {
         if (state) {
           let cartesian = arr.filter(ele => item.id === ele.id)[0].position.getValue();
           let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
-          let { x, y } = position;
+          let {
+            x,
+            y
+          } = position;
           item.instance.position = {
             top: y + "px",
             left: x + "px"
@@ -284,7 +312,10 @@ class Main {
     if (this.store.selectedEntity.id.position) {
       const cartesian = this.store.selectedEntity.id.position.getValue();
       const position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
-      const { x, y } = position;
+      const {
+        x,
+        y
+      } = position;
       if (this.popper) {
         this.popper.instance.position = {
           top: y + "px",
@@ -305,27 +336,42 @@ class Main {
       }
     }
   }
-  addAllBubbles() {
-    let arr = gisvis.viewer.entities.values.filter(item => item.hasOwnProperty('entityId'))
+  //multiple 批量或者一个，批量找到所有基地的数据，一个传入右键选中的
+  addAllBubbles({
+    multiple,
+    oneArr
+  }) {
+    let arr = []
+    if (multiple) {
+      arr = gisvis.viewer.entities.values.filter(item => item.hasOwnProperty('entityId'))
+    } else {
+      arr = oneArr
+    }
     arr.forEach((item, index) => {
-      let obj = new dragPopper({ data: { index } })
-      obj.id = item.id
-      obj.instance.text = item.label.name
-      let cartesian = item.position.getValue();
+      let obj = new dragPopper({
+        data: {
+          index
+        }
+      }) //用于对每个拖拽实体监听
+      obj.id = item.id //用于地球旋转的时候比对信息
+      obj.instance.info = {
+        ...item.properties.properties.getValue(),
+        name: item.label.text
+      } //传参
+      let cartesian = item.position.getValue(); //初始位置
       let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
       obj.instance.position = {
         top: position.y + "px",
         left: position.x + "px"
       };
-      this.dragPopperArr.push(obj)
+      this.dragPopperArr.push(obj) //拖拽面板列表
     })
   }
   deleteAllBubbles() {
-    this.handleClickBlank()
     this.dragPopperArr.forEach(item => {
       item.destroy();
     })
-    this.dragPopperArr = []  //销毁实体就要清除数组内容，不然都是null，旋转的时候报异常
+    this.dragPopperArr = [] //销毁实体就要清除数组内容，不然都是null，旋转的时候报异常
   }
   changeBubbleBoxColor(val) {
     this.dragPopperArr.forEach(item => {
@@ -581,6 +627,93 @@ class Main {
     this.computeLegendData();
   }
   /**
+   * 融合
+   */
+  mergeCircles() {
+    const e1 = viewer.entities.add({
+      id: "merge-1",
+      position: Cesium.Cartesian3.fromDegrees(110.0, 24.0, 0.0),
+      billboard: {
+        image: "images/location.png",
+        scale: .2,
+      },
+    })
+    const e2 = viewer.entities.add({
+      id: "merge-2",
+      position: Cesium.Cartesian3.fromDegrees(111.0, 24.0, 0.0),
+      billboard: {
+        image: "images/location.png",
+        scale: .2,
+      },
+    })
+    const e3 = viewer.entities.add({
+      id: "merge-3",
+      position: Cesium.Cartesian3.fromDegrees(110.5, 25.0, 0.0),
+      billboard: {
+        image: "images/location.png",
+        scale: .2,
+      },
+    })
+    const mc = new MergeCircles({
+      viewer,
+      id: 'mc1'
+    })
+    mc.add({
+      entity: e1,
+      radius: 100000
+    })
+    mc.add({
+      entity: e2,
+      radius: 100000
+    })
+    mc.add({
+      entity: e3,
+      radius: 150000
+    })
+    const e21 = viewer.entities.add({
+      id: "merge-21",
+      position: Cesium.Cartesian3.fromDegrees(112.0, 24.0, 0.0),
+      billboard: {
+        image: "images/location.png",
+        scale: .2,
+      },
+    })
+    const e22 = viewer.entities.add({
+      id: "merge-22",
+      position: Cesium.Cartesian3.fromDegrees(114.0, 24.0, 0.0),
+      billboard: {
+        image: "images/location.png",
+        scale: .2,
+      },
+    })
+    const e23 = viewer.entities.add({
+      id: "merge-23",
+      position: Cesium.Cartesian3.fromDegrees(113.5, 25.0, 0.0),
+      billboard: {
+        image: "images/location.png",
+        scale: .2,
+      },
+    })
+    const mc2 = new MergeCircles({
+      viewer,
+      id: 'mc2',
+      color: "#00f",
+      lineWidth: 2
+    })
+    mc2.add({
+      entity: e21,
+      radius: 100000
+    })
+    mc2.add({
+      entity: e22,
+      radius: 100000
+    })
+    mc2.add({
+      entity: e23,
+      radius: 150000
+    })
+  }
+  /**
    * 绘点
    */
   setMeasureType(type) {
@@ -623,7 +756,7 @@ class Main {
     addHtmlPoper(this.viewer, true)
     addEntityLayer({
       id: 'box5',
-      position: [118.486419, 32.86446, 40000],//高度为 boxHeightMax
+      position: [118.486419, 32.86446, 40000], //高度为 boxHeightMax
       element: `<div class='ysc-dynamic-layer ys-css3-box' id='box5'>
                 <div class='line'></div>
                 <div class='main'>
@@ -632,19 +765,18 @@ class Main {
                 </div>
               </div>`,
       offset: [10, -250],
-      boxHeight: 20000,//中间立方体的高度
-      boxHeightDif: 500,//中间立方体的高度增长差值，越大增长越快
-      boxHeightMax: 40000,//中间立方体的最大高度
-      boxSide: 10000,//立方体的边长
+      boxHeight: 20000, //中间立方体的高度
+      boxHeightDif: 500, //中间立方体的高度增长差值，越大增长越快
+      boxHeightMax: 40000, //中间立方体的最大高度
+      boxSide: 10000, //立方体的边长
       boxMaterial: Cesium.Color.DEEPSKYBLUE.withAlpha(0.5),
-      circleSize: 3000,//大圆的大小，小圆的大小默认为一半
+      circleSize: 3000, //大圆的大小，小圆的大小默认为一半
     })
   }
   /**
    * 添加地图数据,每次先清除上次左键选中的效果
    */
   gisRender(gisData = {}) {
-    this.removePopper();
     this.drawer.drawEntities(gisData.entities, gisData.labelShow);
     //this.computeLegendData();
     emitter.emit(EventType.LEGEND_DATA_CHANGE, gisData.entities);
@@ -746,12 +878,15 @@ class Main {
    * 绘制实体飞行线段
    */
   drawingEntityFlightLine(obj) {
-    const { firstPoint, cartesian } = obj
+    const {
+      firstPoint,
+      cartesian
+    } = obj
     this.arrData = []
     this.measureTool.drawingEntityFlightLine(arrData => {
       this.arrData = arrData
-      this.arrData.splice(0, 0, firstPoint)//添加初始点坐标
-    }, cartesian)//绘制的初始点坐标
+      this.arrData.splice(0, 0, firstPoint) //添加初始点坐标
+    }, cartesian) //绘制的初始点坐标
   }
   /**
    * 轨迹飞行
@@ -766,15 +901,15 @@ class Main {
     sessionStorage.setItem('initTackData', JSON.stringify(this.arrData))
     console.log("绘制的飞行轨迹数据", JSON.parse(sessionStorage.getItem("initTackData")))
     this.simulatedSatellite.planFlying(this.viewer, JSON.parse(sessionStorage.getItem("initTackData")))
-    VuexStore.state.map.airplaneEntity = this.simulatedSatellite.store.airplaneEntity//用于追随实体
-    emitter.emit(EventType.StartTimeLine);//自动启用时间线
+    VuexStore.state.map.airplaneEntity = this.simulatedSatellite.store.airplaneEntity //用于追随实体
+    emitter.emit(EventType.StartTimeLine); //自动启用时间线
   }
   /**
    * 关系线
    */
   createFlyLines(data) {
     const center = data.center; //起始点
-    const points = data.points;//终止点
+    const points = data.points; //终止点
     const startPoint = Cesium.Cartesian3.fromDegrees(
       center.lon,
       center.lat,
@@ -792,7 +927,7 @@ class Main {
     //大批量操作时，临时禁用事件可以提高性能
     this.viewer.entities.suspendEvents();
     //散点
-    let material = new PolylineTrailMaterialProperty({
+    let material = new Cesium.PolylineTrailMaterialProperty({
       color: Cesium.Color.BLUE,
       duration: 3000,
       trailImage: "images/colors1.png" //动态图片
@@ -813,7 +948,55 @@ class Main {
         material: material
       }
     });
-    this.viewer.entities.resumeEvents();//启动
+    this.viewer.entities.resumeEvents(); //启动
+  }
+  /**
+   * 扩展批量生成关系之前线条
+   */
+  createFlyLinesMany(data) {
+    const center = data.center;
+    const cities = data.points;
+    const startPoint = Cesium.Cartesian3.fromDegrees(
+      center.lon,
+      center.lat,
+      0
+    );
+    //中心点
+    // this.viewer.entities.add({
+    //   position: startPoint,
+    //   point: {
+    //     pixelSize: center.size,
+    //     color: center.color
+    //   }
+    // });
+    //大批量操作时，临时禁用事件可以提高性能
+    this.viewer.entities.suspendEvents();
+    //散点
+    cities.map(city => {
+      let material = new Cesium.PolylineTrailMaterialProperty({
+        color: Cesium.Color.BLUE,
+        duration: 3000,
+        trailImage: "images/colors1.png" //动态图片
+      });
+      const endPoint = Cesium.Cartesian3.fromDegrees(city.lon, city.lat, 0);
+      let ids = [center.id, city.id].join(",")
+      // this.viewer.entities.add({
+      //   position: endPoint,
+      //   point: {
+      //     pixelSize: city.size - 10,
+      //     color: city.color
+      //   }
+      // });
+      this.viewer.entities.add({
+        id: ids,
+        polyline: {
+          positions: this.generateCurve(startPoint, endPoint),
+          width: 2,
+          material: material
+        }
+      });
+    });
+    this.viewer.entities.resumeEvents();
   }
   /**
    * 生成流动曲线
@@ -830,7 +1013,7 @@ class Main {
       midPointCartesian
     );
     midPointCartographic.height =
-      Cesium.Cartesian3.distance(startPoint, endPoint);
+      Cesium.Cartesian3.distance(startPoint, endPoint) / 2;
     let midPoint = new Cesium.Cartesian3();
     Cesium.Ellipsoid.WGS84.cartographicToCartesian(
       midPointCartographic,

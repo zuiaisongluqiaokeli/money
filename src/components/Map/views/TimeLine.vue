@@ -211,6 +211,7 @@ export default {
             },
           })
         }
+        //绘制虚拟实体
         let data = {
           id: 'track-' + item.id,
           availability: locus.availability, //起始时间

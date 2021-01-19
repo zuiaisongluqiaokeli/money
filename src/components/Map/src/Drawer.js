@@ -2,6 +2,7 @@ class Drawer {
   constructor(options) {
     this.store = options.store;
     this.viewer = options.viewer;
+    this.firstTime = true
   }
   /**
    * 渲染实体数据
@@ -15,6 +16,7 @@ class Drawer {
     }
     let entityIndex = -1;
     data.forEach((e, index) => {
+      //批量去重添加
       if (
         e.properties.longitude !== undefined &&
         e.properties.latitude !== undefined && !this.viewer.entities.getById(Number(e.id)) //去重添加
@@ -45,7 +47,7 @@ class Drawer {
           label: {
             show: labelShow,
             // text: (e.properties.name || e.name).substring(0,10),
-            text: (e.properties.hasOwnProperty('name') && e.properties.name || e.name).substring(0, 5) + '...',
+            text: (e.properties.hasOwnProperty('name') && e.properties.name || e.name || '').substring(0, 10) + '...',
             pixelOffset: new Cesium.Cartesian2(0, 24),
             font: "15px sans-serif",
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -65,7 +67,7 @@ class Drawer {
             properties: {
               ...e.properties
             },
-            name: (e.properties.hasOwnProperty('name') && e.properties.name || e.name).substring(0, 5) + '...',
+            name: (e.properties.hasOwnProperty('name') && e.properties.name || e.name || '').substring(0, 10) + '...',
             id: Number(e.id),
             entityId: Number(e.id),
             labels: e.labels,
@@ -74,17 +76,19 @@ class Drawer {
         });
       }
     });
-    if (entityIndex > -1) {
+    //只有第一次的时候飞向该店其余不需要
+    if (entityIndex > -1 && this.firstTime) {
       let center = Cesium.Cartesian3.fromDegrees(
         data[entityIndex].properties.longitude,
         data[entityIndex].properties.latitude,
-        1500
+        30000
       );
       this.viewer.camera.flyTo({
         // 相机飞往该点
         destination: center, // 摄像机的最终位置
         duration: 2
       });
+      this.firstTime = false
     }
     this.viewer.entities.removeById('marsRadarScan')
     // this.viewer.scene.postProcessStages._stages.forEach(i => {

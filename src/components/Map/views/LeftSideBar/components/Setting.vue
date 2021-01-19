@@ -108,7 +108,7 @@
                 <img v-if="verticeSet.avatar" :src="verticeSet.avatar" />
               </div>
             </el-form-item>
-            <el-form-item label="范围">
+            <!-- <el-form-item label="范围">
               <div class="range-setting">
                 <el-switch class="switch" v-model="verticeSet.range.enable"></el-switch>
                 <div v-show="verticeSet.range.enable">
@@ -157,7 +157,7 @@
                   </div>
                 </div>
               </div>
-            </el-form-item>
+            </el-form-item>-->
           </el-form>
         </div>
       </div>
@@ -175,7 +175,6 @@ import * as d3 from 'd3'
 
 export default {
   name: 'Setting',
-  props: ['show'],
   data() {
     return {
       verticeFilter: {
@@ -280,27 +279,6 @@ export default {
     ...mapState('map', ['allEntityBackEnd']),
     ...mapGetters('map', ['allLabels', 'allProperties']),
   },
-  watch: {
-    show(n) {
-      if (!n) {
-        this.verticeFilter = {
-          labels: [], // 标签
-          props: [
-            // 属性
-            {
-              key: '', // 属性名
-              operation: '', // 关系
-              value: '', // 结果名
-            },
-          ],
-        }
-        this.verticeSet = {
-          color: '',
-          animation: '',
-        }
-      }
-    },
-  },
   methods: {
     ...mapMutations('canvasInfo', ['setClearTag']),
     ...mapActions('canvasInfo', ['revertCanvas']),
@@ -319,9 +297,11 @@ export default {
     getFilters(vertices, filters) {
       // 标签过滤节点
       let verticeByLabel = []
-      verticeByLabel = vertices.filter((v) =>
-        filters.labels.some((l) => v.labels.includes(l))
-      )
+      if (filters.labels.length) {
+        verticeByLabel = vertices.filter((v) =>
+          filters.labels.some((l) => v.labels.includes(l))
+        )
+      }
       let length = filters.props.length
       let verticeByProp = vertices.filter((vertice) => {
         let flag = false
@@ -352,7 +332,7 @@ export default {
       return Array.from(new Set(verticeByLabel.concat(verticeByProp)))
     },
     showVertice() {
-      this.updateInitTack(true)
+      //this.updateInitTack(true)
       if (this.reset) {
         this.allEntityBackEnd
           .filter((item) => gisvis.viewer.entities.getById(item.id))
@@ -395,21 +375,22 @@ export default {
             .getById(e.id)
             .billboard.image.setValue(this.verticeSet.avatar)
       })
-      if (this.verticeSet.range.enable) {
-        let params = {
-          entities: entities,
-          areaProperty: this.verticeSet.range.property,
-          radius: this.verticeSet.range.value,
-          color: this.verticeSet.range.color,
-        }
-        gisvis.emitter.emit('gis-scope-render', params)
-      } else {
-        entities.forEach((e) => {
-          if (gisvis.viewer.entities.getById(e.id).ellipse) {
-            gisvis.viewer.entities.getById(e.id).ellipse.show.setValue(false)
-          }
-        })
-      }
+      //有无范围时切换显示
+      // if (this.verticeSet.range.enable) {
+      //   let params = {
+      //     entities: entities,
+      //     areaProperty: this.verticeSet.range.property,
+      //     radius: this.verticeSet.range.value,
+      //     color: this.verticeSet.range.color,
+      //   }
+      //   gisvis.emitter.emit('gis-scope-render', params)
+      // } else {
+      //   entities.forEach((e) => {
+      //     if (gisvis.viewer.entities.getById(e.id).ellipse) {
+      //       gisvis.viewer.entities.getById(e.id).ellipse.show.setValue(false)
+      //     }
+      //   })
+      // }
     },
   },
   mounted() {

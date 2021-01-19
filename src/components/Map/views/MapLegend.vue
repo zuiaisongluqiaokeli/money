@@ -406,7 +406,7 @@ export default {
         emitter.emit(EventType.CLICK_BLANK)
         let { 经度: lng, 纬度: lat } = val.properties
         gisvis.viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(lng, lat, 1500),
+          destination: Cesium.Cartesian3.fromDegrees(lng, lat, 30000),
         })
       }
     },
@@ -420,7 +420,8 @@ export default {
         image: 'images/facility.png',
         id: val.id,
         name:
-          (val.properties.name || val.properties.名称).substring(0, 5) + '...',
+          (val.properties.name || val.properties.名称 || '').substring(0, 10) +
+          '...',
         labelShow: this.gisLabelShow,
       })
       this.$message.warning('开始编辑位置,鼠标右键取消')
@@ -446,7 +447,7 @@ export default {
         item.visible = val.visible
         gisvis.viewer.entities.getById(item.id).show = val.visible
         //批量隐藏存在的关系线
-        if (!val.visibl) {
+        if (!val.visible) {
           this.countArr = this.countArr.filter((vv) => vv != item.id)
           gisvis.viewer.entities.values.forEach((ele) => {
             let id = ele.id.toString()

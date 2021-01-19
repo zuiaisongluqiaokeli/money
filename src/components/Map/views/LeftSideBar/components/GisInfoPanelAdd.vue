@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div class>
     <el-dialog
       :title="dialogTattle"
       class="dialog"
@@ -9,11 +9,7 @@
       width="1000px"
       :close-on-click-modal="false"
     >
-      <div
-        class="dialog-body"
-        v-loading="verticesListLoading"
-        :element-loading-text="loadingText"
-      >
+      <div class="dialog-body" v-loading="verticesListLoading" :element-loading-text="loadingText">
         <el-form
           ref="newVerticesData"
           :model="newVerticesData"
@@ -36,11 +32,7 @@
             >
               <i slot="default" class="el-icon-plus"></i>
               <div slot="file" slot-scope="{ file }">
-                <img
-                  class="el-upload-list__item-thumbnail"
-                  :src="file.url"
-                  alt=""
-                />
+                <img class="el-upload-list__item-thumbnail" :src="file.url" alt />
                 <span class="el-upload-list__item-actions">
                   <span
                     class="el-upload-list__item-preview"
@@ -48,10 +40,7 @@
                   >
                     <i class="el-icon-zoom-in"></i>
                   </span>
-                  <span
-                    class="el-upload-list__item-delete"
-                    @click="handleRemove(file)"
-                  >
+                  <span class="el-upload-list__item-delete" @click="handleRemove(file)">
                     <i class="el-icon-delete"></i>
                   </span>
                 </span>
@@ -96,10 +85,7 @@
                     trigger: 'change',
                   }"
                 >
-                  <el-input
-                    v-model="newVerticesData.name"
-                    placeholder="请输入名称"
-                  ></el-input>
+                  <el-input v-model="newVerticesData.name" placeholder="请输入名称"></el-input>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -162,7 +148,7 @@
                         @node-click="nodeClick"
                       />
                     </template>
-                    <template slot="empty"> 暂时没有数据 </template>
+                    <template slot="empty">暂时没有数据</template>
                   </el-select>
                 </el-form-item>
               </el-col>
@@ -192,7 +178,7 @@
                 }"
                 style="margin-left: 1.1%; margin-bottom: 20px"
               >
-                <el-input disabled v-model="longitude"></el-input>
+                <el-input v-model="longitude"></el-input>
               </el-col>
             </el-row>
             <el-row>
@@ -213,14 +199,11 @@
                 }"
                 style="margin-left: 1.1%; margin-bottom: 20px"
               >
-                <el-input disabled v-model="latitude"></el-input>
+                <el-input v-model="latitude"></el-input>
               </el-col>
             </el-row>
 
-            <div
-              v-for="(item, index) in newVerticesData.propertiesJson"
-              :key="index"
-            >
+            <div v-for="(item, index) in newVerticesData.propertiesJson" :key="index">
               <el-row
                 v-if="
                   item.name !== '实体分类' &&
@@ -287,11 +270,7 @@
                         graphType === 'SeraphServer'
                       "
                     >
-                      <el-select
-                        v-model.trim="item.name"
-                        filterable
-                        placeholder="属性名"
-                      >
+                      <el-select v-model.trim="item.name" filterable placeholder="属性名">
                         <LazyLoadOption
                           :options="allPropsList"
                           :search="true"
@@ -383,27 +362,14 @@
             ></el-progress>
           </el-form-item>
           <el-form-item label="相关文档" prop="docs">
-            <drag-upload
-              :file-way="false"
-              :accepts="accepts"
-              @upload-entity-file="uploadFile"
-            ></drag-upload>
+            <drag-upload :file-way="false" :accepts="accepts" @upload-entity-file="uploadFile"></drag-upload>
             <span class="tip-type">
               <span>支持格式：</span>
-              <span
-                v-for="(icon, index) in iconList"
-                :key="index"
-                style="margin-right: 10px"
-              >
+              <span v-for="(icon, index) in iconList" :key="index" style="margin-right: 10px">
                 <div :class="icon" class="file-icon"></div>
               </span>
               <span>
-                <el-popover
-                  placement="bottom-start"
-                  title="全部格式如下："
-                  width="250"
-                  trigger="hover"
-                >
+                <el-popover placement="bottom-start" title="全部格式如下：" width="250" trigger="hover">
                   <div style="margin-bottom: 10px">
                     <div class="file-word file-icon"></div>
                     <span>&nbsp;doc、docx</span>
@@ -443,20 +409,14 @@
               :header-cell-style="{ 'text-align': 'left' }"
               :cell-style="{ 'text-align': 'left' }"
             >
-              <el-table-column
-                prop="name"
-                label="文件名"
-                show-overflow-tooltip
-                width="350px"
-              >
+              <el-table-column prop="name" label="文件名" show-overflow-tooltip width="350px">
                 <template slot-scope="scope">
                   <span :class="scope.row.icon" class="file-icon"></span>
                   <span
                     style="margin-left: 10px; cursor: pointer; color: #188cff"
                     :title="scope.row.name"
                     @click="preview(scope.row)"
-                    >{{ scope.row.name }}</span
-                  >
+                  >{{ scope.row.name }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="operate" label="操作">
@@ -466,8 +426,7 @@
                     size="small"
                     class="delete"
                     @click.native.prevent="deleteFile(scope.$index)"
-                    >删除</el-button
-                  >
+                  >删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -475,17 +434,13 @@
         </el-form>
       </div>
       <div class="footer" slot="footer">
-        <el-button type="primary" @click="addVertices" size="small"
-          >确定</el-button
-        >
-        <el-button type="default" @click="cancel" size="small"
-          >取消</el-button
-        >
+        <el-button type="primary" @click="addVertices" size="small">确定</el-button>
+        <el-button type="default" @click="cancel" size="small">取消</el-button>
       </div>
     </el-dialog>
     <!-- 上传图片放大显示 -->
     <el-dialog :visible.sync="imgBigShow" append-to-body title="预览图片">
-      <img width="100%" :src="dialogImageUrl" alt="" />
+      <img width="100%" :src="dialogImageUrl" alt />
     </el-dialog>
     <el-dialog
       title="预览文件"
@@ -494,25 +449,10 @@
       append-to-body
       :before-close="handleClosePreviewDialog"
     >
-      <iframe
-        v-if="previewUrl"
-        :src="previewUrl + '#toolbar=0'"
-        width="100%"
-        height="700"
-      ></iframe>
-      <img
-        v-if="previewImg"
-        :src="previewImg"
-        style="width: 100%; height: 100%"
-      />
-      <video
-        v-if="previewSrc"
-        style="width: 100%; height: 100%"
-        controls
-        autoplay
-      >
-        <source :src="previewSrc" :type="'video/' + videoType" />
-        抱歉，您的浏览器不支持html5播放
+      <iframe v-if="previewUrl" :src="previewUrl + '#toolbar=0'" width="100%" height="700"></iframe>
+      <img v-if="previewImg" :src="previewImg" style="width: 100%; height: 100%" />
+      <video v-if="previewSrc" style="width: 100%; height: 100%" controls autoplay>
+        <source :src="previewSrc" :type="'video/' + videoType" />抱歉，您的浏览器不支持html5播放
       </video>
       <audio
         v-if="previewMusic"
@@ -526,26 +466,26 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import { emitter, EventType } from "../../../src/EventEmitter";
-import * as graphVerticesDetail from "@/services/graph-vertices-detail";
-import { getGraphDetail } from "@/services/graph-detail";
-import LazyLoadOption from "./LazyLoadOption";
-import * as graphDetail from "@/services/graph-detail";
-import { getGraphList } from "@/services/graph-manage";
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import { emitter, EventType } from '../../../src/EventEmitter'
+import * as graphVerticesDetail from '@/services/graph-vertices-detail'
+import { getGraphDetail } from '@/services/graph-detail'
+import LazyLoadOption from './LazyLoadOption'
+import * as graphDetail from '@/services/graph-detail'
+import { getGraphList } from '@/services/graph-manage'
 // import { getCategoryByType } from "@/services/graph-manage";
-import DragUpload from "./DropUpload";
-import * as sortManage from "@/services/sort-manage";
+import DragUpload from './DropUpload'
+import * as sortManage from '@/services/sort-manage'
 import {
   deleteFile,
   uploadFile,
   verticesNeo4jSeniorQuery,
-} from "@/services/sort-manage";
+} from '@/services/sort-manage'
 export default {
   props: {
     dialogTattle: {
       type: String,
-      default: "",
+      default: '',
     },
     entityInfo: {
       type: Object,
@@ -558,36 +498,36 @@ export default {
   },
   data() {
     var validateName = (rule, value, cb) => {
-      const reg = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/g;
+      const reg = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/g
       if (value.match(reg)) {
-        cb(new Error("只能包含英文、中文、数字和下划线"));
+        cb(new Error('只能包含英文、中文、数字和下划线'))
       } else {
-        cb();
+        cb()
       }
-    };
+    }
     var validateProp = (rule, value, cb) => {
-      if (value === "") {
-        cb(new Error("属性名不能为空"));
+      if (value === '') {
+        cb(new Error('属性名不能为空'))
       } else {
-        let count = 0;
+        let count = 0
         window.vertPropList.forEach((item) => {
           if (item.name === value) {
-            count++;
+            count++
           }
-        });
+        })
         if (count > 1) {
-          cb(new Error("属性名不能重复"));
+          cb(new Error('属性名不能重复'))
         }
-        cb();
+        cb()
       }
-      cb();
-    };
+      cb()
+    }
     return {
       rules: {
-        name: [{ required: true, validator: validateName, trigger: "blur" }],
+        name: [{ required: true, validator: validateName, trigger: 'blur' }],
       },
       rules2: {
-        name: [{ required: true, message: "请选择实体分类", trigger: "blur" }],
+        name: [{ required: true, message: '请选择实体分类', trigger: 'blur' }],
       },
       tempForm: {
         名称: true,
@@ -598,7 +538,7 @@ export default {
         //  新增编辑实体数据
         name: null,
 
-        categoryName: "", // 实体详情的实体分类
+        categoryName: '', // 实体详情的实体分类
         idStr: null,
         propertiesJson: [
           // {
@@ -609,15 +549,15 @@ export default {
           // }
         ],
         labelsList: [], //实体标签（转逗号分割字符串）
-        type: "", //实体分类
-        longitude: "",
-        latitude: "",
+        type: '', //实体分类
+        longitude: '',
+        latitude: '',
       },
       imgList: [],
       imgListArr: [],
-      avatar: "", //新增的图片url
+      avatar: '', //新增的图片url
       imgBigShow: false, //图片放大弹窗
-      dialogImageUrl: "",
+      dialogImageUrl: '',
       latitude: this.entityInfo.latitude, //纬度
       longitude: this.entityInfo.longitude, //经度
       allPropsList: [], //实体属性下拉框数据
@@ -627,67 +567,67 @@ export default {
       attributeIsNull: false, //实体属性是否可为空
       dialogrules: {
         name: [
-          { required: true, message: "请输入活动名称", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
+          { required: true, message: '请输入活动名称', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' },
         ],
       },
       advancedSearchQuery: {
         advancedSearchFlag: true,
-        categoryName: "",
+        categoryName: '',
         gid: 0,
-        graphName: "",
+        graphName: '',
         moreCondition: [
           {
-            operator: "且",
+            operator: '且',
             moreConditions: [
               {
-                conditionsTypeEnum: "prop",
-                conditionsEnum: "FUZZY",
-                key: "名称",
-                value: "",
-                valueType: "String",
-                operator: "且",
+                conditionsTypeEnum: 'prop',
+                conditionsEnum: 'FUZZY',
+                key: '名称',
+                value: '',
+                valueType: 'String',
+                operator: '且',
               },
             ],
           },
         ],
-        searchContent: "", // 普通搜索的内容
-        title: "", // 后端需要的字段
+        searchContent: '', // 普通搜索的内容
+        title: '', // 后端需要的字段
       }, // 高级搜索数据对象
       dialogVisible: true,
-      previewUrl: "",
-      previewImg: "",
-      previewSrc: "",
-      previewMusic: "",
-      videoType: "mp4",
+      previewUrl: '',
+      previewImg: '',
+      previewSrc: '',
+      previewMusic: '',
+      videoType: 'mp4',
       previewDialog: false,
       blob: null,
       previewLoading: false,
-      iconList: ["file-word", "file-pdf", "file-excel", "file-txt", "file-img"], // 各种文件类型图片的class
+      iconList: ['file-word', 'file-pdf', 'file-excel', 'file-txt', 'file-img'], // 各种文件类型图片的class
       percentage: 0,
       uploading: false,
       btnPermission: {},
       reFresh: true,
       prevSearchInfo: {},
-      prevName: "",
+      prevName: '',
       fileData: [],
-      temp: "",
-      name: "",
-      accepts: "",
+      temp: '',
+      name: '',
+      accepts: '',
       verticesListLoading: false,
-      loadingText: "加载中....",
-    };
+      loadingText: '加载中....',
+    }
   },
 
   computed: {
-    ...mapState("graphInfo", ["id", "graphType"]),
+    ...mapState('graphInfo', ['id', 'graphType']),
   },
 
   created() {
-    this.getCategory();
-    this.nullPropsSearch();
-    this.allLabels(); //标签
-    this.relationPropsGet(); //属性下拉
+    this.getCategory()
+    this.nullPropsSearch()
+    this.allLabels() //标签
+    this.relationPropsGet() //属性下拉
   },
 
   methods: {
@@ -697,36 +637,36 @@ export default {
         .relationPropsGet(this.id)
         .catch(() => {
           this.$message({
-            type: "error",
-            message: "获取图谱所有结点属性请求失败",
-          });
-        });
+            type: 'error',
+            message: '获取图谱所有结点属性请求失败',
+          })
+        })
       if (!res.data.success) {
         this.$message({
-          type: "error",
+          type: 'error',
           message: res.data.msg,
-        });
-        return;
+        })
+        return
       } else if (res.data.success) {
         if (res.data.object) {
-          let list = res.data.object;
+          let list = res.data.object
           // 实体高级搜索属性下拉框数据
-          this.searchKey = JSON.parse(JSON.stringify(res.data.object));
+          this.searchKey = JSON.parse(JSON.stringify(res.data.object))
           this.allPropsList = list.filter((item) => {
             if (
-              item === "name" ||
-              item === "名称" ||
-              item === "docs" ||
-              item === "avatar" ||
-              item === "实体分类" ||
-              item[0] === "_" ||
-              item === "id" ||
-              item === "pk_id"
+              item === 'name' ||
+              item === '名称' ||
+              item === 'docs' ||
+              item === 'avatar' ||
+              item === '实体分类' ||
+              item[0] === '_' ||
+              item === 'id' ||
+              item === 'pk_id'
             ) {
-              return false;
+              return false
             }
-            return true;
-          });
+            return true
+          })
         }
       }
     },
@@ -735,19 +675,19 @@ export default {
     async nullPropsSearch() {
       let res = await graphVerticesDetail.nullPropsSearch(this.id).catch(() => {
         this.$message({
-          type: "error",
-          message: "获取空值请求失败",
-        });
-      });
+          type: 'error',
+          message: '获取空值请求失败',
+        })
+      })
       if (!res.data.success) {
         this.$message({
-          type: "error",
+          type: 'error',
           message: res.data.msg,
-        });
-        return;
+        })
+        return
       } else if (res.data.success) {
         if (res.data.object) {
-          this.attributeIsNull = res.data.object;
+          this.attributeIsNull = res.data.object
         }
       }
     },
@@ -755,32 +695,32 @@ export default {
     async allLabels() {
       let res = await graphVerticesDetail.allLabels(this.id).catch(() => {
         this.$message({
-          type: "error",
-          message: "获取图谱所有标签请求失败",
-        });
-      });
+          type: 'error',
+          message: '获取图谱所有标签请求失败',
+        })
+      })
       if (!res.data.success) {
         this.$message({
-          type: "error",
+          type: 'error',
           message: res.data.msg,
-        });
-        return;
+        })
+        return
       } else if (res.data.success) {
         if (res.data.object) {
-          let some = res.data.object.indexOf("DATAEXA_OBJECT");
+          let some = res.data.object.indexOf('DATAEXA_OBJECT')
           if (some === -1) {
-            this.allLabelsList = res.data.object;
+            this.allLabelsList = res.data.object
           } else {
-            res.data.object.splice(some, 1);
-            this.allLabelsList = res.data.object;
+            res.data.object.splice(some, 1)
+            this.allLabelsList = res.data.object
           }
         }
       }
     },
     async getCategory() {
-      const res = await sortManage.nodeCategoryQuery(this.id);
-      let data = res.data;
-      let treeData = [];
+      const res = await sortManage.nodeCategoryQuery(this.id)
+      let data = res.data
+      let treeData = []
       for (const item of data) {
         if (item.parentId === 0) {
           treeData.push({
@@ -788,10 +728,10 @@ export default {
             label: item.name,
             children: [],
             ...item,
-          });
+          })
         }
       }
-      this.formatTree(treeData, data);
+      this.formatTree(treeData, data)
       // this.treeData = [
       //   {
       //     id: -1,
@@ -800,7 +740,7 @@ export default {
       //     parentsName: "",
       //   },
       // ];
-      this.treeData =treeData
+      this.treeData = treeData
     },
 
     // 递归返回的数据，形成树结构
@@ -813,176 +753,178 @@ export default {
               label: item2.name,
               children: [],
               ...item2,
-            });
+            })
           }
         }
-        this.formatTree(item.children, data);
+        this.formatTree(item.children, data)
       }
     },
     handleExceed() {
-      this.$message.warning("限制上传一张图片");
-      return;
+      this.$message.warning('限制上传一张图片')
+      return
     },
     async uploadSectionFile(params) {
-      this.$refs.upload.clearFiles();
-      const file = params.raw;
-      const type = params.name.substr(params.name.lastIndexOf(".") + 1).toLowerCase();
-      const types = ["jpg", "jpeg", "png", "gif", "bmp"];
+      this.$refs.upload.clearFiles()
+      const file = params.raw
+      const type = params.name
+        .substr(params.name.lastIndexOf('.') + 1)
+        .toLowerCase()
+      const types = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
       if (types.indexOf(type) === -1) {
-        this.imgList = [];
-        this.$message.warning("不支持上传该格式的图片");
-        return;
+        this.imgList = []
+        this.$message.warning('不支持上传该格式的图片')
+        return
       }
       if (params.size > 20 * 1024 * 1024) {
-        this.imgList = [];
-        this.$message.warning("图片大小已超出20M，请重新选择");
-        return;
+        this.imgList = []
+        this.$message.warning('图片大小已超出20M，请重新选择')
+        return
       }
-      let formData = new FormData();
-      formData.append("uploadFiles", file);
-      const res = await uploadFile(formData);
+      let formData = new FormData()
+      formData.append('uploadFiles', file)
+      const res = await uploadFile(formData)
       if (res.data.avatar) {
-        this.avatar = res.data.avatar;
+        this.avatar = res.data.avatar
         if (this.avatar) {
           this.imgList.push({
-            name: "",
+            name: '',
             url: this.avatar,
-          });
+          })
         }
       } else {
-        this.$message.error("图片上传失败");
-        this.imgList = [];
+        this.$message.error('图片上传失败')
+        this.imgList = []
       }
     },
     async handleRemove() {
       await deleteFile({
         fileUrls: this.imgList[0].url,
-      });
-      this.$refs.upload.clearFiles();
-      this.imgList = [];
-      this.avatar = "";
+      })
+      this.$refs.upload.clearFiles()
+      this.imgList = []
+      this.avatar = ''
       this.newVerticesData.propertiesJson.forEach((item, index) => {
-        if (item.name === "avatar") {
-          this.newVerticesData.propertiesJson.splice(index, 1);
+        if (item.name === 'avatar') {
+          this.newVerticesData.propertiesJson.splice(index, 1)
         }
-      });
+      })
     },
     async uploadFile(file) {
-      if (file.length === 0) return;
+      if (file.length === 0) return
 
-      if (file.length > 50) return this.$message.error("文件数量不能超过50个");
+      if (file.length > 50) return this.$message.error('文件数量不能超过50个')
 
       if (this.compareFileSize(file)) {
-        return this.$message.info("上传的所有文件大小之和不能大于1G");
+        return this.$message.info('上传的所有文件大小之和不能大于1G')
       }
 
-      let files = this.compareOneFileSize(file);
-      if (files.length === 0) return;
+      let files = this.compareOneFileSize(file)
+      if (files.length === 0) return
 
       if (file.length > 0) {
-        let formData = new FormData();
+        let formData = new FormData()
         files.forEach((item) => {
-          formData.append("uploadFiles", item);
-        });
-        this.uploading = true;
-        const that = this;
+          formData.append('uploadFiles', item)
+        })
+        this.uploading = true
+        const that = this
         const res = await uploadFile(formData, function (progressEvent) {
           const p = Math.floor(
             (progressEvent.loaded / progressEvent.total) * 100
-          );
-          that.percentage = p;
-        });
-        if (JSON.stringify(res.data) !== "{}") {
-          let { data } = res;
+          )
+          that.percentage = p
+        })
+        if (JSON.stringify(res.data) !== '{}') {
+          let { data } = res
           for (const key in data) {
-            if (key !== "avatar") {
-              let last = data[key].lastIndexOf(".");
-              let type = data[key].substr(last + 1);
+            if (key !== 'avatar') {
+              let last = data[key].lastIndexOf('.')
+              let type = data[key].substr(last + 1)
               this.fileData.push({
                 url: data[key],
-                name: ["jpg", "jpeg", "png", "gif", "bmp"].includes(type)
+                name: ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(type)
                   ? key
                   : key,
-                icon: this.makeIcons("." + type),
-              });
+                icon: this.makeIcons('.' + type),
+              })
             }
           }
         } else {
-          this.$message.error("文件上传失败");
+          this.$message.error('文件上传失败')
         }
-        this.percentage = 0;
-        this.uploading = false;
+        this.percentage = 0
+        this.uploading = false
       }
     },
     //整体文件大小超过1G的，将取消上传，并给予提示
     compareFileSize(files) {
-      let filesSizes = 0;
+      let filesSizes = 0
       files.forEach((it) => {
-        filesSizes += it.size;
-      });
-      return filesSizes > 1024 * 1024 * 1024;
+        filesSizes += it.size
+      })
+      return filesSizes > 1024 * 1024 * 1024
     },
     //单个文件超过100M的以及过滤不支持的格式，将取消上传，并给予提示
     compareOneFileSize(file) {
-      let pare = file;
-      let files = [];
-      const reg = /\.txt$|\.doc$|\.docx$|\.pdf$|\.xlsx$|\.xls$|\.png$|\.jpg$|\.jpeg$|\.gif$|\.bmp$|\.mp4$|\.webm$|\.mp3$|\.wav$/;
+      let pare = file
+      let files = []
+      const reg = /\.txt$|\.doc$|\.docx$|\.pdf$|\.xlsx$|\.xls$|\.png$|\.jpg$|\.jpeg$|\.gif$|\.bmp$|\.mp4$|\.webm$|\.mp3$|\.wav$/
       let flag = pare.some((item) => {
-        return !reg.test(item.name.toLowerCase());
-      });
+        return !reg.test(item.name.toLowerCase())
+      })
       files = pare.filter((item) => {
-        return reg.test(item.name.toLowerCase());
-      });
+        return reg.test(item.name.toLowerCase())
+      })
       if (flag) {
-        this.$message.warning("存在不支持的文件，已被过滤");
+        this.$message.warning('存在不支持的文件，已被过滤')
       }
-      return files;
+      return files
     },
     //放大图片
     handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      this.imgBigShow = true;
+      this.dialogImageUrl = file.url
+      this.imgBigShow = true
     },
     handleKey(type) {
-      this.tempForm[type] = !this.tempForm[type];
+      this.tempForm[type] = !this.tempForm[type]
     },
     selectTreeFilterNode(value) {
-      this.$refs.selectTree && this.$refs.selectTree.filter(value);
+      this.$refs.selectTree && this.$refs.selectTree.filter(value)
     },
     nodeClick(data) {
-      this.categoryId = data.id !== -1 ? data.parentId + ">" + data.id : "";
-      this.categoryId = data.parentId !== 0 ? this.categoryId : String(data.id);
-      this.newVerticesData.categoryName = data.name;
-      this.newVerticesData.type = data.name;
+      this.categoryId = data.id !== -1 ? data.parentId + '>' + data.id : ''
+      this.categoryId = data.parentId !== 0 ? this.categoryId : String(data.id)
+      this.newVerticesData.categoryName = data.name
+      this.newVerticesData.type = data.name
     },
     filterNode(value, data) {
-      if (!value) return true;
-      return data.label.indexOf(value) !== -1;
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
     },
     clearCategory() {
-      this.categoryId = "";
+      this.categoryId = ''
     },
     selectTreeBlur(show) {
       // 下拉框隐藏时，取消过滤
-      show || (this.$refs.selectTree && this.$refs.selectTree.filter());
+      show || (this.$refs.selectTree && this.$refs.selectTree.filter())
     },
     showMore(index) {
       this.newVerticesData.propertiesJson[index].hidden = !this.newVerticesData
-        .propertiesJson[index].hidden;
+        .propertiesJson[index].hidden
     },
     //新增表单
     addNewFrom(index) {
       this.newVerticesData.propertiesJson.splice(index + 1, 0, {
-        name: "", //属性名
-        value: "", //属性值
+        name: '', //属性名
+        value: '', //属性值
         primary: false, //主键
-      });
-      window.propList = this.newVerticesData.propertiesJson;
+      })
+      window.propList = this.newVerticesData.propertiesJson
     },
 
     //删除表单
     delFrom(index) {
-      this.newVerticesData.propertiesJson.splice(index, 1);
+      this.newVerticesData.propertiesJson.splice(index, 1)
     },
 
     //主键切换(钥匙)
@@ -991,310 +933,310 @@ export default {
       //   item.primary = false;
       // });
       this.newVerticesData.propertiesJson[index].primary = !this.newVerticesData
-        .propertiesJson[index].primary;
+        .propertiesJson[index].primary
     },
 
     //用于判断，当前文件的格式，来控制显示什么图标，代码需要优化
     makeIcons(name) {
       name = name.toLowerCase()
-      if (name === "") return "";
+      if (name === '') return ''
       if (/\.txt$/.test(name)) {
-        return "file-txt";
+        return 'file-txt'
       } else if (/\.doc$|.docx$/.test(name)) {
-        return "file-word";
+        return 'file-word'
       } else if (/\.pdf$/.test(name)) {
-        return "file-pdf";
+        return 'file-pdf'
       } else if (/\.xlsx$|\.xls$/.test(name)) {
-        return "file-excel";
+        return 'file-excel'
       } else if (/\.png$|\.jpg$|\.jpeg$|\.gif$|\.bmp$/.test(name)) {
-        return "file-img";
+        return 'file-img'
       } else if (/\.mp4$|\.webm$/.test(name)) {
-        return "file-video";
+        return 'file-video'
       } else if (/\.mp3$|\.wav$/.test(name)) {
-        return "file-music";
+        return 'file-music'
       } else {
-        return "file";
+        return 'file'
       }
     },
 
     //删除文件
     async deleteFile(index) {
-      this.$confirm("确定删除该文件？", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+      this.$confirm('确定删除该文件？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
       }).then(async () => {
         const res = await deleteFile({
           fileUrls: this.fileData[index].url,
-        });
-        this.fileData.splice(index, 1);
-        this.$message.success("删除成功");
-      });
+        })
+        this.fileData.splice(index, 1)
+        this.$message.success('删除成功')
+      })
     },
     //删除所有文件
     async deleteAllFile() {
       if (this.fileData.length > 0 || this.imgList.length > 0) {
-        let urls = [];
+        let urls = []
         this.fileData.forEach((item) => {
-          urls.push(item.url);
-        });
+          urls.push(item.url)
+        })
         this.imgList.forEach((item) => {
-          urls.push(item.url);
-        });
+          urls.push(item.url)
+        })
         const res = await deleteFile({
           fileUrls: String(urls),
-        });
+        })
         if (res.status === 200) {
-          this.fileData = [];
+          this.fileData = []
         }
       }
     },
     async preview(file) {
-      this.fileName = file.name;
-      this.previewLoading = true;
-      const type = file.url.slice(file.url.lastIndexOf(".") + 1).toLowerCase();
+      this.fileName = file.name
+      this.previewLoading = true
+      const type = file.url.slice(file.url.lastIndexOf('.') + 1).toLowerCase()
       if (/pdf$/.test(type)) {
-        this.previewUrl = file.url;
+        this.previewUrl = file.url
       } else if (/jpg$|png$|jpeg$|gif$|bmp$/.test(type)) {
-        this.previewImg = file.url;
+        this.previewImg = file.url
       } else if (/mp4$|webm$/.test(type)) {
-        this.previewSrc = file.url;
-        this.videoType = type;
+        this.previewSrc = file.url
+        this.videoType = type
       } else if (/mp3$|wav$/.test(type)) {
-        this.previewMusic = file.url;
+        this.previewMusic = file.url
       } else {
-        const res = await sortManage.neo4jFilePreview(file.url, 0, null);
+        const res = await sortManage.neo4jFilePreview(file.url, 0, null)
         this.blob = new Blob([res.data], {
-          type: "application/pdf"
-        });
-        this.previewUrl = URL.createObjectURL(this.blob);
+          type: 'application/pdf',
+        })
+        this.previewUrl = URL.createObjectURL(this.blob)
       }
-      this.previewDialog = true;
-      this.previewLoading = false;
+      this.previewDialog = true
+      this.previewLoading = false
     },
     handleClosePreviewDialog() {
-      this.previewDialog = false;
-      this.previewUrl = "";
-      this.previewImg = "";
-      this.previewSrc = "";
-      this.previewMusic = "";
-      this.videoType = "mp4";
-      URL.revokeObjectURL(this.blob);
+      this.previewDialog = false
+      this.previewUrl = ''
+      this.previewImg = ''
+      this.previewSrc = ''
+      this.previewMusic = ''
+      this.videoType = 'mp4'
+      URL.revokeObjectURL(this.blob)
     },
     //修改和新增的保存
     addVertices() {
-      this.$refs["newVerticesData"].validate(async (valid) => {
+      this.$refs['newVerticesData'].validate(async (valid) => {
         if (valid) {
-          this.advancedSearchQuery.advancedSearchFlag = true;
-          this.dialogLoading = true;
-          if (this.dialogTattle === "新增实体") {
+          this.advancedSearchQuery.advancedSearchFlag = true
+          this.dialogLoading = true
+          if (this.dialogTattle === '新增实体') {
             // 新增默认添加name、名称、实体分类属性，有上传图片与文档默认添加docs与avatar属性到propertiesJson
             this.newVerticesData.propertiesJson.push({
-              name: "name",
+              name: 'name',
               value: this.newVerticesData.name,
-              primary: this.tempForm["名称"],
-            });
+              primary: this.tempForm['名称'],
+            })
             this.newVerticesData.propertiesJson.push({
-              name: "名称",
+              name: '名称',
               value: this.newVerticesData.name,
-              primary: this.tempForm["名称"],
-            });
+              primary: this.tempForm['名称'],
+            })
             this.newVerticesData.propertiesJson.push({
-              name: "实体分类",
+              name: '实体分类',
               value: this.newVerticesData.categoryName,
-              primary: this.tempForm["实体分类"],
-            });
+              primary: this.tempForm['实体分类'],
+            })
             this.newVerticesData.propertiesJson.push({
-              name: "_实体分类ID",
+              name: '_实体分类ID',
               value: this.categoryId,
               primary: false,
-            });
+            })
             this.newVerticesData.propertiesJson.push({
-              name: "经度",
+              name: '经度',
               value: this.longitude,
               primary: false,
-            });
+            })
             this.newVerticesData.propertiesJson.push({
-              name: "纬度",
+              name: '纬度',
               value: this.latitude,
               primary: false,
-            });
+            })
             this.newVerticesData.propertiesJson = this.newVerticesData.propertiesJson.filter(
-              (item) => item.name != "docs"
-            );
+              (item) => item.name != 'docs'
+            )
             if (this.fileData.length > 0) {
               this.newVerticesData.propertiesJson.push({
-                name: "docs",
+                name: 'docs',
                 value: this.fileData,
                 primary: false,
-              });
+              })
             }
             if (this.imgList.length > 0) {
               this.newVerticesData.propertiesJson.push({
-                name: "avatar",
+                name: 'avatar',
                 value: this.avatar,
                 primary: false,
-              });
+              })
             }
             this.newVerticesData.propertiesJson.forEach((item) => {
-              if (item.key === "名称") {
-                item.value = this.newVerticesData.name;
-                item.primary = this.tempForm["名称"];
+              if (item.key === '名称') {
+                item.value = this.newVerticesData.name
+                item.primary = this.tempForm['名称']
               }
-            });
-            let someKey = true;
+            })
+            let someKey = true
 
             this.newVerticesData.propertiesJson.forEach((item) => {
               if (item.primary === true) {
-                someKey = false;
+                someKey = false
               }
-            });
+            })
             if (someKey) {
               this.$message({
-                type: "error",
-                message: "请至少选择一个主键！",
-              });
-              return;
+                type: 'error',
+                message: '请至少选择一个主键！',
+              })
+              return
             }
           }
 
           // 在编辑时判断是否有实体分类、名称、name、avatar和docs属性，没有就自动添加
-          let hasCategory = false;
-          let hasNameCn = false;
-          let hasName = false;
-          let hasAvatar = false;
-          let hasDocs = false;
+          let hasCategory = false
+          let hasNameCn = false
+          let hasName = false
+          let hasAvatar = false
+          let hasDocs = false
           this.newVerticesData.propertiesJson.forEach((item) => {
-            if (item.name === "实体分类") {
-              hasCategory = true;
+            if (item.name === '实体分类') {
+              hasCategory = true
             }
-            if (item.name === "名称") {
-              hasNameCn = true;
+            if (item.name === '名称') {
+              hasNameCn = true
             }
-            if (item.name === "name") {
-              hasName = true;
+            if (item.name === 'name') {
+              hasName = true
             }
-            if (item.name === "avatar") {
-              hasAvatar = true;
+            if (item.name === 'avatar') {
+              hasAvatar = true
             }
-            if (item.name === "docs") {
-              hasDocs = true;
+            if (item.name === 'docs') {
+              hasDocs = true
             }
-          });
+          })
           if (!hasCategory) {
             this.newVerticesData.propertiesJson.push({
-              name: "实体分类",
+              name: '实体分类',
               value: this.newVerticesData.categoryName,
-              primary: this.tempForm["实体分类"],
-            });
+              primary: this.tempForm['实体分类'],
+            })
             this.newVerticesData.propertiesJson.push({
-              name: "_实体分类ID",
+              name: '_实体分类ID',
               value: this.categoryId,
               primary: false,
-            });
+            })
           } else {
             this.newVerticesData.propertiesJson.forEach((item) => {
-              if (item.name === "实体分类") {
-                item.value = this.newVerticesData.categoryName;
+              if (item.name === '实体分类') {
+                item.value = this.newVerticesData.categoryName
               }
-              if (item.name === "_实体分类ID") {
-                item.value = this.categoryId;
+              if (item.name === '_实体分类ID') {
+                item.value = this.categoryId
               }
-            });
+            })
           }
           if (!hasNameCn) {
             this.newVerticesData.propertiesJson.push({
-              name: "名称",
+              name: '名称',
               value: this.newVerticesData.name,
-              primary: this.tempForm["名称"],
-            });
+              primary: this.tempForm['名称'],
+            })
           } else {
             this.newVerticesData.propertiesJson.forEach((item) => {
-              if (item.name === "名称") {
-                item.value = this.newVerticesData.name;
+              if (item.name === '名称') {
+                item.value = this.newVerticesData.name
               }
-            });
+            })
           }
           if (!hasName) {
             this.newVerticesData.propertiesJson.push({
-              name: "name",
+              name: 'name',
               value: this.newVerticesData.name,
-              primary: this.tempForm["名称"],
-            });
+              primary: this.tempForm['名称'],
+            })
           } else {
             this.newVerticesData.propertiesJson.forEach((item) => {
-              if (item.name === "name") {
-                item.value = this.newVerticesData.name;
+              if (item.name === 'name') {
+                item.value = this.newVerticesData.name
               }
-            });
+            })
           }
           if (this.imgList.length > 0) {
             if (!hasAvatar) {
               this.newVerticesData.propertiesJson.push({
-                name: "avatar",
+                name: 'avatar',
                 value: this.avatar,
                 primary: false,
-              });
+              })
             } else {
               this.newVerticesData.propertiesJson.forEach((item) => {
-                if (item.name === "avatar") {
-                  item.value = this.avatar;
+                if (item.name === 'avatar') {
+                  item.value = this.avatar
                 }
-              });
+              })
             }
           }
           this.newVerticesData.propertiesJson = this.newVerticesData.propertiesJson.filter(
-            (item) => item.name != "docs"
-          );
+            (item) => item.name != 'docs'
+          )
           if (this.fileData.length > 0) {
             this.newVerticesData.propertiesJson.push({
-              name: "docs",
+              name: 'docs',
               value: this.fileData,
               primary: false,
-            });
+            })
           }
 
           let someProperties = JSON.stringify(
             this.newVerticesData.propertiesJson
-          );
-          let someId;
-          if (this.dialogTattle === "新增实体") {
-            someId = -1;
+          )
+          let someId
+          if (this.dialogTattle === '新增实体') {
+            someId = -1
           } else {
-            someId = this.newVerticesData.idStr;
+            someId = this.newVerticesData.idStr
           }
-          let someLabelList;
-          let some = this.newVerticesData.labelsList.indexOf("DATAEXA_OBJECT");
+          let someLabelList
+          let some = this.newVerticesData.labelsList.indexOf('DATAEXA_OBJECT')
           if (some === -1) {
-            if (this.graphType === "Neo4j") {
-              this.newVerticesData.labelsList.push("DATAEXA_OBJECT");
-              someLabelList = this.newVerticesData.labelsList.toString();
+            if (this.graphType === 'Neo4j') {
+              this.newVerticesData.labelsList.push('DATAEXA_OBJECT')
+              someLabelList = this.newVerticesData.labelsList.toString()
             } else if (
-              this.graphType === "JanusHBase" ||
-              this.graphType === "SeraphServer"
+              this.graphType === 'JanusHBase' ||
+              this.graphType === 'SeraphServer'
             ) {
               let someIndex = this.newVerticesData.labelsList.indexOf(
-                "DATAEXA_OBJECT"
-              );
+                'DATAEXA_OBJECT'
+              )
               if (someIndex != -1) {
-                this.newVerticesData.labelsList.splice(someIndex, 1);
-                someLabelList = this.newVerticesData.labelsList.toString();
+                this.newVerticesData.labelsList.splice(someIndex, 1)
+                someLabelList = this.newVerticesData.labelsList.toString()
               } else {
-                someLabelList = this.newVerticesData.labelsList.toString();
+                someLabelList = this.newVerticesData.labelsList.toString()
               }
             }
           } else {
             if (
-              this.graphType === "JanusHBase" ||
-              this.graphType === "SeraphServer"
+              this.graphType === 'JanusHBase' ||
+              this.graphType === 'SeraphServer'
             ) {
               let someIndex = this.newVerticesData.labelsList.indexOf(
-                "DATAEXA_OBJECT"
-              );
+                'DATAEXA_OBJECT'
+              )
               if (someIndex != -1) {
-                this.newVerticesData.labelsList.splice(someIndex, 1);
+                this.newVerticesData.labelsList.splice(someIndex, 1)
               }
             }
-            someLabelList = this.newVerticesData.labelsList.toString();
+            someLabelList = this.newVerticesData.labelsList.toString()
           }
           let reqBody = {
             atlasId: parseInt(this.id),
@@ -1304,54 +1246,54 @@ export default {
             labelStr: someLabelList,
             type: this.newVerticesData.type,
             graphType: this.graphType,
-          };
+          }
           let res = await graphVerticesDetail
             .verticesUpdate(reqBody)
             .catch(() => {
               this.$message({
-                type: "error",
-                message: "提交请求失败",
-              });
-              this.dialogLoading = false;
-            });
+                type: 'error',
+                message: '提交请求失败',
+              })
+              this.dialogLoading = false
+            })
           if (!res.data.success) {
             this.$message({
-              type: "error",
+              type: 'error',
               message: res.data.msg,
-            });
-            this.dialogLoading = false;
-            return;
+            })
+            this.dialogLoading = false
+            return
           } else if (res.data.success) {
             if (res.data.object) {
-              if (this.dialogTattle === "新增实体") {
+              if (this.dialogTattle === '新增实体') {
                 this.$message({
-                  type: "success",
-                  message: "新增实体成功！",
-                });
+                  type: 'success',
+                  message: '新增实体成功！',
+                })
               } else {
                 this.$message({
-                  type: "success",
-                  message: "编辑实体成功！",
-                });
+                  type: 'success',
+                  message: '编辑实体成功！',
+                })
               }
               //   this.graphVerticesGet("search");
               //   this.examineListQuery();
-              this.emitClosedEvent();
+              this.emitClosedEvent()
             } else {
-              if (this.dialogTattle === "新增实体") {
+              if (this.dialogTattle === '新增实体') {
                 this.$message({
-                  type: "success",
-                  message: "新增实体已进入审核阶段！",
-                });
+                  type: 'success',
+                  message: '新增实体已进入审核阶段！',
+                })
               } else {
                 this.$message({
-                  type: "success",
-                  message: "编辑实体已进入审核阶段！",
-                });
+                  type: 'success',
+                  message: '编辑实体已进入审核阶段！',
+                })
               }
               //   this.graphVerticesGet("search");
               //   this.examineListQuery();
-              this.emitClosedEvent();
+              this.emitClosedEvent()
             }
             this.newVerticesData = {
               name: null,
@@ -1359,121 +1301,121 @@ export default {
               propertiesJson: [
                 {
                   //实体属性（转JSON）
-                  name: "", //属性名
-                  value: "", //属性值
+                  name: '', //属性名
+                  value: '', //属性值
                   primary: true, //主键
                 },
               ],
               labelsList: [], //实体标签（转逗号分割字符串）
-              type: "", //实体分类
-            };
-            this.fileData = [];
-            this.avatar = "";
-            this.imgList = [];
+              type: '', //实体分类
+            }
+            this.fileData = []
+            this.avatar = ''
+            this.imgList = []
             //更改信息到地图上
-            this.$emit("changeEntity", {
+            this.$emit('changeEntity', {
               val: res.data.object.id,
               state: someId,
               entity: res.data.object,
-            });
+            })
           }
         } else {
-          return false;
+          return false
         }
-      });
+      })
     },
     //编辑显示在界面上
     async editEntity(id) {
-      this.verticesListLoading = true;
+      this.verticesListLoading = true
       let res = await graphVerticesDetail
         .vertexDetailView(id, this.id)
         .catch(() => {
           this.$message({
-            type: "error",
-            message: "获取实体详细信息请求失败",
-          });
-        });
+            type: 'error',
+            message: '获取实体详细信息请求失败',
+          })
+        })
       if (!res.data.success) {
         this.$message({
-          type: "error",
+          type: 'error',
           message: res.data.msg,
-        });
-        return;
+        })
+        return
       } else if (res.data.success) {
-        this.verticesListLoading = false;
-        this.newVerticesData.propertiesJson = [];
-        this.newVerticesData.avatar = res.data.object.properties.avatar;
+        this.verticesListLoading = false
+        this.newVerticesData.propertiesJson = []
+        this.newVerticesData.avatar = res.data.object.properties.avatar
         if (res.data.object.properties) {
-          let props = res.data.object.properties;
+          let props = res.data.object.properties
           for (let prop in props) {
-            if (typeof props[prop] === "string") {
-              props[prop] = props[prop].replace(/[\n\r\t]+/g, "<br />");
+            if (typeof props[prop] === 'string') {
+              props[prop] = props[prop].replace(/[\n\r\t]+/g, '<br />')
             }
-            if (prop !== "category") {
+            if (prop !== 'category') {
               this.newVerticesData.propertiesJson.push({
                 name: prop, //属性名
                 value: props[prop], //属性值
                 primary: false, //主键
                 hidden: props[prop].length > 200, //内容字数大于200，提供判断是否显示所有内容
-              });
+              })
             }
-            if (prop === "docs") {
-              this.fileData = JSON.parse(props[prop]);
+            if (prop === 'docs') {
+              this.fileData = JSON.parse(props[prop])
               this.fileData.forEach((item) => {
-                item.type = item.name.slice(item.name.lastIndexOf(".") + 1);
-                item.icon = this.makeIcons("." + item.type);
-              });
+                item.type = item.name.slice(item.name.lastIndexOf('.') + 1)
+                item.icon = this.makeIcons('.' + item.type)
+              })
             }
-            if (prop === "avatar") {
-              this.avatar = props[prop];
+            if (prop === 'avatar') {
+              this.avatar = props[prop]
               this.imgList = [
                 {
-                  name: "",
+                  name: '',
                   url: props[prop],
                 },
-              ];
+              ]
             }
-            if (prop === "实体分类") {
-              this.newVerticesData.categoryName = props[prop];
+            if (prop === '实体分类') {
+              this.newVerticesData.categoryName = props[prop]
             }
-            if (prop === "经度") {
-              this.longitude = props[prop];
+            if (prop === '经度') {
+              this.longitude = props[prop]
             }
-            if (prop === "纬度") {
-              this.latitude = props[prop];
+            if (prop === '纬度') {
+              this.latitude = props[prop]
             }
-            if (prop === "_实体分类ID") {
-              this.categoryId = props[prop];
+            if (prop === '_实体分类ID') {
+              this.categoryId = props[prop]
             }
-            if (prop === "name" || prop === "名称") {
-              this.newVerticesData.name = props[prop];
+            if (prop === 'name' || prop === '名称') {
+              this.newVerticesData.name = props[prop]
             }
           }
         }
-        this.newVerticesData.idStr = res.data.object.idStr;
-        this.newVerticesData.name = res.data.object.name;
+        this.newVerticesData.idStr = res.data.object.idStr
+        this.newVerticesData.name = res.data.object.name
         if (!res.data.object.labelsList) {
-          res.data.object.labelsList = [];
+          res.data.object.labelsList = []
         }
-        let some = res.data.object.labelsList.indexOf("DATAEXA_OBJECT");
+        let some = res.data.object.labelsList.indexOf('DATAEXA_OBJECT')
         if (some === -1) {
-          this.newVerticesData.labelsList = res.data.object.labelsList;
+          this.newVerticesData.labelsList = res.data.object.labelsList
         } else {
-          res.data.object.labelsList.splice(some, 1);
-          this.newVerticesData.labelsList = res.data.object.labelsList;
+          res.data.object.labelsList.splice(some, 1)
+          this.newVerticesData.labelsList = res.data.object.labelsList
         }
-        this.newVerticesData.type = res.data.object.type;
-        window.vertPropList = this.newVerticesData.propertiesJson;
+        this.newVerticesData.type = res.data.object.type
+        window.vertPropList = this.newVerticesData.propertiesJson
       }
     },
     emitClosedEvent() {
-      this.$emit("before-close");
+      this.$emit('before-close')
     },
     cancel() {
-      this.$emit("cancel");
+      this.$emit('cancel')
     },
   },
-};
+}
 </script>
 <style scoped lang="scss">
 $panel-height: 80vh;
@@ -1856,31 +1798,31 @@ $border-color: #eee;
   vertical-align: middle;
 }
 .file-txt {
-  background-image: url("~@/assets/icon/txt.png");
+  background-image: url('~@/assets/icon/txt.png');
 }
 .file-zip {
-  background-image: url("~@/assets/icon/zip.png");
+  background-image: url('~@/assets/icon/zip.png');
 }
 .file-pdf {
-  background-image: url("~@/assets/icon/pdf.png");
+  background-image: url('~@/assets/icon/pdf.png');
 }
 .file-word {
-  background-image: url("~@/assets/icon/word.png");
+  background-image: url('~@/assets/icon/word.png');
 }
 .file-excel {
-  background-image: url("~@/assets/icon/excel.png");
+  background-image: url('~@/assets/icon/excel.png');
 }
 .file-img {
-  background-image: url("~@/assets/icon/img.png");
+  background-image: url('~@/assets/icon/img.png');
 }
 .file-video {
-  background-image: url("~@/assets/icon/video.png");
+  background-image: url('~@/assets/icon/video.png');
 }
 .file-music {
-  background-image: url("~@/assets/icon/music.png");
+  background-image: url('~@/assets/icon/music.png');
 }
 .file-file {
-  background-image: url("~@/assets/icon/file.png");
+  background-image: url('~@/assets/icon/file.png');
 }
 .more-format {
   display: inline-block;
@@ -1917,7 +1859,7 @@ $border-color: #eee;
       height: 100%;
 
       &::before {
-        content: "";
+        content: '';
         width: 2px;
         height: 100%;
         position: absolute;

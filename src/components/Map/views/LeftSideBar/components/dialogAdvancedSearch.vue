@@ -101,7 +101,7 @@
                     <span
                       class="btn-color"
                       @click="lookDetail(scope.row)"
-                      style="cursor: pointer"
+                      style="cursor: pointer;color:#02b3fc;"
                     >{{ scope.row.name }}</span>
                   </template>
                 </el-table-column>

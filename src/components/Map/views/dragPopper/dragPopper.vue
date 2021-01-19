@@ -40,16 +40,20 @@
       <!-- <path id="path" fill="white" stroke="red" stroke-width="2" marker-end="url(#arrow)" d="M20,20 L50,50"></path> -->
     </svg>
     <div class="itemwrap">
-      <div
+      <!-- <div
         class="item item1"
         :class="'popper1'+index"
         :style="{'border-color':bgColor}"
       >陆军参谋部；3个集团军司令部；4个军司令部（其中1个为空降军司令部）；2个装甲师；3个机械化师；2个轻步师；1个步兵师；1个空中突击师；1个空降师；1个步兵营群；1个空降营群；7个航空旅（其中1个航空旅为集团军直辖，4个航空旅为军直辖，2个航空旅为训练旅）；2个装甲骑兵团；6个炮兵旅；1个战区防空司令部；9个"爱国者"地空导弹营，3个"复仇者"地空导弹营</div>
-    </div>
-
-    <!-- <div class="divpoint divpoint-theme item item1" :style="{'border-color':bgColor}">
+      </div>-->
+      <!-- 面板信息气泡框 -->
+      <div
+        class="divpoint divpoint-theme item item1"
+        :style="{'border-color':bgColor,'top':movePosition.top,'left':movePosition.left}"
+        :class="'popper1'+index"
+      >
         <div class="divpoint-wrap">
-          <div class="area" :class="'popper1'+index">
+          <div class="area">
             <div class="arrow-lt"></div>
             <div class="b-t" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
             <div class="b-r" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
@@ -57,27 +61,30 @@
             <div class="b-l" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
             <div class="arrow-rb"></div>
             <div class="label-wrap">
-              <div class="title">陆军参谋部</div>
+              <div class="title">{{info.name}}</div>
               <div class="label-content">
                 <div class="data-li">
-                  <div class="data-label">集团军司令部</div>
+                  <div class="data-label">国家</div>
                   <div class="data-value">
-                    <span class="label-num">3</span>
-                    <span class="label-unit">个</span>
+                    <span class="label-num">{{info.国家}}</span>
                   </div>
                 </div>
                 <div class="data-li">
-                  <div class="data-label">军司令部</div>
+                  <div class="data-label">兵员数量</div>
                   <div class="data-value">
-                    <span class="label-num">4</span>
-                    <span class="label-unit">个</span>
+                    <span class="label-num">{{info.兵员数量}}</span>
                   </div>
                 </div>
                 <div class="data-li">
-                  <div class="data-label">步兵营群</div>
+                  <div class="data-label">驻军</div>
                   <div class="data-value">
-                    <span class="label-tag data-value-status-1" alt="中间状态">1号</span>
-                    <span class="label-tag data-value-status-0" alt="关闭状态">2号</span>
+                    <span class="label-num">{{info.驻军}}</span>
+                  </div>
+                </div>
+                <div class="data-li">
+                  <div class="data-label">驻扎部队</div>
+                  <div class="data-value">
+                    <span class="label-num">{{info.驻扎部队}}</span>
                   </div>
                 </div>
               </div>
@@ -86,9 +93,9 @@
           <div class="b-t-l" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
           <div class="b-b-r" :style="{'background-color':bgColor,'box-shadow':bgColor}"></div>
         </div>
-        <div class="arrow"></div>
       </div>
-    </div>-->
+    </div>
+    <!-- 实体外框 -->
     <div :class="'placement-' + placement">
       <div
         class="item item2"
@@ -103,30 +110,27 @@
 import { emitter, EventType } from '../../src/EventEmitter'
 import $ from './jquery.js'
 export default {
-  directives: {
-    drag(el) {
-      el.onmousedown = function (e) {
-        var disx = e.pageX - el.offsetLeft
-        var disy = e.pageY - el.offsetTop
-        document.onmousemove = function (e) {
-          el.style.left = e.pageX - disx + 'px'
-          el.style.top = e.pageY - disy + 'px'
-        }
-        document.onmouseup = function (e) {
-          document.onmouseup = document.onmousemove = null
-          //移动结束的时候绘制线
-        }
-        e.preventDefault()
-      }
-    },
-  },
   name: 'Popper',
   data() {
     return {
+      //方块1的位置
       position: {
-        top: 0,
-        left: 0,
+        top: '0px',
+        left: '0px',
       },
+      //方块2的位置
+      movePosition: {
+        top: '0px',
+        left: '0px',
+      },
+      info: {
+        name: '',
+        兵员数量: '',
+        所处国: '',
+        驻军: '',
+        驻扎部队: '',
+      },
+      state: true, //初始化状态，单例模式
       index: 0,
       text: '',
       defaultText: '未命名',
@@ -146,9 +150,33 @@ export default {
   methods: {},
   mounted() {
     this.$nextTick(() => {
+      if (this.state) {
+        debugger
+        //初始化2的位置
+        let height = window.screen.height
+        let width = window.screen.width
+        let objPositionLeft = this.position.left
+        let objPositionTop = this.position.top
+        if (objPositionLeft.split('px')[0] < width / 2) {
+          this.movePosition.left =
+            Number(objPositionLeft.split('px')[0]) - width / 4 + 'px'
+        } else {
+          this.movePosition.left =
+            Number(objPositionLeft.split('px')[0]) + width / 12 + 'px'
+        }
+        if (objPositionTop.split('px')[0] < height / 3) {
+          this.movePosition.top =
+            Number(objPositionTop.split('px')[0]) - height / 12 + 'px'
+        } else if (objPositionTop.split('px')[0] > height / 3) {
+          this.movePosition.top =
+            Number(objPositionTop.split('px')[0]) + height / 10 + 'px'
+        }
+      }
+      this.state = false
       var that = this
       $(function () {
         function move() {
+          if (!$(`.popper1${that.index}`)[0]) return
           var pos1 = getElCoordinate($(`.popper1${that.index}`)[0])
           var pos2 = getElCoordinate($(`.popper2${that.index}`)[0])
           var start = getPos(pos1, pos2).start
@@ -278,24 +306,22 @@ export default {
   // // background-color: #3679a5cc;
   // animation: warn 1.5s ease-out 0s infinite;
   position: absolute;
-  left: 50%;
-  top: 50%;
   text-align: left;
   color: #ffffff;
-  border: 1px solid;
-  border-radius: 5px;
 }
 .item1 {
   cursor: move;
   width: 300px;
   display: inline-block;
-  text-indent: 2em;
 }
 .item2 {
   transform: translate(-50%, -50%);
   height: 50px;
   width: 50px;
   pointer-events: none;
+
+  border: 1px solid;
+  border-radius: 5px;
 }
 @keyframes rotate {
   from {
@@ -308,7 +334,6 @@ export default {
 /* 2020-4-9 14:01:37 | 版权所有 火星科技 http://marsgis.cn */
 .divpoint-wrap {
   position: relative;
-  padding: 30px;
 }
 .divpoint .area {
   position: relative;
@@ -348,8 +373,8 @@ export default {
 }
 .divpoint .b-t-l {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -30px;
+  left: -30px;
   width: 1px;
   height: 62px;
   transform: rotate(45deg) translate(52px, -22px);
@@ -357,8 +382,8 @@ export default {
 }
 .divpoint .b-b-r {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: -30px;
+  right: -30px;
   width: 1px;
   height: 62px;
   transform: rotate(45deg) translate(-52px, 22px);
@@ -398,9 +423,14 @@ export default {
 .data-value,
 .divpoint .data-label {
   display: inline-block;
+  font-size: 14px;
 }
 .divpoint .data-value {
-  font-size: 14px;
+  font-size: 13px;
+  width: 131px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
 }
 .divpoint .label-num {
   margin-right: 3px;
@@ -478,6 +508,22 @@ export default {
 //       transparent 50%
 //     );
 // }
+.area {
+  background-image: linear-gradient(
+      135deg,
+      transparent 30px,
+      #28bbf06c 30px,
+      #28bbf06c 50%,
+      transparent 50%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 30px,
+      #28bbf06c 30px,
+      #28bbf06c 50.1%,
+      transparent 50%
+    );
+}
 .divpoint-theme .title {
   background-image: linear-gradient(135deg, transparent 25px, #29baf1 25px);
 }

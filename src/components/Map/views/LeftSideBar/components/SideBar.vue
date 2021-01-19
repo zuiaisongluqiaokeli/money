@@ -141,6 +141,8 @@ export default {
         gisvis.emitter.emit(EventType.deleteAllBubbles) //删除拖拽气泡
         gisvis.emitter.emit(EventType.removeSelectEntityBox) //删除绿色选框
         gisvis.viewer.entities.removeAll()
+        sessionStorage.setItem('bubbleBox', JSON.stringify(false))
+        sessionStorage.setItem('checkSelectEntityBox', JSON.stringify(false))
       }
     },
     //打开标记或者关系
@@ -179,21 +181,34 @@ export default {
           labelShow: this.gisLabelShow,
         })
       } else {
-        //修改的时候重新生成分组数据
+        //修改的时候重新生成分组数据,更改经纬度，名称等
         emitter.emit(EventType.CLICK_ENTITY, this.temEntity) //重新掉接口显示更改后的数据
         gisvis.viewer.entities.getById(this.temEntity.id.id).label.text =
           entity.name
+
         if (gisvis.popper) gisvis.popper.destroy() //先删除之前的，替换成新的名称
-        emitter.emit(EventType.POPPER_CREATE, {
-          //更新poper
-          position: this.temEntity.id.position.getValue(),
-          name:
-            (entity.properties.hasOwnProperty('name') &&
-              entity.properties.name) ||
-            entity.name,
-          canMove: true,
-          create: true,
-        })
+        //更改地图上显示的经纬度
+        gisvis.viewer.entities.getById(
+          this.temEntity.id.id
+        ).position = Cesium.Cartesian3.fromDegrees(
+          entity.properties.经度,
+          entity.properties.纬度
+        )
+        //更改传给后端的经纬度
+        ;(gisvis.viewer.entities.getById(this.temEntity.id.id).properties.lat =
+          entity.properties.纬度),
+          (gisvis.viewer.entities.getById(this.temEntity.id.id).properties.lng =
+            entity.properties.经度),
+          emitter.emit(EventType.POPPER_CREATE, {
+            //更新poper
+            position: this.temEntity.id.position.getValue(),
+            name:
+              (entity.properties.hasOwnProperty('name') &&
+                entity.properties.name) ||
+              entity.name,
+            canMove: true,
+            create: true,
+          })
         emitter.emit(EventType.LEGEND_DATA_CHANGE, [entity])
       }
     },

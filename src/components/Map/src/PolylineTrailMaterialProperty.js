@@ -110,3 +110,4 @@ Cesium.Material._materialCache.addMaterial(Cesium.Material.PolylineTrailType, {
   }
 
 });
+Cesium.PolylineTrailMaterialProperty = PolylineTrailMaterialProperty;

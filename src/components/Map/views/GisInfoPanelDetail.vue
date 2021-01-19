@@ -40,29 +40,29 @@
             <el-collapse-item name="2" title="属性">
               <div class="collapse-body">
                 <div class="properties">
-                  <span class="label">实体名称</span>
-                  <span
-                    :class="nameShow&&newVerticesData.name.length>100 ? 'text-hidden' : 'value'"
-                    v-html="newVerticesData.name"
-                  ></span>
-                  <span
-                    v-if="nameShow&&newVerticesData.name.length>100"
-                    style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
-                    @click="nameShow=!nameShow"
-                  >
-                    <i class="iconfont close-btn icon-down1" title="显示更多"></i>
-                  </span>
-                  <span
-                    v-if="!nameShow&&newVerticesData.name.length>100"
-                    style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
-                    @click="nameShow=!nameShow"
-                  >
-                    <i class="iconfont close-btn icon-up2" title="收起"></i>
-                  </span>
+                  <div v-if="newVerticesData.name.length < 150">
+                    <span class="label">实体名称：</span>
+                    <span class="value">{{ newVerticesData.name }}</span>
+                  </div>
+                  <div v-else>
+                    <el-col class="label" :span="24">实体名称：</el-col>
+                    <el-col :span="24" class="information-config-leftfont">
+                      <div :class="entityNameShow ? 'show-detail' : ''">{{ newVerticesData.name }}</div>
+                      <div class="hidden-box">
+                        <i
+                          class="iconfont"
+                          :class="entityNameShow ? 'icon-down1' : 'icon-up2'"
+                          @click="entityNameShow=!entityNameShow"
+                        ></i>
+                      </div>
+                    </el-col>
+                  </div>
                 </div>
                 <div class="properties">
-                  <span class="label">实体分类</span>
-                  <span class="value">{{ categoryName}}</span>
+                  <div>
+                    <span class="label">实体分类：</span>
+                    <span class="value">{{ categoryName}}</span>
+                  </div>
                 </div>
                 <div
                   v-for="(item, index) in newVerticesData.propertiesJson"
@@ -84,31 +84,30 @@
                       item.name !== 'locus'
                     "
                   >
-                    <el-tooltip effect="dark" :content="item.name" placement="top-start">
-                      <div class="description">
-                        <span class="label">{{ item.name }}</span>
-                      </div>
-                    </el-tooltip>
-                    <span :class="item.hidden ? 'text-hidden' : 'value'" v-html="item.value"></span>
-                    <span
-                      v-if="item.hidden"
-                      style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
-                      @click="showMore(index)"
-                    >
-                      <i class="iconfont close-btn icon-down1" title="显示更多"></i>
-                    </span>
-                    <span
-                      v-if="!item.hidden && item.value.length > 100"
-                      style="margin:0;cursor:pointer;color:#188cff;text-align:center;width:100%"
-                      @click="showMore(index)"
-                    >
-                      <i class="iconfont close-btn icon-up2" title="收起"></i>
-                    </span>
+                    <div v-if="item.value.length < 150">
+                      <span class="label">{{item.name}}：</span>
+                      <span class="value">{{ item.value }}</span>
+                    </div>
+                    <div v-else>
+                      <el-col :span="24" class="label">{{ item.name }}：</el-col>
+                      <el-col :span="24" class="information-config-leftfont">
+                        <div :class="item.hidden ? 'show-detail' : ''">{{ item.value }}</div>
+                        <div class="hidden-box" v-if="item.value.length > 150">
+                          <i
+                            class="iconfont"
+                            :class="item.hidden ? 'icon-down1' : 'icon-up2'"
+                            @click="hiddenFn(index)"
+                          ></i>
+                        </div>
+                      </el-col>
+                    </div>
                   </template>
                 </div>
                 <div class="properties">
-                  <span class="label">详细属性</span>
-                  <el-button type="text" @click="seeDetail('详细属性')">查看详细</el-button>
+                  <div>
+                    <span class="label">详细属性：</span>
+                    <el-button type="text" @click="seeDetail('详细属性')">查看详细</el-button>
+                  </div>
                 </div>
                 <!-- <div class="properties">
                   <span class="label">部署装备：</span>
@@ -246,6 +245,7 @@ export default {
       nameShow: true,
       blob: null,
       previewLoading: false,
+      entityNameShow: true,
       selectedEntity: {},
       errorImg: 'this.src="' + './img/gis/location.png"',
       defaultImgSrc: 'img/gis/location.png',
@@ -482,6 +482,10 @@ export default {
         return 'file'
       }
     },
+    hiddenFn(index) {
+      this.newVerticesData.propertiesJson[index].hidden = !this.newVerticesData
+        .propertiesJson[index].hidden
+    },
     showMore(index) {
       this.newVerticesData.propertiesJson[index].hidden = !this.newVerticesData
         .propertiesJson[index].hidden
@@ -659,26 +663,22 @@ export default {
         }
 
         .properties {
-          display: flex;
-          color: var(--color-text-regular);
-          flex-wrap: wrap;
-          font-size: 14px;
-          margin: 2px 0;
-          .label {
-            display: block;
-            text-align: left;
-            width: 80px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: var(--color-text-primary);
-            font-weight: var(--font-weight-primary-bold);
-            font-size: var(--font-size-base);
-          }
-          .value {
-            display: block;
-            flex: 1;
-            word-break: break-word;
+          div {
+            color: var(--color-text-regular);
+            .label {
+              // text-align: left;
+              // width: 80px;
+              // overflow: hidden;
+              // text-overflow: ellipsis;
+              // white-space: nowrap;
+              color: var(--color-text-primary);
+              font-weight: var(--font-weight-primary-bold);
+              font-size: var(--font-size-base);
+            }
+            .value {
+              word-break: break-word;
+              color: #6f6f6f;
+            }
           }
         }
 
@@ -762,6 +762,35 @@ export default {
 }
 .file-file {
   background-image: url('~@/assets/icon/file.png');
+}
+.hidden-box {
+  line-height: 14px;
+  margin-bottom: 5px;
+  text-align: center;
+}
+.hidden-box i {
+  font-size: 12px;
+  cursor: pointer;
+  margin: auto;
+}
+.information-config-left {
+  border: 1px dashed #4e4e4e;
+  line-height: 1.8em;
+  color: #fff;
+  border-left: 0px;
+  border-right: 0px;
+  font-size: 14px;
+}
+.show-detail {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  overflow: hidden;
+}
+.information-config-leftfont {
+  color: #6f6f6f;
+  font-size: 14px;
+  word-break: break-word;
 }
 .seeDetailData {
   display: flex;

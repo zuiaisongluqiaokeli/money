@@ -1,5 +1,5 @@
 <template>
-  <div class="selectBox" :style="position" :class="'placement-' + placement">
+  <div class="selectBox" :style="position" :class="'placement-' + placement" v-if="show">
     <div class="selectionWrapper">
       <svg width="160" height="160" viewBox="0 0 160 160">
         <g transform="translate(80,80)">
@@ -25,6 +25,7 @@ export default {
         left: 0,
       },
       placement: 'top',
+      show: true,
     }
   },
 

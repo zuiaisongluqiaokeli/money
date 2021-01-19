@@ -14,6 +14,10 @@
     <LeftSideBar />
     <!-- 搜索范围设置弹窗 -->
     <RangeSetting v-if="showRangeSetting" :close="() => (this.showRangeSetting = false)"></RangeSetting>
+    <!-- 按类型 -->
+    <typeExpand></typeExpand>
+    <!-- 按维度 -->
+    <dimensionExpand></dimensionExpand>
     <!-- 动态气泡框 -->
     <div class="popperWrap" id="popperWrap"></div>
     <canvas id="canvas-a" class="canvas" width="300" height="300"></canvas>
@@ -28,6 +32,8 @@ import { listenMapEvents } from './mapEventProxy'
 import ContextMenu from './views/ContextMenu/index'
 import Timeline from './views/TimeLine'
 import RangeSetting from './views/RangeSetting'
+import typeExpand from './views/typeExpand'
+import dimensionExpand from './views/dimensionExpand'
 import sativis from '../../sati'
 import { newExtendVertice } from '@/assets/api/expand'
 import GisInfoPanelDetail from './views/GisInfoPanelDetail' //查看详情
@@ -42,6 +48,8 @@ export default {
   components: {
     GisInfoPanelDetail,
     RangeSetting,
+    typeExpand,
+    dimensionExpand,
     LeftSideBar,
     Timeline,
     MapLegend,
@@ -203,8 +211,22 @@ export default {
                       // this.updateGisLines([].concat(lines, this.gisLines));
                       result.vertices.forEach((item) => {
                         item.id = Number(item.id) //有的是字符串的达不到去重的效果
-                        item.properties.latitude = item.properties.纬度
-                        item.properties.longitude = item.properties.经度
+                        if (
+                          item.properties.hasOwnProperty('经度') &&
+                          item.properties.经度
+                        ) {
+                          item.properties.longitude = item.properties.经度 //绘图用
+                          item.properties.latitude = item.properties.纬度
+                        } else if (
+                          item.properties.hasOwnProperty('longitude') &&
+                          item.properties.longitude
+                        ) {
+                          item.properties.longitude = item.properties.longitude //绘图用
+                          item.properties.latitude = item.properties.latitude
+                        } else {
+                          item.properties.longitude = undefined
+                          item.properties.latitude = undefined
+                        }
                         if (
                           (item.properties.hasOwnProperty('分类名称') &&
                             item.properties.分类名称) ||
@@ -220,6 +242,10 @@ export default {
                           item.properties.实体分类 = '暂未分类'
                         }
                       })
+                      //去处当前被扩展点
+                      result.vertices = result.vertices.filter(
+                        (item) => item.id != vertice.id
+                      )
                       let gisData = {
                         entities: result.vertices,
                         labelShow: this.gisLabelShow,
@@ -228,6 +254,54 @@ export default {
                       this.$message.success({ message: '扩展成功' })
                       gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, [])
                       this.changeGisRightSelectedEntity(null)
+                      //对数据划分哪个是起点哪个是终点,如果有关系就不再二次加关系
+                      let arrIds = []
+                      arrIds = gisvis.viewer.entities.values
+                        .filter((ele) => {
+                          let id = ele.id.toString()
+                          return id.split(',').length > 1
+                        })
+                        .map((item) => item.id)
+                      arrIds.push('001,0002') //给个初始值为了循环
+                      let center = {}
+                      let points = []
+                      //对扩展的数据过滤出来有经纬度的才画线
+                      result.vertices = result.vertices.filter(
+                        (item) => item.properties.latitude
+                      )
+                      result.vertices.forEach((element) => {
+                        if (
+                          arrIds.every(
+                            (item) =>
+                              item
+                                .split(',')
+                                .filter((ele) =>
+                                  [vertice.id, element.id].some(
+                                    (valueId) => ele == valueId
+                                  )
+                                ).length != 2
+                          )
+                        ) {
+                          center = {
+                            id: vertice.id,
+                            lon: Number(vertice.properties.lng.getValue()),
+                            lat: Number(vertice.properties.lat.getValue()),
+                            size: 5,
+                            color: Cesium.Color.YELLOW,
+                          }
+                          points.push({
+                            id: element.id,
+                            lon: Number(element.properties.longitude),
+                            lat: Number(element.properties.latitude),
+                            size: 5,
+                            color: Cesium.Color.YELLOW,
+                          })
+                        }
+                      })
+                      gisvis.emitter.emit(EventType.CREATE_Fly_LINES_MANY, {
+                        center,
+                        points,
+                      })
                     } else {
                       this.$message.success({ message: '无拓展结果' })
                     }
@@ -240,10 +314,40 @@ export default {
                 })
               })
             break
+          //按类型
+          case 'expandType':
+            this.changeLoading(true)
+            this.$api
+              .getNextMenu(
+                this.gisRightSelectedEntity.id,
+                '拓展',
+                0,
+                this.graphName
+              )
+              .then((response) => {
+                let res = response.data
+                if (res.object.menu && !res.object.menu.length) {
+                  return (
+                    !this.changeLoading(false) &&
+                    this.$message.error({
+                      message: '当前节点无相关关系',
+                      duration: 1500,
+                    })
+                  )
+                }
+                this.changeMenuType(res.object.menu)
+                this.changeLoading(false)
+                this.changeTypeExpandShow(true)
+              })
+            break
+          //按维度
+          case 'expandLatitude':
+            this.changeDimensionExpandShow(true)
+            break
           //范围搜索（打开半径弹窗）
           case 'scopeSearch':
             this.showRangeSetting = true
-            //静态雷达效果
+            //静态雷达效果（类似网状）
             // new Cesium.RadarPrimitive(viewer, {
             //   position: Cesium.Cartesian3.fromDegrees(117.224, 31.819, 128),
             //   angle: 50,
@@ -349,9 +453,8 @@ export default {
             //作为起始点坐标
             gisvis.emitter.emit(EventType.drawingEntityFlightLine, {
               firstPoint: {
-                longitude: this.gisRightSelectedEntity.properties.getValue()
-                  .lng,
-                latitude: this.gisRightSelectedEntity.properties.getValue().lat,
+                longitude: this.gisRightSelectedEntity.properties.lng.getValue(),
+                latitude: this.gisRightSelectedEntity.properties.lat.getValue(),
                 height: 10000,
               },
               cartesian: [{ ...this.rightEntityPosition }],
@@ -383,8 +486,36 @@ export default {
             })
             this.$message.success('已成功创建关联部署点')
             break
+          //信息切换
+          case 'scopeInfo':
+            let arr = gisvis.dragPopperArr
+            //如果没有数组就添加，有的话数组里面找不到对应的面板就创建面板否则销毁,并且面板每次只显示一个
+            if (arr.length == 0) {
+              gisvis.emitter.emit(EventType.addAllBubbles, {
+                multiple: false,
+                oneArr: [this.gisRightSelectedEntity],
+              })
+            } else {
+              if (
+                !arr.some((item) => item.id == this.gisRightSelectedEntity.id)
+              ) {
+                gisvis.emitter.emit(EventType.deleteAllBubbles)
+                gisvis.emitter.emit(EventType.addAllBubbles, {
+                  multiple: false,
+                  oneArr: [this.gisRightSelectedEntity],
+                })
+              } else {
+                gisvis.emitter.emit(EventType.deleteAllBubbles)
+              }
+            }
+            break
         }
-        if (action != 'scopeSearch') {
+        //判断显示条件,除了这几个其余操作完成气泡都显示，这几个等弹窗确定完才显示气泡
+        if (
+          action != 'scopeSearch' &&
+          action != 'expandLatitude' &&
+          action != 'expandType'
+        ) {
           gisvis.emitter.emit(EventType.POPPER_SHOW)
         }
         if (gisvis.contextMenu) {
@@ -537,13 +668,15 @@ export default {
     },
     ...mapMutations('map', [
       'changeGisRightSelectedEntity',
+      'changeDimensionExpandShow',
       'updateGisEntities',
       'updateGisLines',
       'removeEntityBackEnd',
       'setAttackShow',
+      'changeTypeExpandShow',
+      'changeMenuType',
     ]),
     ...mapMutations('home', ['changeLoading']),
-
     /**
      * 隐藏地图，清除DOM
      */

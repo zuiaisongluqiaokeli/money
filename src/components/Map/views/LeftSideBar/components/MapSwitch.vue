@@ -5,6 +5,10 @@
       <el-switch class="switch" v-model="label"></el-switch>
     </div>
     <div>
+      <span>选中框：</span>
+      <el-switch class="switch" v-model="checkSelectEntityBox"></el-switch>
+    </div>
+    <div>
       <span>轨迹：</span>
       <el-switch class="switch" v-model="track"></el-switch>
     </div>
@@ -35,10 +39,10 @@
       <span>更改气泡窗颜色：</span>
       <el-color-picker v-model="changeBubbleBoxColor" show-alpha :predefine="predefineColors"></el-color-picker>
     </div>
-    <div>
+    <!-- <div>
       <span>鹰眼图：</span>
       <el-switch class="switch" v-model="eyeMap"></el-switch>
-    </div>
+    </div>-->
 
     <!-- <div>
       <span>切换飞机视角：</span>
@@ -76,10 +80,13 @@ export default {
       country: false,
       changePlaneView: false,
       globalSatellites: false,
-      bubbleBox: false,
+      bubbleBox: JSON.parse(sessionStorage.getItem('bubbleBox')),
       gridLatitudeLongitude: false,
       trackedEntity: {}, //切换飞机视角对象
       eyeMap: this.$store.state.map.eyeMap,
+      checkSelectEntityBox: JSON.parse(
+        sessionStorage.getItem('checkSelectEntityBox')
+      ),
       changeBubbleBoxColor: '#FFFFFF',
       predefineColors: [
         '#FFFFFF',
@@ -149,8 +156,14 @@ export default {
         let arr = this.allEntityBackEnd.filter(
           (item) => item.properties.longitude !== undefined
         )
-        emitter.emit(EventType.addAllBubbles)
+        if (arr.length) {
+          emitter.emit(EventType.deleteAllBubbles)
+          emitter.emit(EventType.addAllBubbles, { multiple: true, oneArr: [] })
+        } else {
+          this.$message.warning('地图暂无实体信息展示')
+        }
       } else {
+        emitter.emit(EventType.CLICK_BLANK)
         emitter.emit(EventType.deleteAllBubbles)
       }
     },
@@ -162,6 +175,13 @@ export default {
       if (val) this.changeEyeMap(true)
       else {
         this.changeEyeMap(false)
+      }
+    },
+    checkSelectEntityBox(val) {
+      if (val) {
+        emitter.emit(EventType.showSelectEntityBox) //显示绿色选框
+      } else {
+        emitter.emit(EventType.hideSelectEntityBox) //删除绿色选框
       }
     },
     changePlaneView(val) {
@@ -184,6 +204,7 @@ export default {
       'changeGisLabelShow',
       'changeGisTrackShow',
       'changeEyeMap',
+      'changeSelectEntityBox',
     ]),
     newnew() {
       var selectionIndicatorContainer = document.getElementsByClassName(

@@ -665,6 +665,7 @@ export default {
      */
     async afterSave(res) {
       let edges = []
+      let state = ''
       const removedEdge = []
       // edit 模式下只会返回一条数据
       const [item] = res
@@ -672,15 +673,17 @@ export default {
       const targetEdge = this.findEdge(targetId)
       if (this.type === 'add') {
         edges.push(...res)
+        state = 'add'
       } else if (this.type === 'edit') {
+        state = 'edit'
         const currentEdgeId = this.edgeId
 
         // 返回边的 id 不变，直接更新边的数据
         if (currentEdgeId === targetId) {
           edges.push(item)
-          targetEdge.type = item.type
-          targetEdge.property(item.properties)
-          targetEdge.setPropertiesList(item.propertiesList)
+          // targetEdge.type = item.type
+          // targetEdge.property(item.properties)
+          // targetEdge.setPropertiesList(item.propertiesList)
         } else {
           edges.push(item)
           removedEdge.push(currentEdgeId)
@@ -691,6 +694,7 @@ export default {
       this.updateGisLines({
         edges,
         choiceSelect: this.currentTypeData.currentRelationName,
+        dialogState: state,
       })
       // sativis.addEdges(edges);
       // sativis.render();

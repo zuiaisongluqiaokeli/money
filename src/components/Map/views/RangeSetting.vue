@@ -1,15 +1,79 @@
 <template>
   <div class="RangeSetting">
-    <el-dialog title="设置范围" visible width="400px" :modal="false" :before-close="close">
-      <el-form label-width="80px">
-        <el-form-item label="范围">
-          <el-input-number
-            v-model="range"
-            :controls="false"
-            style="width:200px"
-            placeholder="请输入范围"
-          ></el-input-number>
+    <el-dialog
+      title="距离搜索"
+      visible
+      width="660px"
+      :modal="false"
+      :before-close="close"
+      :close-on-click-modal="false"
+    >
+      <el-form label-width="80px" :model="verticeFilter" :rules="rules" ref="dialogForm">
+        <el-form-item label="距离" prop="range">
+          <el-input v-model="verticeFilter.range" placeholder="请输入距离" style="width:160px"></el-input>
           <span style="margin-left: 10px">公里</span>
+        </el-form-item>
+        <el-form-item label="标签">
+          <el-select
+            v-model="verticeFilter.labels"
+            style="width:160px"
+            clearable
+            multiple
+            filterable
+            allow-create
+            placeholder="请选择标签"
+          >
+            <el-option v-for="model in allLabels" :key="model" :label="model" :value="model"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          v-for="(item, index) in verticeFilter.props"
+          :key="index"
+          :label="index === 0 ? '属性' : ''"
+        >
+          <el-select
+            v-model="item.key"
+            allow-create
+            filterable
+            style="width:160px;margin-right:10px;"
+            placeholder="请选择属性"
+            class="select-input"
+          >
+            <el-option v-for="item in allProperties" :key="item" :label="item" :value="item"></el-option>
+          </el-select>
+          <el-select
+            v-model="item.operation"
+            :popper-append-to-body="false"
+            style="width:160px;margin-right:10px;"
+            placeholder="请选择操作符"
+            class="select-input"
+          >
+            <el-option
+              v-for="item in relPropList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+          <el-input
+            v-model="item.value"
+            class="select-input"
+            placeholder="请输入内容"
+            style="width:160px"
+          ></el-input>
+          <el-button
+            type="text"
+            icon="el-icon-close"
+            class="danger"
+            v-show="verticeFilter.props.length > 1"
+            @click="deletItem(index)"
+          ></el-button>
+          <el-button
+            type="text"
+            icon="el-icon-plus"
+            v-show="index + 1 === verticeFilter.props.length"
+            @click="addItem()"
+          ></el-button>
         </el-form-item>
       </el-form>
       <div class="footer" slot="footer">
@@ -33,9 +97,30 @@ export default {
   },
   data() {
     return {
-      range: 1000,
-      labels: [],
-      keyword: '',
+      rules: {
+        range: [
+          { required: true, message: '请输入距离', trigger: 'blur' },
+          // { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+        ],
+      },
+      relPropList: [
+        { label: '等于', value: '=' },
+        { label: '大于', value: '>' },
+        { label: '小于', value: '<' },
+        { label: '不等于', value: '<>' },
+      ], // 筛选关系
+      verticeFilter: {
+        range: '',
+        labels: [], // 标签
+        props: [
+          // 属性
+          {
+            key: '', // 属性名
+            operation: '', // 关系
+            value: '', // 结果名
+          },
+        ],
+      },
     }
   },
   computed: {
@@ -47,7 +132,7 @@ export default {
       'gisLabelShow',
     ]),
     ...mapGetters('graphInfo', ['graphName']),
-    ...mapGetters('map', ['allLabels', 'gisEntityIds']),
+    ...mapGetters('map', ['allLabels', 'gisEntityIds', 'allProperties']),
   },
   methods: {
     ...mapMutations('map', [
@@ -57,168 +142,190 @@ export default {
       'changeGisRightSelectedEntity',
     ]),
     ...mapMutations('home', ['changeLoading']),
-    dialogSave() {
-      gisvis.emitter.emit(EventType.POPPER_SHOW)
-      gisvis.emitter.emit(EventType.SCOPE_SEARCH, {
-        lon: this.gisRightSelectedEntity.properties.lng.getValue(),
-        lat: this.gisRightSelectedEntity.properties.lat.getValue(), //纬度
-        r: Number(this.range),
-        scanColor: Cesium.Color.GREEN,
-        interval: 4000, //时间
-        name: this.gisRightSelectedEntity.id.toString(), //标识名字有问题
+    // 实体搜索添加属性
+    addItem() {
+      this.verticeFilter.props.push({
+        key: '', // 属性名
+        operation: '', // 关系
+        value: '', // 结果名
       })
-      //请求接口搜索后销毁
-      setTimeout(() => {
-        gisvis.viewer.scene.postProcessStages.removeAll()
-      }, 6000)
-
-      //let primitiveTriangles = null
-      //画立体扇形
-      /*
-        @center 中心点
-        @radius 半径
-        @rotate 旋转角度（正东为0，顺时针为正方向）
-        @angle 扇形角度
-        */
-      // function drawSector(center, radius, rotate, angle) {
-      //   let vertex = []
-      //   let ellipsoid = viewer.scene.globe.ellipsoid
-      //   if (angle > 180) angle = 180
-      //   for (let i = 0; i < angle; i++) {
-      //     if (i >= 90) {
-      //       let bx = (-radius / 111201) * Math.cos((i * Math.PI) / 180)
-      //       let bz = radius * Math.sin((i * Math.PI) / 180)
-      //       let bxx = bx * Math.cos((rotate * Math.PI) / 180)
-      //       let byy = bx * Math.sin((rotate * Math.PI) / 180)
-      //       let tx = (-radius / 111201) * Math.cos(((i + 1) * Math.PI) / 180)
-      //       let tz = radius * Math.sin(((i + 1) * Math.PI) / 180)
-      //       let txx = tx * Math.cos((rotate * Math.PI) / 180)
-      //       let tyy = tx * Math.sin((rotate * Math.PI) / 180)
-      //       vertex.push(Cesium.Cartesian3.fromDegrees(center.x, center.y, 0))
-      //       vertex.push(
-      //         Cesium.Cartesian3.fromDegrees(center.x - bxx, center.y - byy, bz)
-      //       )
-      //       vertex.push(
-      //         Cesium.Cartesian3.fromDegrees(center.x - txx, center.y - tyy, tz)
-      //       )
-      //     } else {
-      //       let bx = (radius / 111201) * Math.cos((i * Math.PI) / 180)
-      //       let bz = radius * Math.sin((i * Math.PI) / 180)
-      //       let bxx = bx * Math.cos((rotate * Math.PI) / 180)
-      //       let byy = bx * Math.sin((rotate * Math.PI) / 180)
-      //       let tx = (radius / 111201) * Math.cos(((i + 1) * Math.PI) / 180)
-      //       let tz = radius * Math.sin(((i + 1) * Math.PI) / 180)
-      //       let txx = tx * Math.cos((rotate * Math.PI) / 180)
-      //       let tyy = tx * Math.sin((rotate * Math.PI) / 180)
-      //       vertex.push(Cesium.Cartesian3.fromDegrees(center.x, center.y, 0))
-      //       vertex.push(
-      //         Cesium.Cartesian3.fromDegrees(center.x + bxx, center.y + byy, bz)
-      //       )
-      //       vertex.push(
-      //         Cesium.Cartesian3.fromDegrees(center.x + txx, center.y + tyy, tz)
-      //       )
-      //     }
-      //   }
-      //   if (!primitiveTriangles) {
-      //     primitiveTriangles = new PrimitiveTriangles({
-      //       viewer: viewer,
-      //       Cartesians: vertex,
-      //       Colors: [0, 1, 1, 0.5, 0, 0, 1, 0.5, 0, 1, 1, 0.5],
-      //     })
-      //   } else {
-      //     primitiveTriangles.updateCartesianPositionColor(vertex, [
-      //       0,
-      //       1,
-      //       1,
-      //       0.5,
-      //       0,
-      //       0,
-      //       1,
-      //       0.5,
-      //       0,
-      //       1,
-      //       1,
-      //       0.5,
-      //     ])
-      //   }
-      // }
-
-      // let index = 0
-      // var timeId = setInterval(() => {
-      //   if (index > 360) {
-      //     index = 0
-      //   }
-      //   drawSector(
-      //     {
-      //       x: Number(gisvis.popper.instance.position.left.split('px')[0]),
-      //       y: Number(gisvis.popper.instance.position.top.split('px')[0]),
-      //     },
-      //     1000000,
-      //     index,
-      //     45
-      //   )
-      //   index += 10
-      // }, 50)
-
-      // setTimeout(() => {
-      //   this.$api
-      //     .getGisExpand(
-      //       this.graphName,
-      //       this.gisRightSelectedEntity.id,
-      //       this.range,
-      //       []
-      //     )
-      //     .then((res) => {
-      //       if (res.data.success) {
-      //         if (res.data.object) {
-      //           let result = res.data.object
-      //           //找余下的
-      //           let entities = result.vertices.filter((v) => {
-      //             return !this.allEntityBackEnd
-      //               .map((item) => item.id)
-      //               .includes(v.id)
-      //           })
-      //           if (entities.length) {
-      //             result.vertices.forEach((item) => {
-      //               item.properties.latitude = item.properties.纬度
-      //               item.properties.longitude = item.properties.经度
-      //             })
-      //             let gisData = {
-      //               entities: result.vertices,
-      //               labelShow: true,
-      //             }
-      //             gisvis.emitter.emit('gis-render-data', gisData)
-      //           } else {
-      //             gisvis.viewer.entities.removeById('marsRadarScan')
-      //             this.$message.success({ message: '无搜索结果' })
-      //           }
-      //         } else {
-      //           gisvis.viewer.entities.removeById('marsRadarScan')
-      //           this.$message.success({ message: '无搜索结果' })
-      //         }
-      //       } else {
-      //         gisvis.viewer.entities.removeById('marsRadarScan')
-      //         this.$message.error({
-      //           message: res.data.msg || res.data.errorMsg || '搜索失败',
-      //           duration: 1500,
-      //         })
-      //       }
-      //       window.clearInterval(timeId)
-      //     })
-      //     .catch(() => {
-      //       gisvis.viewer.entities.removeById('marsRadarScan')
-      //       this.$message.error({
-      //         message: '服务端异常，请联系管理员',
-      //         duration: 1500,
-      //       })
-      //       window.clearInterval(timeId)
-      //     })
-      // }, 1000)
-      if (gisvis.contextMenu) {
-        gisvis.contextMenu.destroy()
-        gisvis.contextMenu = null
+    },
+    deletItem(index) {
+      this.verticeFilter.props.splice(index, 1)
+    },
+    //过滤条件
+    getFilters(vertices, filters) {
+      let verticeByLabel = []
+      if (filters.labels.length) {
+        verticeByLabel = vertices.filter((v) =>
+          filters.labels.some((l) => v.labels.includes(l))
+        )
       }
+      let length = filters.props.length
+      if (filters.props[0].key == '') return vertices
+      let verticeByProp = vertices.filter((vertice) => {
+        let flag = false
+
+        for (let i = 0; i < length; i++) {
+          let p = filters.props[i]
+
+          if (vertice.properties[p.key] === undefined) continue
+
+          switch (p.operation) {
+            case '=':
+              flag = vertice.properties[p.key] + '' === p.value
+              break
+            case '<':
+              flag = vertice.properties[p.key] < +p.value
+              break
+            case '>':
+              flag = vertice.properties[p.key] > +p.value
+              break
+            case '<>':
+              flag = vertice.properties[p.key] + '' !== p.value
+              break
+          }
+          if (flag) break
+        }
+        return flag
+      })
+      return Array.from(new Set(verticeByLabel.concat(verticeByProp)))
+    },
+    async dialogSave() {
+      let flag = await new Promise((resolve) =>
+        this.$refs.dialogForm.validate(resolve)
+      )
+      if (!flag) return
+      //这种会漂移
+      // gisvis.emitter.emit(EventType.SCOPE_SEARCH, {
+      //   lon: this.gisRightSelectedEntity.properties.lng.getValue(),
+      //   lat: this.gisRightSelectedEntity.properties.lat.getValue(), //纬度
+      //   r: Number(this.range),
+      //   scanColor: Cesium.Color.GREEN,
+      //   interval: 4000, //时间
+      //   name: this.gisRightSelectedEntity.id.toString(), //标识名字有问题
+      // })
+      // console.log(viewer.scene.postProcessStages)
+      let rotation = Cesium.Math.toRadians(30)
+      let lon = Number(this.gisRightSelectedEntity.properties.lng.getValue())
+      let lat = Number(this.gisRightSelectedEntity.properties.lat.getValue())
+      function getRotationValue() {
+        rotation -= 0.02
+        return rotation
+      }
+      function drawCanvas() {
+        let canvas = document.getElementById('canvas-a')
+        canvas.style.width = window.innerWidth + 'px'
+        canvas.style.height = window.innerHeight + 'px'
+        let context = canvas.getContext('2d')
+        let grd = context.createLinearGradient(175, 100, canvas.width, 150)
+        grd.addColorStop(0, 'rgba(0,255,0,0)')
+        grd.addColorStop(1, 'rgba(0,255,0,1)')
+        context.fillStyle = grd
+        context.beginPath()
+        context.moveTo(150, 150)
+        context.arc(150, 150, 140, (-90 / 180) * Math.PI, (0 / 180) * Math.PI) //context.arc(x,y,r,sAngle,eAngle,counterclockwise);
+        context.fill()
+        return canvas
+      }
+      let i = 0
+      let obj = viewer.entities.add({
+        name: 'Rotating rectangle with rotating texture coordinate',
+        id: 'rangeRadars',
+        rectangle: {
+          coordinates: new Cesium.CallbackProperty(function () {
+            return Cesium.Rectangle.fromDegrees(
+              lon - 2.5,
+              lat - 2.5,
+              lon + 2.5,
+              lat + 2.5
+            )
+          }, false),
+          material: new Cesium.ImageMaterialProperty({
+            image: new Cesium.CallbackProperty(drawCanvas, false),
+            transparent: true,
+          }),
+          rotation: new Cesium.CallbackProperty(getRotationValue, false),
+          stRotation: new Cesium.CallbackProperty(getRotationValue, false),
+        },
+      })
+      let vertices = this.allEntityBackEnd.filter(
+        (e) => e.id.toString() === this.gisRightSelectedEntity.id.toString()
+      )
+      let vertex = vertices[0]
+      setTimeout(() => {
+        this.$api
+          .getGisExpand(
+            this.graphName,
+            vertex,
+            this.verticeFilter.range,
+            this.verticeFilter.labels
+          )
+          .then((res) => {
+            if (res.data.success) {
+              let result = res.data.object
+              if (result && result.vertices.length) {
+                //找到的实体要满足这个条件的
+                let entities = this.getFilters(
+                  result.vertices,
+                  this.verticeFilter
+                )
+                entities.forEach((item) => {
+                  item.id = Number(item.id)
+                  if (
+                    item.properties.hasOwnProperty('经度') &&
+                    item.properties.经度
+                  ) {
+                    item.properties.longitude = item.properties.经度 //绘图用
+                    item.properties.latitude = item.properties.纬度
+                  } else if (
+                    item.properties.hasOwnProperty('longitude') &&
+                    item.properties.longitude
+                  ) {
+                    item.properties.longitude = item.properties.longitude //绘图用
+                    item.properties.latitude = item.properties.latitude
+                  } else {
+                    item.properties.longitude = undefined
+                    item.properties.latitude = undefined
+                  }
+                  if (
+                    (item.properties.hasOwnProperty('分类名称') &&
+                      item.properties.分类名称) ||
+                    (item.properties.hasOwnProperty('实体分类') &&
+                      item.properties.实体分类)
+                  ) {
+                    item.properties.实体分类 =
+                      (item.properties.hasOwnProperty('实体分类') &&
+                        item.properties.实体分类) ||
+                      (item.properties.hasOwnProperty('分类名称') &&
+                        item.properties.分类名称)
+                  } else {
+                    item.properties.实体分类 = '暂未分类'
+                  }
+                })
+                gisvis.viewer.entities.removeById('rangeRadars')
+                //放入VUEX重新分组+批量去重绘制
+                let gisData = {
+                  entities: entities,
+                  labelShow: this.gisLabelShow,
+                }
+                gisvis.emitter.emit('gis-render-data', gisData)
+              } else {
+                gisvis.viewer.entities.removeById('marsRadarScan')
+                this.$message.success({ message: '无搜索结果' })
+              }
+            } else {
+              gisvis.viewer.entities.removeById('marsRadarScan')
+              this.$message.error({
+                message: res.data.msg || res.data.errorMsg || '搜索失败',
+                duration: 1500,
+              })
+            }
+          })
+      }, 100)
       this.close()
+      //弹窗消失才打开气泡，不然会导致弹窗和气泡一起出现的情况
+      gisvis.emitter.emit(EventType.POPPER_SHOW)
     },
   },
 }
@@ -236,12 +343,126 @@ export default {
   .footer {
     text-align: right;
   }
-
   /deep/ .el-dialog {
     min-height: 150px;
   }
-  /deep/ .el-form-item {
-    margin-bottom: 0;
+}
+</style>
+
+<style lang="scss" scoped>
+.tool-tag {
+  max-height: 426px;
+  margin: -12px 0;
+  padding: 12px 0;
+
+  .body {
+    width: 500px;
+    margin: 0 10px;
+
+    .main-box {
+      .tab-content {
+        .select-input + .select-input {
+          margin-left: 16px;
+        }
+
+        .select-input ~ button {
+          margin-left: 16px;
+        }
+
+        .select-input {
+          width: 114px;
+
+          &.el-checkbox {
+            width: initial;
+          }
+        }
+
+        .danger {
+          color: var(--color-danger);
+        }
+
+        .set {
+          padding-top: 10px;
+          border-top: 1px solid var(--border-color-base);
+        }
+
+        .el-select {
+          &.name {
+            width: 100%;
+          }
+        }
+        .icon-select,
+        .color-select {
+          display: flex;
+          align-items: center;
+          img,
+          .color {
+            width: 30px;
+            height: 30px;
+            margin-left: 10px;
+          }
+        }
+        .range-setting {
+          .range-item {
+            margin-top: 10px;
+            display: flex;
+          }
+          .range-input {
+            width: 200px;
+            margin-right: 20px;
+          }
+          .color {
+            width: 30px;
+            height: 30px;
+            margin-left: 10px;
+          }
+        }
+      }
+    }
+
+    /deep/ .popper__arrow {
+      display: none;
+    }
+
+    /deep/ .show-btn {
+      margin-right: 10px;
+      text-align: right;
+      .reset {
+        float: left;
+      }
+    }
+
+    .active {
+      color: var(--color-text-primary) !important;
+    }
+  }
+
+  /deep/ .el-select .el-tag.el-tag--info {
+    color: #fafafa;
+  }
+  /deep/ .RangeSetting .el-form-item {
+    margin-bottom: 18px;
+  }
+  /deep/ input::-webkit-input-placeholder {
+    color: var(--color-text-placeholder);
+    font-size: var(--font-size-extra-small);
+  }
+
+  /deep/ input:-moz-placeholder {
+    color: var(--color-text-placeholder);
+    font-size: var(--font-size-extra-small);
+  }
+
+  /deep/ input::placeholder {
+    color: var(--color-text-placeholder);
+    font-size: var(--font-size-extra-small);
+    // padding: 4px;
+    // background-color: #2b2b2b5e;
+  }
+
+  /deep/ input:-ms-input-placeholder {
+    color: var(--color-text-placeholder);
+    font-size: var(--font-size-extra-small);
   }
 }
 </style>

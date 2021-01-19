@@ -1,67 +1,78 @@
-
-let _instance = null;
+let _instance = null
 const _imageryProvider =
-  "http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali";
-// const _imageryProvider =
-//   location.origin + '/map-resource/map-resource/imagery/{z}/{y}/{x}.jpg'
+  location.origin + '/map-resource/map-resource/imagery/{z}/{y}/{x}.jpg'
 var token = '6c70bdd9f7f6968e0426350072bc945a'
 // 服务域名
 var tdtUrl = 'https://t{s}.tianditu.gov.cn/'
 // 服务负载子域
-var subdomains = ['0', '1', '2', '3', '4', '5', '6', '7']
+var subdomains = ['1', '2', '3', '4', '5', '6', '7']
 class Viewer {
-  viewer = null;
+  viewer = null
 
   constructor(options = {}) {
     if (_instance) {
       // return _instance;
     }
 
-    const {
-      imageryProvider = _imageryProvider
-    } = options;
+    // const {
+    //   imageryProvider = _imageryProvider
+    // } = options;
 
-    this.imageryProvider = imageryProvider;
+    this.imageryProvider = _imageryProvider;
 
-    window.ViewerInstance = this;
+    window.ViewerInstance = this
 
-    this.initMap();
-    _instance = this.viewer;
+    this.initMap()
+    _instance = this.viewer
 
-    return this.viewer;
+    return this.viewer
   }
   /**
    * 初始化地图
    */
   initMap() {
+    Cesium.Ion.defaultAccessToken =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5OTg5MDY5MC1jYmRlLTRlOWYtYWRhZi04Njk3MzQ2YTBiMWYiLCJpZCI6MzQ4NjgsImlhdCI6MTYwMDk0MDQ5OX0.eH2wlV-qgQnnpm7LONdILKuTGx5_MbXPUVPUHVNPwk0";
     const imageryProvider = new Cesium.UrlTemplateImageryProvider({
-      url: this.imageryProvider
+      url: tdtUrl + 'DataServer?T=img_w&x={x}&y={y}&l={z}&tk=' + token,
+      //url: this.imageryProvider,
+      subdomains: subdomains,
+      tilingScheme: new Cesium.WebMercatorTilingScheme(),
+      maximumLevel: 18,
     });
-    window.viewer = this.viewer = new Cesium.Viewer("cesium", {
+    window.viewer = this.viewer = new Cesium.Viewer('cesium', {
       imageryProvider: imageryProvider,
       shouldAnimate: true,
       animation: false,
       timeline: true,
       navigationHelpButton: false,
-      selectionIndicator: true,//移除靶
+      selectionIndicator: true, //移除靶
       sceneModePicker: true, //切换二维
-      creditContainer: document.createElement("div"),
+      creditContainer: document.createElement('div'),
       fullscreenButton: false,
       geocoder: false,
       homeButton: false,
       baseLayerPicker: false, //去掉基础图层
       infoBox: false
-    });
+    })
     // 抗锯齿
     viewer.scene.postProcessStages.fxaa.enabled = false
     // 水雾特效
     viewer.scene.globe.showGroundAtmosphere = true
+    // 叠加影像服务
+    // var imgMap = new Cesium.UrlTemplateImageryProvider({
+    //   url: tdtUrl + 'DataServer?T=img_w&x={x}&y={y}&l={z}&tk=' + token,
+    //   subdomains: subdomains,
+    //   tilingScheme: new Cesium.WebMercatorTilingScheme(),
+    //   maximumLevel: 30
+    // })
+    //viewer.imageryLayers.addImageryProvider(imgMap)
     // 叠加国界服务
     var iboMap = new Cesium.UrlTemplateImageryProvider({
       url: tdtUrl + 'DataServer?T=ibo_w&x={x}&y={y}&l={z}&tk=' + token,
       subdomains: subdomains,
       tilingScheme: new Cesium.WebMercatorTilingScheme(),
-      maximumLevel: 10,
+      maximumLevel: 10
     })
     viewer.imageryLayers.addImageryProvider(iboMap)
     // 叠加地形服务
@@ -88,10 +99,10 @@ class Viewer {
           minX: -180,
           minY: -90,
           maxX: 180,
-          maxY: 90,
+          maxY: 90
         },
         minLevel: 1,
-        maxLevel: 20,
+        maxLevel: 20
       },
       aotuCollide: true, //是否开启避让
       collisionPadding: [5, 10, 8, 5], //开启避让时，标注碰撞增加内边距，上、右、下、左
@@ -110,7 +121,7 @@ class Viewer {
         horizontalOrigin: Cesium.HorizontalOrigin.MIDDLE,
         verticalOrigin: Cesium.VerticalOrigin.TOP,
         eyeOffset: Cesium.Cartesian3.ZERO,
-        pixelOffset: new Cesium.Cartesian2(0, 8),
+        pixelOffset: new Cesium.Cartesian2(0, 8)
       },
       billboardGraphics: {
         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
@@ -122,8 +133,8 @@ class Viewer {
         rotation: 0,
         scale: 1,
         width: 18,
-        height: 18,
-      },
+        height: 18
+      }
     })
     //三维地名服务，使用wtfs服务
     wtfs.getTileUrl = function () {
@@ -132,121 +143,215 @@ class Viewer {
     wtfs.getIcoUrl = function () {
       return tdtUrl + 'mapservice/GetIcon?id={id}&tk=' + token
     }
-    wtfs.initTDT([
-      {
+    wtfs.initTDT([{
         x: 6,
         y: 1,
         level: 2,
-        boundBox: { minX: 90, minY: 0, maxX: 135, maxY: 45 },
+        boundBox: {
+          minX: 90,
+          minY: 0,
+          maxX: 135,
+          maxY: 45
+        }
       },
       {
         x: 7,
         y: 1,
         level: 2,
-        boundBox: { minX: 135, minY: 0, maxX: 180, maxY: 45 },
+        boundBox: {
+          minX: 135,
+          minY: 0,
+          maxX: 180,
+          maxY: 45
+        }
       },
       {
         x: 6,
         y: 0,
         level: 2,
-        boundBox: { minX: 90, minY: 45, maxX: 135, maxY: 90 },
+        boundBox: {
+          minX: 90,
+          minY: 45,
+          maxX: 135,
+          maxY: 90
+        }
       },
       {
         x: 7,
         y: 0,
         level: 2,
-        boundBox: { minX: 135, minY: 45, maxX: 180, maxY: 90 },
+        boundBox: {
+          minX: 135,
+          minY: 45,
+          maxX: 180,
+          maxY: 90
+        }
       },
       {
         x: 5,
         y: 1,
         level: 2,
-        boundBox: { minX: 45, minY: 0, maxX: 90, maxY: 45 },
+        boundBox: {
+          minX: 45,
+          minY: 0,
+          maxX: 90,
+          maxY: 45
+        }
       },
       {
         x: 4,
         y: 1,
         level: 2,
-        boundBox: { minX: 0, minY: 0, maxX: 45, maxY: 45 },
+        boundBox: {
+          minX: 0,
+          minY: 0,
+          maxX: 45,
+          maxY: 45
+        }
       },
       {
         x: 5,
         y: 0,
         level: 2,
-        boundBox: { minX: 45, minY: 45, maxX: 90, maxY: 90 },
+        boundBox: {
+          minX: 45,
+          minY: 45,
+          maxX: 90,
+          maxY: 90
+        }
       },
       {
         x: 4,
         y: 0,
         level: 2,
-        boundBox: { minX: 0, minY: 45, maxX: 45, maxY: 90 },
+        boundBox: {
+          minX: 0,
+          minY: 45,
+          maxX: 45,
+          maxY: 90
+        }
       },
       {
         x: 6,
         y: 2,
         level: 2,
-        boundBox: { minX: 90, minY: -45, maxX: 135, maxY: 0 },
+        boundBox: {
+          minX: 90,
+          minY: -45,
+          maxX: 135,
+          maxY: 0
+        }
       },
       {
         x: 6,
         y: 3,
         level: 2,
-        boundBox: { minX: 90, minY: -90, maxX: 135, maxY: -45 },
+        boundBox: {
+          minX: 90,
+          minY: -90,
+          maxX: 135,
+          maxY: -45
+        }
       },
       {
         x: 7,
         y: 2,
         level: 2,
-        boundBox: { minX: 135, minY: -45, maxX: 180, maxY: 0 },
+        boundBox: {
+          minX: 135,
+          minY: -45,
+          maxX: 180,
+          maxY: 0
+        }
       },
       {
         x: 5,
         y: 2,
         level: 2,
-        boundBox: { minX: 45, minY: -45, maxX: 90, maxY: 0 },
+        boundBox: {
+          minX: 45,
+          minY: -45,
+          maxX: 90,
+          maxY: 0
+        }
       },
       {
         x: 4,
         y: 2,
         level: 2,
-        boundBox: { minX: 0, minY: -45, maxX: 45, maxY: 0 },
+        boundBox: {
+          minX: 0,
+          minY: -45,
+          maxX: 45,
+          maxY: 0
+        }
       },
       {
         x: 3,
         y: 1,
         level: 2,
-        boundBox: { minX: -45, minY: 0, maxX: 0, maxY: 45 },
+        boundBox: {
+          minX: -45,
+          minY: 0,
+          maxX: 0,
+          maxY: 45
+        }
       },
       {
         x: 3,
         y: 0,
         level: 2,
-        boundBox: { minX: -45, minY: 45, maxX: 0, maxY: 90 },
+        boundBox: {
+          minX: -45,
+          minY: 45,
+          maxX: 0,
+          maxY: 90
+        }
       },
       {
         x: 2,
         y: 0,
         level: 2,
-        boundBox: { minX: -90, minY: 45, maxX: -45, maxY: 90 },
+        boundBox: {
+          minX: -90,
+          minY: 45,
+          maxX: -45,
+          maxY: 90
+        }
       },
       {
         x: 0,
         y: 1,
         level: 2,
-        boundBox: { minX: -180, minY: 0, maxX: -135, maxY: 45 },
+        boundBox: {
+          minX: -180,
+          minY: 0,
+          maxX: -135,
+          maxY: 45
+        }
       },
       {
         x: 1,
         y: 0,
         level: 2,
-        boundBox: { minX: -135, minY: 45, maxX: -90, maxY: 90 },
+        boundBox: {
+          minX: -135,
+          minY: 45,
+          maxX: -90,
+          maxY: 90
+        }
       },
       {
         x: 0,
         y: 0,
         level: 2,
-        boundBox: { minX: -180, minY: 45, maxX: -135, maxY: 90 },
-      },
+        boundBox: {
+          minX: -180,
+          minY: 45,
+          maxX: -135,
+          maxY: 90
+        }
+      }
     ])
     //靶子
     // let svg = this.viewer._selectionIndicator.viewModel.selectionIndicatorElement.getElementsByTagName('svg:svg')[0];
@@ -254,28 +359,29 @@ class Viewer {
     // svg.style.fill = 'white';//还可以修改样式
     //设置鹰眼图中球属性
     window.viewer1 = new Cesium.Viewer('eye', {
-      imageryProvider: imageryProvider,
       shouldAnimate: true,
       animation: false,
       timeline: false,
       navigationHelpButton: false,
       sceneModePicker: false,
-      creditContainer: document.createElement("div"),
+      creditContainer: document.createElement('div'),
       fullscreenButton: false,
       geocoder: false,
       homeButton: false,
       baseLayerPicker: false, //去掉基础图层
       infoBox: false
-    });
+    })
+    //window.viewer1.imageryLayers.addImageryProvider(imgMap)
+    window.viewer1.imageryLayers.addImageryProvider(iboMap)
     //地球缩放效果
     // viewer.scene.screenSpaceCameraController.minimumZoomDistance = 100;//相机的高度的最小值
     // viewer.scene.screenSpaceCameraController.maximumZoomDistance = 22000000;  //相机高度的最大值
-    let control = window.viewer1.scene.screenSpaceCameraController;
-    control.enableRotate = false;
-    control.enableTranslate = false;
-    control.enableZoom = false;
-    control.enableTilt = false;
-    control.enableLook = false;
+    let control = window.viewer1.scene.screenSpaceCameraController
+    control.enableRotate = false
+    control.enableTranslate = false
+    control.enableZoom = false
+    control.enableTilt = false
+    control.enableLook = false
     let syncViewer = function () {
       window.viewer1.camera.flyTo({
         destination: viewer.camera.position,
@@ -285,34 +391,34 @@ class Viewer {
           roll: viewer.camera.roll
         },
         duration: 0.0
-      });
-    };
+      })
+    }
     //鹰眼同步
     viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(0, 0),
       label: {
         text: new Cesium.CallbackProperty(function () {
-          syncViewer();
-          return "";
+          syncViewer()
+          return ''
         }, true)
       }
     })
     //罗盘
-    var options = {};
+    var options = {}
     // 用于启用或禁用罗盘。
-    options.enableCompass = true;
+    options.enableCompass = true
     // 用于启用或禁用缩放控件。
-    options.enableZoomControls = true;
+    options.enableZoomControls = true
     // 用于启用或禁用距离图例。
-    options.enableDistanceLegend = true;
+    options.enableDistanceLegend = true
     // 用于启用或禁用指南针外环。
-    options.enableCompassOuterRing = true;
-    this.viewer.extend(Cesium.viewerCesiumNavigationMixin, options);
+    options.enableCompassOuterRing = true
+    this.viewer.extend(Cesium.viewerCesiumNavigationMixin, options)
   }
 }
 
 export {
   Viewer
-};
+}
 
-export default Viewer;
+export default Viewer

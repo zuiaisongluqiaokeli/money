@@ -58,14 +58,14 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 import {
   getTransferredKeys,
   transferPropsKey,
   processCategoryData,
-  processGroupData
-} from "../src/Methods";
-import { emitter, EventType } from "../src/EventEmitter";
+  processGroupData,
+} from '../src/Methods'
+import { emitter, EventType } from '../src/EventEmitter'
 import {
   knowledgeDataCreate,
   knowledgeDataUpdate,
@@ -74,19 +74,19 @@ import {
   knowledgeEquipmentFindOne,
   geoNodeCreate,
   geoNodeUpdate,
-  findMountById
-} from "@/assets/api/map";
+  findMountById,
+} from '@/assets/api/map'
 
-import GroupInfo from "./components/GroupInfo";
-import CategoryInfo from "./components/CategoryInfo";
+import GroupInfo from './components/GroupInfo'
+import CategoryInfo from './components/CategoryInfo'
 
 export default {
   components: {
     GroupInfo,
-    CategoryInfo
+    CategoryInfo,
   },
 
-  inject: ["provide"],
+  inject: ['provide'],
 
   data() {
     return {
@@ -94,7 +94,7 @@ export default {
       infoData: [],
       infoEditData: [],
       edit: false,
-      detailDialogTitle: "",
+      detailDialogTitle: '',
       detailData: [],
       detailDialogVisible: false,
       groupInfoVisible: false,
@@ -105,16 +105,16 @@ export default {
       entityProperties: {},
       show: false,
       fixed: false,
-      selectedEntity: null
-    };
+      selectedEntity: null,
+    }
   },
 
   computed: {
-    ...mapState("graphInfo", ["name"]),
+    ...mapState('graphInfo', ['name']),
     group() {
-      const { group } = this.entityProperties;
-      return group;
-    }
+      const { group } = this.entityProperties
+      return group
+    },
   },
 
   watch: {
@@ -122,199 +122,199 @@ export default {
     async selectedEntityChange(value) {
       if (value) {
         if (this.selectedEntity) {
-          this.show = true;
-          this.groupInfoVisible = false;
-          this.categoryInfoVisible = false;
+          this.show = true
+          this.groupInfoVisible = false
+          this.categoryInfoVisible = false
 
-          const { id, entityId } = this.selectedEntity;
+          const { id, entityId } = this.selectedEntity
 
-          this.id = id;
-          this.entityId = entityId;
-          this.entityProperties = this.selectedEntity.id.properties.getValue();
-          this.infoData = await this.getInfoData(); //属性
+          this.id = id
+          this.entityId = entityId
+          this.entityProperties = this.selectedEntity.id.properties.getValue()
+          this.infoData = await this.getInfoData() //属性
 
           if (this.group) {
-            this.groupInfoVisible = true;
+            this.groupInfoVisible = true
           } else {
-            this.categoryInfoVisible = true;
+            this.categoryInfoVisible = true
           }
         } else {
-          ({ id: this.id, entityId: this.entityId } = this.$options.data());
-          this.groupInfoVisible = false;
-          this.categoryInfoVisible = false;
+          ;({ id: this.id, entityId: this.entityId } = this.$options.data())
+          this.groupInfoVisible = false
+          this.categoryInfoVisible = false
         }
 
-        this.selectedEntityChange = false;
+        this.selectedEntityChange = false
       }
-    }
+    },
     //实体改变的时候时候开始编辑
     entityId(value) {
       if (this.selectedEntity) {
         if (!value) {
-          this.onEdit();
+          this.onEdit()
         } else {
-          this.offEdit();
+          this.offEdit()
         }
       }
     },
   },
 
   created() {
-    emitter.on(EventType.CLICK_BLANK, this.close, this);
-    emitter.on(EventType.CLICK_ENTITY, this.handleSelectedEntityChange, this);
+    emitter.on(EventType.CLICK_BLANK, this.close, this)
+    emitter.on(EventType.CLICK_ENTITY, this.handleSelectedEntityChange, this)
   },
   beforeDestroy() {
-    emitter.off(EventType.CLICK_BLANK, this.close);
-    emitter.off(EventType.CLICK_ENTITY, this.handleSelectedEntityChange);
+    emitter.off(EventType.CLICK_BLANK, this.close)
+    emitter.off(EventType.CLICK_ENTITY, this.handleSelectedEntityChange)
   },
 
   methods: {
     clickTabButton() {
-      this.show = !this.show;
+      this.show = !this.show
     },
     fixedPanel() {
-      this.fixed = !this.fixed;
-      let message = "面板已锁住";
+      this.fixed = !this.fixed
+      let message = '面板已锁住'
       if (!this.fixed) {
-        message = "面板已解锁";
+        message = '面板已解锁'
       }
       this.$message.warning({
         message,
-        duration: 1500
-      });
+        duration: 1500,
+      })
     },
     close() {
-      this.selectedEntity = null;
-      !this.fixed && (this.show = false);
+      this.selectedEntity = null
+      !this.fixed && (this.show = false)
     },
     /**
      * 选中的实体变化
      */
     handleSelectedEntityChange(entity) {
-      this.selectedEntity = entity;
-      this.selectedEntityChange = true;
+      this.selectedEntity = entity
+      this.selectedEntityChange = true
     },
     /**
      * 获取列表数据
      */
     async getInfoData() {
-      const { properties, entityId } = this.selectedEntity.id;
-      const values = properties.getValue();
-      const { group } = values;
-      let result = values;
+      const { properties, entityId } = this.selectedEntity.id
+      const values = properties.getValue()
+      const { group } = values
+      let result = values
 
       // 已经存在的实体
       if (entityId || entityId === 0) {
         // 请求实体信息
-        const data = [await this.getEntityInfo(entityId)];
+        const data = [await this.getEntityInfo(entityId)]
 
-        [result] = group
+        ;[result] = group
           ? processGroupData(data)
-          : processCategoryData(data, { flat: true });
+          : processCategoryData(data, { flat: true })
       }
 
-      return { ...result };
+      return { ...result }
     },
     /**
      * 获取实体信息
      */
     async getEntityInfo(id) {
-      const graphName = this.name;
-      const res = await knowledgeEquipmentQuery(id, graphName);
-      const { data } = res;
-      const { object, success, msg } = data;
+      const graphName = this.name
+      const res = await knowledgeEquipmentQuery(id, graphName)
+      const { data } = res
+      const { object, success, msg } = data
       // const { object, success, msg } = mapEntityInfoGroupJson;
 
       if (!success) {
-        this.$message.error(msg);
+        this.$message.error(msg)
       }
 
-      return object || [];
+      return object || []
     },
     /**
      * 开启编辑模式
      */
     onEdit() {
-      this.edit = true;
+      this.edit = true
     },
     /**
      * 关闭编辑模式
      */
     offEdit() {
-      this.edit = false;
+      this.edit = false
     },
     /**
      * 确定修改
      */
     async submitEdit() {
-      const success = await this.vertexModify();
+      const success = await this.vertexModify()
 
       if (success) {
-        this.edit = false;
+        this.edit = false
       }
     },
     /**
      * 取消修改
      */
     cancelEdit() {
-      this.edit = false;
+      this.edit = false
       if (!this.entityId) {
-        emitter.emit(EventType.DELETE_ENTITIES_BY_ID, this.id);
-        emitter.emit(EventType.CLICK_ENTITY, null);
-        emitter.emit(EventType.POPPER_REMOVE);
+        emitter.emit(EventType.DELETE_ENTITIES_BY_ID, this.id)
+        emitter.emit(EventType.CLICK_ENTITY, null)
+        emitter.emit(EventType.POPPER_REMOVE)
       }
     },
     /**
      * 部署数据新增和修改
      */
     async vertexModify() {
-      let params = {};
+      let params = {}
 
       if (this.group) {
-        const data = this.$refs.groupInfo.submit();
+        const data = this.$refs.groupInfo.submit()
         const {
           name: nameKey,
           lng: lngKey,
           lat: latKey,
           groupCategory: groupCategoryKey,
           groupType: groupTypeKey,
-          country: countryKey
-        } = getTransferredKeys();
+          country: countryKey,
+        } = getTransferredKeys()
         const props = data.reduce((previous, current) => {
-          const { key, value } = current;
+          const { key, value } = current
 
-          previous[key] = value;
+          previous[key] = value
 
-          return previous;
-        }, {});
+          return previous
+        }, {})
         const {
           name,
           lng,
           lat,
           groupCategory,
           groupType,
-          country
-        } = transferPropsKey(props);
+          country,
+        } = transferPropsKey(props)
 
         if (!name) {
-          this.$message.error(`${nameKey}不能为空`);
+          this.$message.error(`${nameKey}不能为空`)
 
-          return;
+          return
         }
         if (!lng) {
-          this.$message.error(`${lngKey}不能为空`);
+          this.$message.error(`${lngKey}不能为空`)
 
-          return;
+          return
         }
         if (!lat) {
-          this.$message.error(`${latKey}不能为空`);
+          this.$message.error(`${latKey}不能为空`)
 
-          return;
+          return
         }
         if (!country) {
-          this.$message.error(`${countryKey}不能为空`);
+          this.$message.error(`${countryKey}不能为空`)
 
-          return;
+          return
         }
 
         const properties = {
@@ -324,19 +324,19 @@ export default {
           [latKey]: String(lat),
           [groupCategoryKey]: groupCategory,
           [groupTypeKey]: groupType,
-          [countryKey]: country
-        };
+          [countryKey]: country,
+        }
 
         params = {
           id: this.entityId,
           name: name,
           graphName: this.name,
           properties: properties,
-          labels: this.group
-        };
+          labels: this.group,
+        }
       }
       if (!this.group) {
-        const data = this.$refs.categoryInfo.submit();
+        const data = this.$refs.categoryInfo.submit()
         const {
           name: nameKey,
           lng: lngKey,
@@ -346,66 +346,62 @@ export default {
           deployCount: deployCountKey,
           deployment: deploymentKey,
           accessory: accessoryKey,
-          membership: membershipKey
-        } = getTransferredKeys();
+          membership: membershipKey,
+        } = getTransferredKeys()
         const props = data.reduce((previous, current) => {
-          const { key, value, data } = current;
+          const { key, value, data } = current
 
           if (key === deploymentKey) {
-            const deployment = data.length ? data[0].name : "";
+            const deployment = data.length ? data[0].name : ''
 
-            previous[key] = deployment;
+            previous[key] = deployment
           } else {
-            previous[key] = value;
+            previous[key] = value
           }
 
-          return previous;
-        }, {});
+          return previous
+        }, {})
         const {
           name,
           lng,
           lat,
           category,
           type,
-          deployCount
-        } = transferPropsKey(props);
+          deployCount,
+        } = transferPropsKey(props)
         // 部署装备
-        const { data: children } = data.find(
-          ({ key }) => key === deploymentKey
-        );
+        const { data: children } = data.find(({ key }) => key === deploymentKey)
         // 挂载方案
-        const { data: accessory } = data.find(
-          ({ key }) => key === accessoryKey
-        );
+        const { data: accessory } = data.find(({ key }) => key === accessoryKey)
         // 隶属
-        const { data: parent } = data.find(({ key }) => key === membershipKey);
-        const { id: childrenId } = children[0] || {};
-        const { id: parentId } = parent;
+        const { data: parent } = data.find(({ key }) => key === membershipKey)
+        const { id: childrenId } = children[0] || {}
+        const { id: parentId } = parent
 
         if (!name) {
-          this.$message.error(`${nameKey}不能为空`);
+          this.$message.error(`${nameKey}不能为空`)
 
-          return;
+          return
         }
         if (!lng) {
-          this.$message.error(`${lngKey}不能为空`);
+          this.$message.error(`${lngKey}不能为空`)
 
-          return;
+          return
         }
         if (!lat) {
-          this.$message.error(`${latKey}不能为空`);
+          this.$message.error(`${latKey}不能为空`)
 
-          return;
+          return
         }
         if (!childrenId) {
-          this.$message.error(`${deploymentKey}不能为空`);
+          this.$message.error(`${deploymentKey}不能为空`)
 
-          return;
+          return
         }
         if (!parentId) {
-          this.$message.error(`${membershipKey}不能为空`);
+          this.$message.error(`${membershipKey}不能为空`)
 
-          return;
+          return
         }
 
         const properties = {
@@ -414,8 +410,8 @@ export default {
           [latKey]: String(lat),
           [categoryKey]: category,
           [typeKey]: type,
-          [deployCountKey]: deployCount || "1"
-        };
+          [deployCountKey]: deployCount || '1',
+        }
 
         params = {
           graphName: this.name,
@@ -423,106 +419,106 @@ export default {
           groupId: parentId,
           equipmentId: childrenId,
           accessoryId: accessory,
-          edgeId: this.entityId
-        };
+          edgeId: this.entityId,
+        }
       }
 
-      let result = {};
+      let result = {}
       // 新增或修改
       if (this.entityId) {
         result = this.group
           ? await this.geoNodeUpdate(params)
-          : await this.knowledgeDataUpdate(params);
+          : await this.knowledgeDataUpdate(params)
       } else {
         result = this.group
           ? await this.geoNodeCreate(params)
-          : await this.knowledgeDataCreate(params);
+          : await this.knowledgeDataCreate(params)
       }
-      console.log("保存的结果数据", result);
-      const { success } = result;
+      console.log('保存的结果数据', result)
+      const { success } = result
 
       if (success) {
-        this.entityModify(result);
+        this.entityModify(result)
       }
 
-      return success;
+      return success
     },
     /**
      * group分组新增
      */
     async geoNodeCreate(vertexDTO) {
-      const res = await geoNodeCreate(vertexDTO);
-      const { data } = res;
-      const { success, msg } = data;
+      const res = await geoNodeCreate(vertexDTO)
+      const { data } = res
+      const { success, msg } = data
 
       if (!success) {
-        this.$message.error(msg);
+        this.$message.error(msg)
       } else {
-        this.$message.success(msg);
+        this.$message.success(msg)
       }
 
-      return data;
+      return data
     },
     /**
      * group分组编辑
      */
     async geoNodeUpdate(vertexDTO) {
-      const res = await geoNodeUpdate(vertexDTO);
-      const { data } = res;
-      const { success, msg } = data;
+      const res = await geoNodeUpdate(vertexDTO)
+      const { data } = res
+      const { success, msg } = data
 
       if (!success) {
-        this.$message.error(msg);
+        this.$message.error(msg)
       } else {
-        this.$message.success(msg);
+        this.$message.success(msg)
       }
 
-      return data;
+      return data
     },
     /**
      * 部署数据新增
      */
     async knowledgeDataCreate(vertexDTO) {
-      const res = await knowledgeDataCreate(vertexDTO);
-      const { data } = res;
-      const { success, msg } = data;
+      const res = await knowledgeDataCreate(vertexDTO)
+      const { data } = res
+      const { success, msg } = data
 
       if (!success) {
-        this.$message.error(msg);
+        this.$message.error(msg)
       } else {
-        this.$message.success(msg);
+        this.$message.success(msg)
       }
 
-      return data;
+      return data
     },
     /**
      * 部署数据编辑
      */
     async knowledgeDataUpdate(vertexDTO) {
-      const res = await knowledgeDataUpdate(vertexDTO);
-      const { data } = res;
-      const { success, msg } = data;
+      const res = await knowledgeDataUpdate(vertexDTO)
+      const { data } = res
+      const { success, msg } = data
 
       if (!success) {
-        this.$message.error(msg);
+        this.$message.error(msg)
       } else {
-        this.$message.success(msg);
+        this.$message.success(msg)
       }
 
-      return data;
+      return data
     },
     /**
      * 修改到地图中实体
      */
     entityModify(result) {
       // TODO
-      const { object } = result;
-      const { labels } = object;
-      let res = object;
+      const { object } = result
+      const { labels } = object
+      let res = object
 
       // group分组
       if (labels) {
-        res = object.properties;
+        res = object.properties
       }
 
       const {
@@ -534,49 +530,49 @@ export default {
         groupType,
         category,
         type,
-        radius
-      } = transferPropsKey(res);
+        radius,
+      } = transferPropsKey(res)
       const props = {
         id: labels ? object.id : id,
         name,
         lng,
         lat,
         radius,
-        groupCategory
-      };
-      const oldId = this.id;
+        groupCategory,
+      }
+      const oldId = this.id
 
       Object.assign(
         props,
         labels
           ? {
               groupType: groupCategory,
-              group: groupCategory
+              group: groupCategory,
             }
           : {
               category,
-              type
+              type,
             }
-      );
+      )
 
       // labels ? this.groupModify(props): this.deploymentModify(props)
-      emitter.emit(EventType.DELETE_ENTITIES_BY_ID, oldId);
-      emitter.emit(EventType.RENDER_DATA, [props]);
+      emitter.emit(EventType.DELETE_ENTITIES_BY_ID, oldId)
+      emitter.emit(EventType.RENDER_DATA, [props])
 
-      const { gisvis } = this.provide();
-      const { viewer } = main;
-      const newEntity = viewer.entities.getById(props.id);
-      const cartesian = newEntity.position.getValue();
-      const position = viewer.scene.cartesianToCanvasCoordinates(cartesian);
+      const { gisvis } = this.provide()
+      const { viewer } = main
+      const newEntity = viewer.entities.getById(props.id)
+      const cartesian = newEntity.position.getValue()
+      const position = viewer.scene.cartesianToCanvasCoordinates(cartesian)
 
-      viewer.selectedEntity = newEntity;
+      viewer.selectedEntity = newEntity
       emitter.emit(EventType.POPPER_CREATE, {
         position,
         name,
         canMove: true,
-        create: false
-      });
-      emitter.emit(EventType.CLICK_ENTITY, newEntity);
+        create: false,
+      })
+      emitter.emit(EventType.CLICK_ENTITY, newEntity)
     },
     /**
      * group分组修改
@@ -585,9 +581,9 @@ export default {
     /**
      * 部署设施修改
      */
-    deploymentModify() {}
-  }
-};
+    deploymentModify() {},
+  },
+}
 </script>
 
 <style lang="scss" scoped>

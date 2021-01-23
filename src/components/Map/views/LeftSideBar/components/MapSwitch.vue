@@ -59,6 +59,10 @@
         <el-button type="primary" icon="el-icon-add" @click="measureAreaSpace">面积</el-button>
       </el-tooltip>
     </div>
+    <div>
+      <span>测绘：</span>
+      <el-switch class="switch" v-model="surveyAndDraw"></el-switch>
+    </div>
     <!-- <div>
       <el-button @click="newnew">wodjakdasdajdl</el-button>
     </div>-->
@@ -80,6 +84,7 @@ export default {
       country: false,
       changePlaneView: false,
       globalSatellites: false,
+      surveyAndDraw: false,
       bubbleBox: JSON.parse(sessionStorage.getItem('bubbleBox')),
       gridLatitudeLongitude: false,
       trackedEntity: {}, //切换飞机视角对象
@@ -196,6 +201,13 @@ export default {
         for (let lat = -80; lat <= 80; lat += 10) {
           gisvis.viewer.entities.removeById('drawGridLatitude' + lat)
         }
+      }
+    },
+    surveyAndDraw(val) {
+      if (val) {
+        emitter.emit(EventType.isShowPlotPanel, true) //显示绿色选框
+      } else {
+        emitter.emit(EventType.isShowPlotPanel, false) //显示绿色选框
       }
     },
   },

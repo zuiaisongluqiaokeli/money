@@ -109,6 +109,8 @@ const EventType = {
   CREATE_Fly_LINES_MANY: "create-fly-lines-many",
   /** 【地图】 融合 */
   mergeCircles: 'mergeCircles',
+  /** 【地图】 是否显示标绘工具 */
+  isShowPlotPanel: 'mergeCircles',
 };
 
 class EventEmitter {

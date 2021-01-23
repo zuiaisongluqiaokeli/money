@@ -110,7 +110,7 @@ export default {
         { label: '不等于', value: '<>' },
       ], // 筛选关系
       verticeFilter: {
-        range: '',
+        range: '100',
         labels: [], // 标签
         props: [
           // 属性
@@ -206,48 +206,9 @@ export default {
       //   name: this.gisRightSelectedEntity.id.toString(), //标识名字有问题
       // })
       // console.log(viewer.scene.postProcessStages)
-      let rotation = Cesium.Math.toRadians(30)
-      let lon = Number(this.gisRightSelectedEntity.properties.lng.getValue())
-      let lat = Number(this.gisRightSelectedEntity.properties.lat.getValue())
-      function getRotationValue() {
-        rotation -= 0.02
-        return rotation
-      }
-      function drawCanvas() {
-        let canvas = document.getElementById('canvas-a')
-        canvas.style.width = window.innerWidth + 'px'
-        canvas.style.height = window.innerHeight + 'px'
-        let context = canvas.getContext('2d')
-        let grd = context.createLinearGradient(175, 100, canvas.width, 150)
-        grd.addColorStop(0, 'rgba(0,255,0,0)')
-        grd.addColorStop(1, 'rgba(0,255,0,1)')
-        context.fillStyle = grd
-        context.beginPath()
-        context.moveTo(150, 150)
-        context.arc(150, 150, 140, (-90 / 180) * Math.PI, (0 / 180) * Math.PI) //context.arc(x,y,r,sAngle,eAngle,counterclockwise);
-        context.fill()
-        return canvas
-      }
-      let i = 0
-      let obj = viewer.entities.add({
-        name: 'Rotating rectangle with rotating texture coordinate',
-        id: 'rangeRadars',
-        rectangle: {
-          coordinates: new Cesium.CallbackProperty(function () {
-            return Cesium.Rectangle.fromDegrees(
-              lon - 2.5,
-              lat - 2.5,
-              lon + 2.5,
-              lat + 2.5
-            )
-          }, false),
-          material: new Cesium.ImageMaterialProperty({
-            image: new Cesium.CallbackProperty(drawCanvas, false),
-            transparent: true,
-          }),
-          rotation: new Cesium.CallbackProperty(getRotationValue, false),
-          stRotation: new Cesium.CallbackProperty(getRotationValue, false),
-        },
+      gisvis.emitter.emit(EventType.RADAR_RENDER, {
+        id: this.gisRightSelectedEntity.id,
+        range: this.verticeFilter.range,
       })
       let vertices = this.allEntityBackEnd.filter(
         (e) => e.id.toString() === this.gisRightSelectedEntity.id.toString()
@@ -323,6 +284,9 @@ export default {
             }
           })
       }, 100)
+      this.viewer.entities.getById(
+        this.gisRightSelectedEntity.id
+      ).ellipse = null
       this.close()
       //弹窗消失才打开气泡，不然会导致弹窗和气泡一起出现的情况
       gisvis.emitter.emit(EventType.POPPER_SHOW)

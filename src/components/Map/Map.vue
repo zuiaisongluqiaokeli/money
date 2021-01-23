@@ -21,6 +21,8 @@
     <!-- 动态气泡框 -->
     <div class="popperWrap" id="popperWrap"></div>
     <canvas id="canvas-a" class="canvas" width="300" height="300"></canvas>
+    <!-- 测绘工具 -->
+    <PlotPanel v-if="showPlotPanel" />
   </div>
 </template>
 
@@ -36,6 +38,7 @@ import typeExpand from './views/typeExpand'
 import dimensionExpand from './views/dimensionExpand'
 import sativis from '../../sati'
 import { newExtendVertice } from '@/assets/api/expand'
+import PlotPanel from './views/LeftSideBar/components/PlotPanel'
 import GisInfoPanelDetail from './views/GisInfoPanelDetail' //查看详情
 import MapLegend from './views/MapLegend' //左下侧面板
 import { emitter, EventType } from './src/EventEmitter'
@@ -53,6 +56,7 @@ export default {
     LeftSideBar,
     Timeline,
     MapLegend,
+    PlotPanel,
   },
   provide: {
     provide: () => {
@@ -66,6 +70,7 @@ export default {
     return {
       drawingEntityFlightLine: false, //设置轨迹飞行线
       showRangeSetting: false, //范围->设置
+      showPlotPanel: false, //测绘工具
       rightEntityPosition: {}, //右键实体
       imageryProviderMap: [
         {
@@ -114,6 +119,13 @@ export default {
     this.$el.addEventListener('contextmenu', (event) => event.preventDefault())
     //gisvis.emitter.emit(EventType.DrawHTMLPoper)
     //listenMapEvents(gisvis, this.changeGisRightSelectedEntity);
+    gisvis.emitter.on(
+      EventType.isShowPlotPanel,
+      (val) => {
+        this.showPlotPanel = val
+      },
+      this
+    )
     gisvis.emitter.on(
       'gis-right-click',
       (params) => {
@@ -440,10 +452,10 @@ export default {
             //   interval: 4000, //时间
             //   name: this.gisRightSelectedEntity.id.toString(), //只能标识名字，用名字当作ID
             // });
-            gisvis.emitter.emit(
-              EventType.RADAR_RENDER,
-              this.gisRightSelectedEntity.id
-            )
+            gisvis.emitter.emit(EventType.RADAR_RENDER, {
+              id: this.gisRightSelectedEntity.id,
+              range: 10000,
+            })
             break
           //飞机轨迹线
           case 'SimulatedSatellite':
@@ -739,7 +751,7 @@ export default {
 /deep/ .cesium-viewer-toolbar {
   display: block;
   position: absolute;
-  top: 17px;
-  right: 94px;
+  top: 10%;
+    right: 8px;
 }
 </style>

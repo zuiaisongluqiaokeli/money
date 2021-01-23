@@ -11,6 +11,7 @@ import ScreenSpaceEvent from "./ScreenSpaceEvent";
 import ContextMenu from "../views/ContextMenu/index";
 import Popper from "../views/Popper";
 import addHtmlPopper from "../views/addHtmlPopper";
+import Plot from "./Plot";
 import dragPopper from "../views/dragPopper";
 import SelectEntityBox from "../views/selectEntityBox";
 import PolylineTrailMaterialProperty from "./PolylineTrailMaterialProperty"; //关系线条
@@ -58,6 +59,11 @@ class Main {
       viewer: this.viewer,
       store: this.store,
     });
+    //测绘(开始时候禁用全局鼠标结束开启鼠标事件)
+    this.plot = new Plot(this.viewer, {
+      cbPre: this.clearScreenEvent.bind(this),
+      cbBack: this.initScreenEvent.bind(this),
+    })
     this.viewer.scene.postRender.addEventListener(this.handlePostRender, this);
     this.emitter = emitter;
     window.gisvis = this;
@@ -67,14 +73,22 @@ class Main {
     }
     this.arrData = [] //绘制飞行的数据
     _instance = this;
-    //监听鼠标事件
-    this.screenSpaceEvent.handleLeftClick()
-    this.screenSpaceEvent.handleLeftCtrlClick()
     //去除双击事件
     this.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
-    this.screenSpaceEvent.handleRightClick()
-    this.screenSpaceEvent.handleWheel()
 
+
+  }
+  /**
+   * 初始化鼠标事件
+   */
+  initScreenEvent() {
+    this.screenSpaceEvent.initEvent();
+  }
+  /**
+   * 销毁鼠标事件
+   */
+  clearScreenEvent() {
+    this.screenSpaceEvent.clearEvent();
   }
   /**
    * 初始化事件监听
@@ -630,88 +644,108 @@ class Main {
    * 融合
    */
   mergeCircles() {
-    const e1 = viewer.entities.add({
-      id: "merge-1",
-      position: Cesium.Cartesian3.fromDegrees(110.0, 24.0, 0.0),
-      billboard: {
-        image: "images/location.png",
-        scale: .2,
-      },
+    //找所有实体里面有设置范围的并且颜色相同的融合
+    let arr = gisvis.viewer.entities.values.filter(item => item.ellipse && item.ellipse.show.getValue() == true)
+    let arrGroup = arr.map((item, index, array) => ({
+      colorGroup: array.filter(ele => ele.ellipse.color == item.ellipse.color)
+    })).filter((item, index, arr) => {
+      let arrIds = arr.map(ele => ele.id)
+      return arrIds.indexOf(item.id) == index
     })
-    const e2 = viewer.entities.add({
-      id: "merge-2",
-      position: Cesium.Cartesian3.fromDegrees(111.0, 24.0, 0.0),
-      billboard: {
-        image: "images/location.png",
-        scale: .2,
-      },
+    arrGroup.forEach((item, index) => {
+      let merge = new MergeCircles({
+        viewer,
+        id: 'mergecircle' + index
+      })
+      item.colorGroup.forEach(ele => {
+        merge.add({
+          entity: ele,
+          radius: 100000
+        })
+      })
     })
-    const e3 = viewer.entities.add({
-      id: "merge-3",
-      position: Cesium.Cartesian3.fromDegrees(110.5, 25.0, 0.0),
-      billboard: {
-        image: "images/location.png",
-        scale: .2,
-      },
-    })
-    const mc = new MergeCircles({
-      viewer,
-      id: 'mc1'
-    })
-    mc.add({
-      entity: e1,
-      radius: 100000
-    })
-    mc.add({
-      entity: e2,
-      radius: 100000
-    })
-    mc.add({
-      entity: e3,
-      radius: 150000
-    })
-    const e21 = viewer.entities.add({
-      id: "merge-21",
-      position: Cesium.Cartesian3.fromDegrees(112.0, 24.0, 0.0),
-      billboard: {
-        image: "images/location.png",
-        scale: .2,
-      },
-    })
-    const e22 = viewer.entities.add({
-      id: "merge-22",
-      position: Cesium.Cartesian3.fromDegrees(114.0, 24.0, 0.0),
-      billboard: {
-        image: "images/location.png",
-        scale: .2,
-      },
-    })
-    const e23 = viewer.entities.add({
-      id: "merge-23",
-      position: Cesium.Cartesian3.fromDegrees(113.5, 25.0, 0.0),
-      billboard: {
-        image: "images/location.png",
-        scale: .2,
-      },
-    })
-    const mc2 = new MergeCircles({
-      viewer,
-      id: 'mc2',
-      color: "#00f",
-      lineWidth: 2
-    })
-    mc2.add({
-      entity: e21,
-      radius: 100000
-    })
-    mc2.add({
-      entity: e22,
-      radius: 100000
-    })
-    mc2.add({
-      entity: e23,
-      radius: 150000
-    })
+    // const e1 = viewer.entities.add({
+    //   id: "merge-1",
+    //   position: Cesium.Cartesian3.fromDegrees(110.0, 24.0, 0.0),
+    //   billboard: {
+    //     image: "images/location.png",
+    //     scale: .2,
+    //   },
+    // })
+    // const e2 = viewer.entities.add({
+    //   id: "merge-2",
+    //   position: Cesium.Cartesian3.fromDegrees(111.0, 24.0, 0.0),
+    //   billboard: {
+    //     image: "images/location.png",
+    //     scale: .2,
+    //   },
+    // })
+    // const e3 = viewer.entities.add({
+    //   id: "merge-3",
+    //   position: Cesium.Cartesian3.fromDegrees(110.5, 25.0, 0.0),
+    //   billboard: {
+    //     image: "images/location.png",
+    //     scale: .2,
+    //   },
+    // })
+    // const mc = new MergeCircles({
+    //   viewer,
+    //   id: 'mc1'
+    // })
+    // mc.add({
+    //   entity: e1,
+    //   radius: 100000
+    // })
+    // mc.add({
+    //   entity: e2,
+    //   radius: 100000
+    // })
+    // mc.add({
+    //   entity: e3,
+    //   radius: 150000
+    // })
+    // const e21 = viewer.entities.add({
+    //   id: "merge-21",
+    //   position: Cesium.Cartesian3.fromDegrees(112.0, 24.0, 0.0),
+    //   billboard: {
+    //     image: "images/location.png",
+    //     scale: .2,
+    //   },
+    // })
+    // const e22 = viewer.entities.add({
+    //   id: "merge-22",
+    //   position: Cesium.Cartesian3.fromDegrees(114.0, 24.0, 0.0),
+    //   billboard: {
+    //     image: "images/location.png",
+    //     scale: .2,
+    //   },
+    // })
+    // const e23 = viewer.entities.add({
+    //   id: "merge-23",
+    //   position: Cesium.Cartesian3.fromDegrees(113.5, 25.0, 0.0),
+    //   billboard: {
+    //     image: "images/location.png",
+    //     scale: .2,
+    //   },
+    // })
+    // const mc2 = new MergeCircles({
+    //   viewer,
+    //   id: 'mc2',
+    //   color: "#00f",
+    //   lineWidth: 2
+    // })
+    // mc2.add({
+    //   entity: e21,
+    //   radius: 100000
+    // })
+    // mc2.add({
+    //   entity: e22,
+    //   radius: 100000
+    // })
+    // mc2.add({
+    //   entity: e23,
+    //   radius: 150000
+    // })
   }
   /**
    * 绘点
@@ -847,26 +881,40 @@ class Main {
   /**
    * 圆形扩大扫描圈
    */
-  addCircleScan(id) {
-    // let ScanPostStage = RadarsEffects.addCircleScan(this.viewer, val)
-    // console.log("雷达", ScanPostStage)
-    if (!this.viewer.entities.getById(id).ellipse) {
-      this.viewer.entities.getById(id).ellipse = {
-        show: true,
-        height: 0,
-        semiMinorAxis: 10000,
-        semiMajorAxis: 10000,
-        material: new CircleWaveMaterialProperty({
-          duration: 2e3,
-          gradient: 0,
-          color: new Cesium.Color(1.0, 0.0, 0.0, 1.0),
-          count: 3
-        })
-      }
-    } else {
-      //show是对象
-      this.viewer.entities.getById(id).ellipse.show.setValue(!this.viewer.entities.getById(id).ellipse.show.getValue())
+  addCircleScan({
+    id,
+    range
+  }) {
+    this.viewer.entities.getById(id).ellipse = {
+      show: true,
+      height: 0,
+      semiMinorAxis: Number(range) * 500,
+      semiMajorAxis: Number(range) * 500,
+      material: new CircleWaveMaterialProperty({
+        duration: 10e3,
+        gradient: 0,
+        color: new Cesium.Color(0.0, 1.0, 0.0, 1),
+        count: 1
+      })
     }
+    // if (!this.viewer.entities.getById(id).ellipse) {
+    //   this.viewer.entities.getById(id).ellipse = {
+    //     show: true,
+    //     height: 0,
+    //     semiMinorAxis: 10000,
+    //     semiMajorAxis: 10000,
+    //     material: new CircleWaveMaterialProperty({
+    //       duration: 2e3,
+    //       gradient: 0,
+    //       color: new Cesium.Color(0.0, 1.0, 0.0, 1),
+    //       // new Cesium.Color(1.0, 0.0, 0.0, 1.0),红色
+    //       count: 1
+    //     })
+    //   }
+    // } else {
+    //   //show是对象
+    //   this.viewer.entities.getById(id).ellipse.show.setValue(!this.viewer.entities.getById(id).ellipse.show.getValue())
+    // }
   }
   /**
    * 区域雷达扫描

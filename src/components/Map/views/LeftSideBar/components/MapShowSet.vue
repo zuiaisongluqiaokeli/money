@@ -59,7 +59,7 @@ export default {
         verticeFilter: [
           {
             key: '', // 属性名
-            color: '',
+            color: '#ffcc33',
           },
         ],
       },
@@ -91,7 +91,7 @@ export default {
     addItem(natureIndex, index) {
       this.form.verticeFilter.push({
         key: '', // 属性名
-        color: '',
+        color: '#ffcc33',
       })
     },
     deletItem(index) {
@@ -108,9 +108,27 @@ export default {
           }
         })
       })
-      //是否范围融合
       if (this.form.changeRange) {
-        gisvis.emitter.emit(EventType.mergeCircles)
+        arr.forEach((item) => {
+          if (gisvis.viewer.entities.getById(item.id).ellipse) {
+            gisvis.viewer.entities.getById(
+              item.id
+            ).ellipse.material = Cesium.Color.fromCssColorString(
+              item.color
+            ).withAlpha(1)
+            gisvis.viewer.entities.getById(item.id).ellipse.outline = false
+          } else {
+            gisvis.viewer.entities.getById(item.id).ellipse = {
+              show: true,
+              semiMajorAxis: 250 * 1000,
+              semiMinorAxis: 250 * 1000,
+              material: Cesium.Color.fromCssColorString(item.color).withAlpha(
+                1
+              ),
+              outline: false,
+            }
+          }
+        })
       } else {
         arr.forEach((item) => {
           if (gisvis.viewer.entities.getById(item.id).ellipse) {
@@ -135,6 +153,7 @@ export default {
           }
         })
       }
+      //是否范围融合
     },
   },
 }

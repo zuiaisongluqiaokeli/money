@@ -31,14 +31,14 @@ export default {
         {
           img: 'img/weixing.png',
           command: 'satellite',
-          text: '在线地图',
-          url: tdtUrl + 'DataServer?T=img_w&x={x}&y={y}&l={z}&tk=' + token,
-          // url    : 'map/s/{z}/{y}/{x}.png'
+          text: '在线卫星地图',
+          //url: tdtUrl + 'DataServer?T=img_w&x={x}&y={y}&l={z}&tk=' + token,
+          url: 'maps/s/{z}/{y}/{x}.png',
         },
         {
           img: 'img/lixian.png',
           command: 'offlineMap',
-          text: '离线地图',
+          text: '离线卫星地图',
           url:
             location.origin +
             '/map-resource/map-resource/imagery/{z}/{y}/{x}.jpg',
@@ -48,17 +48,12 @@ export default {
           img: 'img/xingzhengquyu.png',
           command: 'politicalMap',
           text: '行政区域图',
-          url: tdtUrl + 'DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=' + token,
-          // url    : 'maps/m/{z}/{y}/{x}.png'
+          //url: tdtUrl + 'DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=' + token,
+          url: 'maps/m/{z}/{y}/{x}.png',
         },
       ],
     }
   },
-  components: {},
-  computed: {
-    ...mapState('map', ['gisEntities']),
-  },
-  watch: {},
   methods: {
     handlerImagery(command) {
       this.$store.commit('map/setMapType', command)
@@ -76,14 +71,23 @@ export default {
       var layers = gisvis.viewer.imageryLayers
       var baseLayer = layers.get(0)
       layers.remove(baseLayer)
-      layers.addImageryProvider(
-        new Cesium.UrlTemplateImageryProvider({
-          url: this.imageryOptions[index].url,
-          subdomains: subdomains,
-          tilingScheme: new Cesium.WebMercatorTilingScheme(),
-          maximumLevel: 18,
-        })
-      )
+      if (index == 0) {
+        layers.addImageryProvider(
+          new Cesium.BingMapsImageryProvider({
+            url: 'https://dev.virtualearth.net',
+            key:
+              'ArsDXFxRSS-STYkRkWGuelvpPho5_XlV88oSN98XBViYJFbaFDeiJpCnjRqGg70q',
+            mapStyle: Cesium.BingMapsStyle.AERIAL,
+          })
+        )
+      } else {
+        layers.addImageryProvider(
+          new Cesium.UrlTemplateImageryProvider({
+            url: this.imageryOptions[index].url,
+          })
+        )
+      }
+
       //鹰眼图换肤
       // window.viewer1.imageryLayers.remove(gisvis.viewer.imageryLayers.get(0));
       // window.viewer1.imageryLayers.addImageryProvider(
@@ -108,7 +112,6 @@ export default {
       // });
     },
   },
-  mounted() {},
 }
 </script>
 

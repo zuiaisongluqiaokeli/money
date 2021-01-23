@@ -31,7 +31,7 @@ class Drawer {
           position: Cesium.Cartesian3.fromDegrees(
             e.properties.longitude,
             e.properties.latitude,
-            0
+            10
           ),
           newAdd: false,
           billboard: {

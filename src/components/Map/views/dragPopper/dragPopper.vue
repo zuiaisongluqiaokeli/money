@@ -151,7 +151,6 @@ export default {
   mounted() {
     this.$nextTick(() => {
       if (this.state) {
-        debugger
         //初始化2的位置
         let height = window.screen.height
         let width = window.screen.width

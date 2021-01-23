@@ -5,7 +5,7 @@
       <div class="remove-all">
         <el-button type="text" class="button">所有实体({{ allEntityBackEnd.length }})</el-button>
         <i
-          :class="collapse ? 'el-icon-top-right' : 'el-icon-bottom-left'"
+          :class="collapse ? 'qbxx2-icon-unfold2' : 'qbxx2-icon-fold2'"
           @click="collapse = !collapse"
         ></i>
       </div>

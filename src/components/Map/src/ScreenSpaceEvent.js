@@ -1,4 +1,3 @@
-
 import {
   emitter,
   EventType
@@ -18,16 +17,51 @@ class ScreenSpaceEvent {
     _instance = this;
     // this.handleKeydownEvent = this.handleKeydown.bind(this);    //键盘按键
     // window.addEventListener("keydown", this.handleKeydownEvent);
+    this.leftHandler = null;
+    this.rightHander = null;
+    this.leftCtrllHander = null;
+    this.mouseWheel = null;
+  }
+  /**
+   * 初始化鼠标事件
+   */
+  initEvent() {
+    this.handleLeftClick();
+    this.handleLeftCtrlClick();
+    this.handleRightClick();
+    this.handleWheel()
+  }
+  /**
+   * 销毁鼠标事件
+   */
+  clearEvent() {
+    if (this.leftHandler) {
+      this.leftHandler.destroy();
+      this.leftHandler = null;
+    }
+    if (this.rightHander) {
+      this.rightHander.destroy();
+      this.rightHander = null;
+    }
+    if (this.leftCtrllHander) {
+      this.leftCtrllHander.destroy();
+      this.leftCtrllHander = null;
+    }
+    if (this.mouseWheel) {
+      this.mouseWheel.destroy();
+      this.mouseWheel = null;
+    }
   }
   /**
    * 左键单击处理
    */
   handleLeftClick() {
+    if (this.leftHandler) return;
     const {
       scene
     } = this.viewer;
     const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-
+    this.leftHandler = handler;
     handler.setInputAction(async event => {
       const currentEntity = scene.pick(event.position);
       //entityId用来标记是否是后端拿到的点而不是地图上的点(比如飞机/关系线这些点)
@@ -49,7 +83,9 @@ class ScreenSpaceEvent {
       //   emitter.emit(EventType.CLICK_ENTITY,currentEntity);
       // }
 
-      const { id: entity } = currentEntity;
+      const {
+        id: entity
+      } = currentEntity;
       // emitter.emit(EventType.HIGHLIGHT_RELATED_ENTITIES, entity);
       if (currentEntity.id.hasOwnProperty('entityId')) {
         //弹出Popper
@@ -71,7 +107,9 @@ class ScreenSpaceEvent {
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
   handleLeftUp() {
-    const { scene } = this.viewer;
+    const {
+      scene
+    } = this.viewer;
     const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
     handler.setInputAction(async event => {
       document.body.style.cursor = "default";
@@ -81,9 +119,12 @@ class ScreenSpaceEvent {
    * 右键单击处理
    */
   handleRightClick() {
-    const { scene } = this.viewer;
+    if (this.rightHander) return;
+    const {
+      scene
+    } = this.viewer;
     const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-
+    this.rightHander = handler;
     handler.setInputAction(async event => {
       const currentEntity = scene.pick(event.position);
       if (!currentEntity) return
@@ -91,7 +132,10 @@ class ScreenSpaceEvent {
       if (currentEntity && currentEntity.id.hasOwnProperty('entityId')) {
         const cartesian = currentEntity.id.position.getValue();
         const popperPosition = scene.cartesianToCanvasCoordinates(cartesian);
-        const { x, y } = popperPosition;
+        const {
+          x,
+          y
+        } = popperPosition;
         if (this.store.selectedEntity) {
           emitter.emit(EventType.RIGHT_CLICK, {
             entity: currentEntity,
@@ -125,10 +169,12 @@ class ScreenSpaceEvent {
    * 鼠标滑轮按下
    */
   handleWheel() {
+    if (this.mouseWheel) return;
     const {
       scene
     } = this.viewer;
     const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+    this.mouseWheel = handler;
     handler.setInputAction(async event => {
       document.body.style.cursor = "url(./BullEye.ico),auto";
       setTimeout(() => {
@@ -165,11 +211,12 @@ class ScreenSpaceEvent {
    * 鼠标左键+ctrl
    */
   handleLeftCtrlClick() {
+    if (this.leftCtrllHander) return;
     const {
       scene
     } = this.viewer;
     const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-
+    this.leftCtrllHander = handler;
     handler.setInputAction(async event => {
       const currentEntity = scene.pick(event.position);
       //entityId用来标记是否是后端拿到的点而不是地图上的点(比如飞机/关系线这些点)
@@ -191,7 +238,9 @@ class ScreenSpaceEvent {
       //   emitter.emit(EventType.CLICK_ENTITY,currentEntity);
       // }
 
-      const { id: entity } = currentEntity;
+      const {
+        id: entity
+      } = currentEntity;
       // emitter.emit(EventType.HIGHLIGHT_RELATED_ENTITIES, entity);
       if (currentEntity.id.hasOwnProperty('entityId')) {
         //弹出Popper

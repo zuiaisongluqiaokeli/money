@@ -2,6 +2,10 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import ElementUI from 'element-ui';
+//地图绘制功能需要这个组件
+import "layui-src/dist/css/layui.css";
+import "layui-src/dist/css/modules/layer/default/layer.css";
+import "layui-src/dist/layui.all";
 //支持翻译
 import VueI18n from 'vue-i18n';
 Vue.use(VueI18n);
@@ -37,7 +41,9 @@ let options = {
 import VueScrollTo from "vue-scrollto";
 Vue.use(VueScrollTo, options);
 //标准金币
-import { VMoney } from 'v-money'
+import {
+    VMoney
+} from 'v-money'
 Vue.directive('money', VMoney)
 //提示语
 import VTooltip from 'v-tooltip'

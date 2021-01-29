@@ -163,7 +163,7 @@ export default {
         )
         if (arr.length) {
           emitter.emit(EventType.deleteAllBubbles)
-          emitter.emit(EventType.addAllBubbles, { multiple: true, oneArr: [] })
+          emitter.emit(EventType.addAllBubbles, { multiple: true })
         } else {
           this.$message.warning('地图暂无实体信息展示')
         }

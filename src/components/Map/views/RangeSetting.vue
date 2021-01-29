@@ -55,12 +55,21 @@
               :value="item.value"
             ></el-option>
           </el-select>
-          <el-input
-            v-model="item.value"
-            class="select-input"
-            placeholder="请输入内容"
-            style="width:160px"
-          ></el-input>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :content="item.value"
+            placement="top"
+            :disabled="item.value.length<10"
+          >
+            <el-input
+              v-model="item.value"
+              v-show="item.operation!=null"
+              class="select-input"
+              placeholder="请输入内容"
+              style="width:160px"
+            ></el-input>
+          </el-tooltip>
           <el-button
             type="text"
             icon="el-icon-close"
@@ -108,7 +117,14 @@ export default {
         { label: '大于', value: '>' },
         { label: '小于', value: '<' },
         { label: '不等于', value: '<>' },
+        { label: '大于等于', value: '>=' },
+        { label: '小于等于', value: '<=' },
+        { label: '模糊等于', value: null },
+        { label: '空值', value: null },
+        { label: '存在', value: null },
+        { label: '不存在', value: null },
       ], // 筛选关系
+
       verticeFilter: {
         range: '100',
         labels: [], // 标签
@@ -264,7 +280,6 @@ export default {
                     item.properties.实体分类 = '暂未分类'
                   }
                 })
-                gisvis.viewer.entities.removeById('rangeRadars')
                 //放入VUEX重新分组+批量去重绘制
                 let gisData = {
                   entities: entities,
@@ -272,21 +287,20 @@ export default {
                 }
                 gisvis.emitter.emit('gis-render-data', gisData)
               } else {
-                gisvis.viewer.entities.removeById('marsRadarScan')
                 this.$message.success({ message: '无搜索结果' })
               }
             } else {
-              gisvis.viewer.entities.removeById('marsRadarScan')
               this.$message.error({
                 message: res.data.msg || res.data.errorMsg || '搜索失败',
                 duration: 1500,
               })
             }
+            gisvis.viewer.entities.getById(
+              this.gisRightSelectedEntity.id
+            ).ellipse = null
           })
-      }, 100)
-      this.viewer.entities.getById(
-        this.gisRightSelectedEntity.id
-      ).ellipse = null
+      }, 3000)
+
       this.close()
       //弹窗消失才打开气泡，不然会导致弹窗和气泡一起出现的情况
       gisvis.emitter.emit(EventType.POPPER_SHOW)

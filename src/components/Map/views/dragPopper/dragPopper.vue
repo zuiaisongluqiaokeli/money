@@ -63,13 +63,13 @@
             <div class="label-wrap">
               <div class="title">{{info.name}}</div>
               <div class="label-content">
-                <div class="data-li">
-                  <div class="data-label">国家</div>
+                <div class="data-li" v-for="(item,index) in checkedDragInfoProperties" :key="index">
+                  <div class="data-label">{{item.name}}</div>
                   <div class="data-value">
-                    <span class="label-num">{{info.国家}}</span>
+                    <span class="label-num" :title="item.value">{{item.value}}</span>
                   </div>
                 </div>
-                <div class="data-li">
+                <!-- <div class="data-li">
                   <div class="data-label">兵员数量</div>
                   <div class="data-value">
                     <span class="label-num">{{info.兵员数量}}</span>
@@ -86,7 +86,7 @@
                   <div class="data-value">
                     <span class="label-num">{{info.驻扎部队}}</span>
                   </div>
-                </div>
+                </div>-->
               </div>
             </div>
           </div>
@@ -108,11 +108,13 @@
 
 <script>
 import { emitter, EventType } from '../../src/EventEmitter'
+import { mapGetters, mapMutations, mapState } from 'vuex'
 import $ from './jquery.js'
 export default {
   name: 'Popper',
   data() {
     return {
+      checkedDragInfoProperties: [],
       //方块1的位置
       position: {
         top: '0px',
@@ -130,7 +132,7 @@ export default {
         驻军: '',
         驻扎部队: '',
       },
-      state: true, //初始化状态，单例模式
+      statePosition: true, //初始化状态，单例模式
       index: 0,
       text: '',
       defaultText: '未命名',
@@ -150,7 +152,7 @@ export default {
   methods: {},
   mounted() {
     this.$nextTick(() => {
-      if (this.state) {
+      if (this.statePosition) {
         //初始化2的位置
         let height = window.screen.height
         let width = window.screen.width
@@ -171,7 +173,7 @@ export default {
             Number(objPositionTop.split('px')[0]) + height / 10 + 'px'
         }
       }
-      this.state = false
+      this.statePosition = false
       var that = this
       $(function () {
         function move() {

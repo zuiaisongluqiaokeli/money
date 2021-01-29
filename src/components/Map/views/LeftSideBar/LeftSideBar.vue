@@ -69,7 +69,7 @@ export default {
           icon: 'iconfont icon-map',
           component: MapImagery,
           tip: false,
-          placement: 'right-start',
+          placement: 'right',
         },
         // 丐版,不配拥有这个功能
         // {

@@ -345,6 +345,9 @@ export default {
           value: item.value,
           primary: false,
         }))
+        propertiesJson = propertiesJson.filter(
+          (item) => item.name != '经度' && item.name != '纬度'
+        )
         propertiesJson.forEach((item) => {
           if (item.name == 'name' || item.name == '名称') {
             item.primary = true
@@ -443,6 +446,8 @@ export default {
               }
             }
           }
+          //属性放入VUEX
+          this.$store.state.map.dragInfoProperties = this.newVerticesData.propertiesJson
           this.newVerticesData.idStr = res.data.object.idStr
           this.newVerticesData.name = res.data.object.name
           if (!res.data.object.labelsList) {

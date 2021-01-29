@@ -1024,6 +1024,7 @@ export default {
     },
     //修改和新增的保存
     addVertices() {
+      let dialogName = this.newVerticesData.name
       this.$refs['newVerticesData'].validate(async (valid) => {
         if (valid) {
           this.advancedSearchQuery.advancedSearchFlag = true
@@ -1050,16 +1051,7 @@ export default {
               value: this.categoryId,
               primary: false,
             })
-            this.newVerticesData.propertiesJson.push({
-              name: '经度',
-              value: this.longitude,
-              primary: false,
-            })
-            this.newVerticesData.propertiesJson.push({
-              name: '纬度',
-              value: this.latitude,
-              primary: false,
-            })
+
             this.newVerticesData.propertiesJson = this.newVerticesData.propertiesJson.filter(
               (item) => item.name != 'docs'
             )
@@ -1098,7 +1090,19 @@ export default {
               return
             }
           }
-
+          this.newVerticesData.propertiesJson = this.newVerticesData.propertiesJson.filter(
+            (item) => item.name != '经度' && item.name != '纬度'
+          )
+          this.newVerticesData.propertiesJson.push({
+            name: '经度',
+            value: this.longitude,
+            primary: false,
+          })
+          this.newVerticesData.propertiesJson.push({
+            name: '纬度',
+            value: this.latitude,
+            primary: false,
+          })
           // 在编辑时判断是否有实体分类、名称、name、avatar和docs属性，没有就自动添加
           let hasCategory = false
           let hasNameCn = false

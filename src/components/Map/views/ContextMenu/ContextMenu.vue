@@ -36,7 +36,7 @@ export default {
         { name: '拓展', icon: '\ue70c', angle: 1, action: '' },
         { name: '范围切换', icon: '\ue70e', angle: 1, action: 'scopeChange' },
         { name: '距离搜索', icon: '\ue765', angle: 1, action: 'scopeSearch' },
-        { name: '信息切换', icon: '\ue6ff', angle: 1, action: 'scopeInfo' },
+        { name: '信息显示', icon: '\ue6ff', angle: 1, action: 'scopeInfo' },
         { name: '删除', icon: '\ue683', angle: 1, action: 'delete' },
       ],
       dataInnerSet: [],

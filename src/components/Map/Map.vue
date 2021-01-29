@@ -14,13 +14,14 @@
     <LeftSideBar />
     <!-- 搜索范围设置弹窗 -->
     <RangeSetting v-if="showRangeSetting" :close="() => (this.showRangeSetting = false)"></RangeSetting>
+    <!-- 拖拽面板设置选用的属性 -->
+    <DragInfo v-if="showDragInfo" @close="() => (this.showDragInfo = false)" @checkList="checkList"></DragInfo>
     <!-- 按类型 -->
     <typeExpand></typeExpand>
     <!-- 按维度 -->
     <dimensionExpand></dimensionExpand>
-    <!-- 动态气泡框 -->
+    <!-- 动态气泡框组件插入该标签-->
     <div class="popperWrap" id="popperWrap"></div>
-    <canvas id="canvas-a" class="canvas" width="300" height="300"></canvas>
     <!-- 测绘工具 -->
     <PlotPanel v-if="showPlotPanel" />
   </div>
@@ -41,6 +42,7 @@ import { newExtendVertice } from '@/assets/api/expand'
 import PlotPanel from './views/LeftSideBar/components/PlotPanel'
 import GisInfoPanelDetail from './views/GisInfoPanelDetail' //查看详情
 import MapLegend from './views/MapLegend' //左下侧面板
+import DragInfo from './views/DragInfo' //拖拽面板设置选用的属性
 import { emitter, EventType } from './src/EventEmitter'
 // import MapInfoPanel from "./views/MapInfoPanel"
 const Cesium = window.Cesium
@@ -57,6 +59,7 @@ export default {
     Timeline,
     MapLegend,
     PlotPanel,
+    DragInfo,
   },
   provide: {
     provide: () => {
@@ -70,8 +73,10 @@ export default {
     return {
       drawingEntityFlightLine: false, //设置轨迹飞行线
       showRangeSetting: false, //范围->设置
+      showDragInfo: false, //拖拽面板设置选用的属性
       showPlotPanel: false, //测绘工具
       rightEntityPosition: {}, //右键实体
+      checkListDragInfo: [], //选中的属性给拖拽面板呈现
       imageryProviderMap: [
         {
           name: '卫星图',
@@ -368,7 +373,7 @@ export default {
             //   lineColor: { red: 1, green: 1, blue: 1, alpha: 0.9 },
             // })
             break
-          //删除
+          //删除(删点删关系线删全局数据重新分组)
           case 'delete':
             gisvis.emitter.emit(EventType.CLICK_BLANK)
             gisvis.viewer.entities.removeById(this.gisRightSelectedEntity.id)
@@ -410,7 +415,7 @@ export default {
             // this.updateGisLines(tempLines);
             //this.changeGisRightSelectedEntity(null);
             break
-          //范围切换
+          //范围切换（有就切换没有就创建重新分组渲染）
           case 'scopeChange':
             if (
               gisvis.viewer.entities.getById(this.gisRightSelectedEntity.id)
@@ -500,33 +505,16 @@ export default {
             break
           //信息切换
           case 'scopeInfo':
-            let arr = gisvis.dragPopperArr
-            //如果没有数组就添加，有的话数组里面找不到对应的面板就创建面板否则销毁,并且面板每次只显示一个
-            if (arr.length == 0) {
-              gisvis.emitter.emit(EventType.addAllBubbles, {
-                multiple: false,
-                oneArr: [this.gisRightSelectedEntity],
-              })
-            } else {
-              if (
-                !arr.some((item) => item.id == this.gisRightSelectedEntity.id)
-              ) {
-                gisvis.emitter.emit(EventType.deleteAllBubbles)
-                gisvis.emitter.emit(EventType.addAllBubbles, {
-                  multiple: false,
-                  oneArr: [this.gisRightSelectedEntity],
-                })
-              } else {
-                gisvis.emitter.emit(EventType.deleteAllBubbles)
-              }
-            }
+            this.showDragInfo = true
+
             break
         }
         //判断显示条件,除了这几个其余操作完成气泡都显示，这几个等弹窗确定完才显示气泡
         if (
           action != 'scopeSearch' &&
           action != 'expandLatitude' &&
-          action != 'expandType'
+          action != 'expandType' &&
+          action != 'scopeInfo'
         ) {
           gisvis.emitter.emit(EventType.POPPER_SHOW)
         }
@@ -537,146 +525,10 @@ export default {
       },
       gisvis
     )
-    // this.initMap();
   },
-
-  beforeDestroy() {},
-
   methods: {
-    handlemouse() {
-      document.getElementById('mapMap').style.cursor = 'grab'
-    },
-    /**
-     * 初始化地图
-     */
-    initMap() {
-      const imageryProvider = new Cesium.UrlTemplateImageryProvider({
-        url: this.imageryProviderMap[0].url,
-        // url: 'http://localhost:8080/map/{z}/{y}/{x}.jpg',
-        // fileExtension: "jpg"
-      })
-      const maps = this.imageryProviderMap
-        .map((provider) => {
-          provider.creationFunction = () =>
-            new Cesium.UrlTemplateImageryProvider({
-              url: provider.url,
-            })
-          provider.toolTip = provider.name
-
-          return provider
-        })
-        .map((options) => new Cesium.ProviderViewModel(options))
-
-      window.viewer = viewer = new Cesium.Viewer('cesium', {
-        imageryProvider: imageryProvider,
-        imageryProviderViewModels: maps,
-        terrainProviderViewModels: [],
-        // geocoder                 : new Cesium.GeocoderService({
-        //   url: ''
-        // }),
-        animation: false,
-        timeline: false,
-        navigationHelpButton: false,
-        // scene3DOnly: true,
-        sceneModePicker: false,
-        creditContainer: document.createElement('div'),
-        fullscreenButton: false,
-        geocoder: false,
-        homeButton: false,
-        baseLayerPicker: false,
-        infoBox: false,
-        // mapMode2D: Cesium.MapMode2D.ROTATE
-      })
-
-      // this.setHomeButton().flyHome();
-    },
-    /**
-     * 范围搜索
-     */
-    rangeSearch() {
-      // this.changeLoading(true);
-      let vertices = this.gisEntities.filter(
-        (e) => e.id === this.gisRightSelectedEntity.id
-      )
-      //当前实体对象
-      let vertex = vertices[0]
-      let params = {
-        lat: vertex.properties.latitude,
-        lng: vertex.properties.longitude,
-        scanColor: Cesium.Color.fromCssColorString('#00c6ab').withAlpha(0.8),
-        radius: this.rangeSetting.range * 1000,
-      }
-
-      gisvis.emitter.emit('gis-radar-render', params)
-      if (gisvis.contextMenu) {
-        gisvis.contextMenu.destroy()
-        gisvis.contextMenu = null
-      }
-      this.showRangeSetting = false
-      setTimeout(() => {
-        this.$api
-          .getGisExpand(
-            this.graphName,
-            vertex,
-            this.rangeSetting.range,
-            this.rangeSetting.labels
-          )
-          .then((res) => {
-            this.changeLoading(false)
-            if (res.data.success) {
-              if (res.data.object) {
-                let result = res.data.object
-                let entities = result.vertices.filter((v) => {
-                  return !this.gisEntityIds.includes(v.id)
-                })
-                if (entities.length) {
-                  this.updateGisEntities([].concat(entities, this.gisEntities))
-                  let gisData = {
-                    entities: entities,
-                    labelShow: this.gisLabelShow,
-                  }
-                  gisvis.emitter.emit('gis-render-data', gisData)
-                } else {
-                  gisvis.viewer.entities.removeById('marsRadarScan')
-                  // gisvis.viewer.scene.postProcessStages._stages.forEach(i => {
-                  //   i.enabled = false;
-                  // });
-                  this.$message.success({ message: '无搜索结果' })
-                }
-                this.updateGisEntities([].concat(entities, this.gisEntities))
-                let gisData = {
-                  entities: entities,
-                  labelShow: this.gisLabelShow,
-                }
-                gisvis.emitter.emit('gis-render-data', gisData)
-
-                this.changeGisRightSelectedEntity(null)
-              } else {
-                // gisvis.viewer.scene.postProcessStages._stages.forEach(i => {
-                //   i.enabled = false;
-                // });
-                gisvis.viewer.entities.removeById('marsRadarScan')
-                this.$message.success({ message: '无搜索结果' })
-              }
-            } else {
-              gisvis.viewer.entities.removeById('marsRadarScan')
-              // gisvis.viewer.scene.postProcessStages._stages.forEach(i => {
-              //   i.enabled = false;
-              // });
-              this.$message.error({
-                message: res.data.msg || res.data.errorMsg || '搜索失败',
-                duration: 1500,
-              })
-            }
-          })
-          .catch(() => {
-            gisvis.viewer.entities.removeById('marsRadarScan')
-            this.$message.error({
-              message: '服务端异常，请联系管理员',
-              duration: 1500,
-            })
-          })
-      }, 2000)
+    checkList(val) {
+      this.checkListDragInfo = val
     },
     ...mapMutations('map', [
       'changeGisRightSelectedEntity',
@@ -709,10 +561,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#canvas-a {
-  top: 10px;
-  display: none;
-}
 #eye {
   position: absolute;
   width: 15%;
@@ -752,6 +600,6 @@ export default {
   display: block;
   position: absolute;
   top: 10%;
-    right: 8px;
+  right: 8px;
 }
 </style>

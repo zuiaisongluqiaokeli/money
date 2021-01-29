@@ -60,10 +60,7 @@ class Main {
       store: this.store,
     });
     //测绘(开始时候禁用全局鼠标结束开启鼠标事件)
-    this.plot = new Plot(this.viewer, {
-      cbPre: this.clearScreenEvent.bind(this),
-      cbBack: this.initScreenEvent.bind(this),
-    })
+    this.plot = new Plot(this.viewer, {})
     this.viewer.scene.postRender.addEventListener(this.handlePostRender, this);
     this.emitter = emitter;
     window.gisvis = this;
@@ -73,22 +70,14 @@ class Main {
     }
     this.arrData = [] //绘制飞行的数据
     _instance = this;
+    this.screenSpaceEvent.handleLeftClick();
+    this.screenSpaceEvent.handleLeftCtrlClick();
+    this.screenSpaceEvent.handleRightClick();
+    this.screenSpaceEvent.handleWheel()
     //去除双击事件
     this.viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
 
 
-  }
-  /**
-   * 初始化鼠标事件
-   */
-  initScreenEvent() {
-    this.screenSpaceEvent.initEvent();
-  }
-  /**
-   * 销毁鼠标事件
-   */
-  clearScreenEvent() {
-    this.screenSpaceEvent.clearEvent();
   }
   /**
    * 初始化事件监听
@@ -353,7 +342,8 @@ class Main {
   //multiple 批量或者一个，批量找到所有基地的数据，一个传入右键选中的
   addAllBubbles({
     multiple,
-    oneArr
+    oneArr = [],
+    properties = []
   }) {
     let arr = []
     if (multiple) {
@@ -361,17 +351,27 @@ class Main {
     } else {
       arr = oneArr
     }
-    arr.forEach((item, index) => {
+    arr.forEach((item) => {
       let obj = new dragPopper({
         data: {
-          index
+          index: item.id //用id来标识每个唯一的面板
         }
       }) //用于对每个拖拽实体监听
       obj.id = item.id //用于地球旋转的时候比对信息
       obj.instance.info = {
-        ...item.properties.properties.getValue(),
-        name: item.label.text
-      } //传参
+          // ...item.properties.properties.getValue(),
+          name: item.label.text
+        } //传参
+        !multiple ? obj.instance.checkedDragInfoProperties = properties : (obj.instance.checkedDragInfoProperties = [{
+          name: '国家',
+          value: item.properties.properties.getValue().国家
+        }, {
+          name: '经度',
+          value: item.properties.lng.getValue()
+        }, {
+          name: '纬度',
+          value: item.properties.lat.getValue()
+        }])
       let cartesian = item.position.getValue(); //初始位置
       let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
       obj.instance.position = {

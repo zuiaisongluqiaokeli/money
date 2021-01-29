@@ -440,6 +440,12 @@ export default {
           &.name {
             width: 100%;
           }
+          .el-input {
+            input {
+              height: 30px;
+              line-height: 30px;
+            }
+          }
         }
         .icon-select,
         .color-select {

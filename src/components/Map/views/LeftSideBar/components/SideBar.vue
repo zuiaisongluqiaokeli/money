@@ -156,7 +156,7 @@ export default {
           this.$message.error('请连续选择两项')
         }
       } else {
-        emitter.emit(EventType.CLICK_BLANK)
+        emitter.emit(EventType.CLICK_BLANK) //避免点击右键干扰
         emitter.emit(EventType.SET_MEASURE_TYPE, {
           group: '基地',
           groupCategory: '基地',
@@ -165,7 +165,7 @@ export default {
           labelShow: this.gisLabelShow,
         })
         this.$message.success('已成功创建标记点')
-        this.$store.state.map.isCover = true
+        this.$store.state.map.isCover = true //开启遮罩避免误操作
       }
     },
     //val 代表ID ，entity代表返回的结果,新增需要重绘/修改不用
@@ -181,34 +181,32 @@ export default {
           labelShow: this.gisLabelShow,
         })
       } else {
+        gisvis.emitter.emit(EventType.CLICK_BLANK)
         //修改的时候重新生成分组数据,更改经纬度，名称等
-        emitter.emit(EventType.CLICK_ENTITY, this.temEntity) //重新掉接口显示更改后的数据
-        gisvis.viewer.entities.getById(this.temEntity.id.id).label.text =
-          entity.name
-
-        if (gisvis.popper) gisvis.popper.destroy() //先删除之前的，替换成新的名称
+        gisvis.viewer.entities.getById(val).label.text = entity.name
+        //if (gisvis.popper) gisvis.popper.destroy() //先删除之前的，替换成新的名称
         //更改地图上显示的经纬度
         gisvis.viewer.entities.getById(
-          this.temEntity.id.id
+          val
         ).position = Cesium.Cartesian3.fromDegrees(
-          entity.properties.经度,
-          entity.properties.纬度
+          entity.properties.longitude,
+          entity.properties.latitude
         )
         //更改传给后端的经纬度
-        ;(gisvis.viewer.entities.getById(this.temEntity.id.id).properties.lat =
-          entity.properties.纬度),
-          (gisvis.viewer.entities.getById(this.temEntity.id.id).properties.lng =
-            entity.properties.经度),
-          emitter.emit(EventType.POPPER_CREATE, {
-            //更新poper
-            position: this.temEntity.id.position.getValue(),
-            name:
-              (entity.properties.hasOwnProperty('name') &&
-                entity.properties.name) ||
-              entity.name,
-            canMove: true,
-            create: true,
-          })
+        gisvis.viewer.entities.getById(val).properties.lat =
+          entity.properties.latitude
+        gisvis.viewer.entities.getById(val).properties.lng =
+          entity.properties.longitude
+        // emitter.emit(EventType.POPPER_CREATE, {
+        //   //更新poper
+        //   position: entity.properties.id.position.getValue(),
+        //   name:
+        //     (entity.properties.hasOwnProperty('name') &&
+        //       entity.properties.name) ||
+        //     entity.name,
+        //   canMove: true,
+        //   create: true,
+        // })
         emitter.emit(EventType.LEGEND_DATA_CHANGE, [entity])
       }
     },
@@ -220,7 +218,7 @@ export default {
       this.showMapMark = false
       this.addEntityDialog = false
     },
-    //新增或者未知位置的取消才删除节点
+    //对新增的标记实体取消
     deleteNewPoint() {
       if (this.temEntity.id.newAdd) {
         gisvis.emitter.emit(EventType.CLICK_BLANK)

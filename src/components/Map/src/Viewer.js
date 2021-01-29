@@ -77,13 +77,13 @@ class Viewer {
     // 水雾特效
     viewer.scene.globe.showGroundAtmosphere = true
     // 叠加国界服务
-    var iboMap = new Cesium.UrlTemplateImageryProvider({
-      url: tdtUrl + 'DataServer?T=ibo_w&x={x}&y={y}&l={z}&tk=' + token,
-      subdomains: subdomains,
-      tilingScheme: new Cesium.WebMercatorTilingScheme(),
-      maximumLevel: 10
-    })
-    viewer.imageryLayers.addImageryProvider(iboMap)
+    // var iboMap = new Cesium.UrlTemplateImageryProvider({
+    //   url: tdtUrl + 'DataServer?T=ibo_w&x={x}&y={y}&l={z}&tk=' + token,
+    //   subdomains: subdomains,
+    //   tilingScheme: new Cesium.WebMercatorTilingScheme(),
+    //   maximumLevel: 10
+    // })
+    // viewer.imageryLayers.addImageryProvider(iboMap)
     // 叠加地形服务
     // var terrainUrls = new Array()
     // for (var i = 0; i < subdomains.length; i++) {

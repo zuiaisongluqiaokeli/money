@@ -4,9 +4,9 @@
       <div class="main-box">
         <div class="tab-content">
           <el-form ref="form" label-width="120px">
-            <el-form-item label="融合显示范围">
+            <!-- <el-form-item label="融合显示范围">
               <el-switch class="switch" v-model="form.changeRange"></el-switch>
-            </el-form-item>
+            </el-form-item>-->
             <el-form-item
               v-for="(item, index) in form.verticeFilter"
               :key="index"

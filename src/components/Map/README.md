@@ -1,7 +1,7 @@
 增删改查：（增加一个实体/修改一个实体/获取一个实体/删除全部实体）
 this.viewer.entities.add({})  
 this.viewer.entities.getById('')   
-this.viewer.removeById('') 
+this.viewer.entities.removeById('') 
 this.viewer.entities.removeAll()  
 this.viewer.entities.values.forEach(item=>{})//地图上标记点的所有实体
 this.viewer.entities.remove(this.entity); //删除当前实体

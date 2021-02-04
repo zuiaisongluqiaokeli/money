@@ -20,7 +20,12 @@
                 placeholder="请选择属性"
                 class="select-input"
               >
-                <el-option v-for="(ele,i) in allProperties" :key="i" :label="ele" :value="ele"></el-option>
+                <el-option
+                  v-for="(ele,i) in allProperties"
+                  :key="i"
+                  :label="ele.name"
+                  :value="ele.name"
+                ></el-option>
               </el-select>
               <el-color-picker v-model="item.color" show-alpha :predefine="predefineColors"></el-color-picker>
               <el-button
@@ -49,6 +54,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import * as propManagement from '@/services/props-management'
 import { emitter, EventType } from '../../../src/EventEmitter'
 export default {
   name: 'Setting',
@@ -63,9 +69,8 @@ export default {
           },
         ],
       },
-
       reset: false,
-
+      allProperties: [],
       predefineColors: [
         '#FFFFFF',
         '#ff8c00',
@@ -80,13 +85,23 @@ export default {
   components: {},
   computed: {
     ...mapState('map', ['allEntityBackEnd']),
-    ...mapGetters('map', ['allLabels', 'allProperties']),
+    ...mapGetters('map', ['allLabels']),
+    ...mapState('graphInfo', ['id', 'graphType']),
   },
-
+  watch: {
+    id(val) {
+      this.getCategory(this.id)
+    },
+  },
   methods: {
     ...mapMutations('canvasInfo', ['setClearTag']),
     ...mapActions('canvasInfo', ['revertCanvas']),
     ...mapMutations('map', ['updateInitTack']),
+    async getCategory(graphId) {
+      // this.treeData = [];
+      const res = await propManagement.attributePageQuery(graphId, 1, 200, '')
+      this.allProperties = res.data.content
+    },
     // 实体搜索添加属性
     addItem(natureIndex, index) {
       this.form.verticeFilter.push({
@@ -98,62 +113,91 @@ export default {
       this.form.verticeFilter.splice(index, 1)
     },
     saveInfo() {
-      //过滤出来所有实体数据中满足条件的值并设置他的颜色
+      //过滤出来所有实体数据中满足条件的值并设置他的颜色(有可能是同一个对象更改同时更改了并且不能用浅拷贝)
       let arr = []
-      this.allEntityBackEnd.forEach((item) => {
+      gisvis.viewer.entities.values.forEach((item) => {
         this.form.verticeFilter.forEach((element) => {
-          if (Object.keys(item.properties).includes(element.key)) {
-            item.color = element.color
-            arr.push(item)
+          if (
+            item.properties &&
+            item.properties.properties.getValue()[element.key]
+          ) {
+            arr.push({
+              info: item,
+              color: element.color,
+              showProperty: element.key,
+            })
           }
         })
       })
-      if (this.form.changeRange) {
-        arr.forEach((item) => {
-          if (gisvis.viewer.entities.getById(item.id).ellipse) {
-            gisvis.viewer.entities.getById(
-              item.id
-            ).ellipse.material = Cesium.Color.fromCssColorString(
-              item.color
-            ).withAlpha(1)
-            gisvis.viewer.entities.getById(item.id).ellipse.outline = false
-          } else {
-            gisvis.viewer.entities.getById(item.id).ellipse = {
-              show: true,
-              semiMajorAxis: 250 * 1000,
-              semiMinorAxis: 250 * 1000,
-              material: Cesium.Color.fromCssColorString(item.color).withAlpha(
-                1
-              ),
-              outline: false,
-            }
-          }
+      console.log('显示范围选中的数据', arr)
+      //每次删除之前的设置范围
+      let deleteArr = []
+      gisvis.viewer.entities.values.forEach((ele) => {
+        let id = ele.id.toString()
+        if (
+          id.split(',').length > 1 &&
+          ele.id.split(',').includes('显示范围')
+        ) {
+          deleteArr.push(ele)
+        }
+      })
+      deleteArr.forEach((item) => {
+        gisvis.viewer.entities.removeById(item.id)
+      })
+
+      arr.forEach(({ info: item, color, showProperty }, index) => {
+        //伪造ID显示范围圈
+        gisvis.viewer.entities.add({
+          id: '显示范围' + ',' + item.id + ',' + index,
+          position: Cesium.Cartesian3.fromDegrees(
+            Number(item.properties.properties.getValue().longitude),
+            Number(item.properties.properties.getValue().latitude),
+            10
+          ),
+          ellipse: {
+            show: true,
+            semiMajorAxis: Number(
+              item.properties.properties.getValue()[showProperty]
+            ),
+            semiMinorAxis: Number(
+              item.properties.properties.getValue()[showProperty]
+            ),
+            material: Cesium.Color.fromCssColorString(color).withAlpha(0.08),
+            outline: true,
+            outlineColor: Cesium.Color.fromCssColorString(color).withAlpha(1),
+            height: 0,
+            outlineWidth: 15,
+          },
         })
-      } else {
-        arr.forEach((item) => {
-          if (gisvis.viewer.entities.getById(item.id).ellipse) {
-            gisvis.viewer.entities.getById(
-              item.id
-            ).ellipse.material = Cesium.Color.fromCssColorString(
-              item.color
-            ).withAlpha(0.08)
-            gisvis.viewer.entities.getById(
-              item.id
-            ).ellipse.outlineColor = Cesium.Color.fromCssColorString(
-              item.color
-            ).withAlpha(1)
-          } else {
-            let params = {
-              entities: [{ id: item.id }],
-              radius: 250,
-              areaProperty: null,
-              color: item.color,
-            }
-            gisvis.emitter.emit('gis-scope-render', params)
-          }
-        })
-      }
-      //是否范围融合
+      })
+      //创建标签显示半径字段
+      // arr.forEach(({ info: item, showProperty }, index, Arr) => {
+      //   let targetArr = Arr.filter(({ info: ele }) => ele.id == item.id)
+      //   if (targetArr.length > 1) {
+      //     let nameString = targetArr
+      //       .map(
+      //         ({ info: ele, showProperty: eachProperty }) =>
+      //           eachProperty +
+      //           ':' +
+      //           ele.properties.properties.getValue()[eachProperty]
+      //       )
+      //       .join()
+      //     emitter.emit(EventType.LABEL_CREATE, {
+      //       position: item.position.getValue(),
+      //       name: nameString,
+      //       id: targetArr[0].info.id,
+      //     })
+      //   } else {
+      //     emitter.emit(EventType.LABEL_CREATE, {
+      //       position: item.position.getValue(),
+      //       name:
+      //         showProperty +
+      //         ':' +
+      //         item.properties.properties.getValue()[showProperty],
+      //       id: item.info.id,
+      //     })
+      //   }
+      // })
     },
   },
 }

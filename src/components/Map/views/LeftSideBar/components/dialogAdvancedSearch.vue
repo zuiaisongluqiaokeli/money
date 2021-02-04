@@ -469,7 +469,6 @@ export default {
         children: treeData,
         parentsName: '',
       })
-      this.graphVerticesGet('search')
     },
     // 递归返回的数据，形成树结构
     formatTree(treeData, data) {

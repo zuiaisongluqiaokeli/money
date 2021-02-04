@@ -104,7 +104,7 @@ export default {
           relationWeight: null,
           dimension: expend,
           timeFilter: null,
-          all: types,
+          all: null,
         }
       let id = vertice.id,
         level = vertice.level || 0

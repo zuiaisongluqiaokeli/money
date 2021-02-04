@@ -92,7 +92,11 @@ export default {
     },
     saveDragInfo() {
       let arr = gisvis.dragPopperArr
-      gisvis.emitter.emit(EventType.deleteAllBubbles)
+      //先删除当前的再添加
+      gisvis.emitter.emit(
+        EventType.deleteOneBubbles,
+        this.gisRightSelectedEntity.id
+      )
       gisvis.emitter.emit(EventType.addAllBubbles, {
         multiple: false,
         oneArr: [this.gisRightSelectedEntity],

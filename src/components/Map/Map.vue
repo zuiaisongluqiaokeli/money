@@ -379,6 +379,7 @@ export default {
             gisvis.viewer.entities.removeById(this.gisRightSelectedEntity.id)
             this.removeEntityBackEnd(this.gisRightSelectedEntity.id)
             //批量删除存在的关系线
+            let arrLine = []
             gisvis.viewer.entities.values.forEach((ele) => {
               let id = ele.id.toString()
               if (
@@ -387,8 +388,28 @@ export default {
                   .split(',')
                   .includes(this.gisRightSelectedEntity.id.toString())
               ) {
-                gisvis.viewer.entities.remove(ele)
+                arrLine.push(ele)
               }
+            })
+            arrLine.forEach((item) => {
+              gisvis.viewer.entities.removeById(item.id)
+            })
+            //每次删除之前的范围设置的圆圈
+            let deleteLabelArr = []
+            gisvis.viewer.entities.values.forEach((ele) => {
+              let id = ele.id.toString()
+              if (
+                id.split(',').length > 1 &&
+                ele.id.split(',').includes('显示范围') &&
+                ele.id
+                  .split(',')
+                  .includes(this.gisRightSelectedEntity.id.toString())
+              ) {
+                deleteLabelArr.push(ele)
+              }
+            })
+            deleteLabelArr.forEach((item) => {
+              gisvis.viewer.entities.removeById(item.id)
             })
             if (gisvis.contextMenu) {
               gisvis.contextMenu.destroy()
@@ -504,17 +525,22 @@ export default {
             this.$message.success('已成功创建关联部署点')
             break
           //信息切换
-          case 'scopeInfo':
+          case 'scopeInfoShow':
             this.showDragInfo = true
 
             break
+          case 'scopeInfoHidden':
+            gisvis.emitter.emit(
+              EventType.deleteOneBubbles,
+              this.gisRightSelectedEntity.id
+            )
         }
         //判断显示条件,除了这几个其余操作完成气泡都显示，这几个等弹窗确定完才显示气泡
         if (
           action != 'scopeSearch' &&
           action != 'expandLatitude' &&
           action != 'expandType' &&
-          action != 'scopeInfo'
+          action != 'scopeInfoShow'
         ) {
           gisvis.emitter.emit(EventType.POPPER_SHOW)
         }

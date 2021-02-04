@@ -75,6 +75,8 @@ const EventType = {
   POPPER_MOVE: "popper-move",
   /** 【Popper】 Popper移除 */
   POPPER_REMOVE: "popper-remove",
+  /** 【Popper】 标签创建用于显示范围标识 */
+  LABEL_CREATE: "label-create",
   /** 【Popper】 htmlPoper */
   CREATE_HtmlPopper: 'create_htmlPoper',
   /** 【Popper】 添加所有可拖拽气泡 */

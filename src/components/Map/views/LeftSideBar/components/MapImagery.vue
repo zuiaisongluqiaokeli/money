@@ -48,8 +48,8 @@ export default {
           img: 'img/xingzhengquyu.png',
           command: 'politicalMap',
           text: '行政区域图',
-          //url: tdtUrl + 'DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=' + token,
-          url: 'maps/m/{z}/{y}/{x}.png',
+          url: tdtUrl + 'DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=' + token,
+          //url: 'maps/m/{z}/{y}/{x}.png',
         },
       ],
     }
@@ -84,6 +84,9 @@ export default {
         layers.addImageryProvider(
           new Cesium.UrlTemplateImageryProvider({
             url: this.imageryOptions[index].url,
+            subdomains: subdomains,
+            tilingScheme: new Cesium.WebMercatorTilingScheme(),
+            maximumLevel: 10,
           })
         )
       }

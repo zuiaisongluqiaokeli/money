@@ -328,8 +328,11 @@ export default {
       event.stopPropagation()
       gisvis.emitter.emit(EventType.CLICK_BLANK)
       //批量删除
+      let arrLine = []
+      let deleteLabelArr = []
       this.tableData.forEach((item) => {
         if (item.category == val.category) {
+          //对这个种类下每一项删除
           item.listInfo.forEach((element) => {
             gisvis.viewer.entities.removeById(element.id)
             this.removeEntityBackEnd(element.id)
@@ -340,13 +343,30 @@ export default {
                 id.split(',').length > 1 &&
                 ele.id.split(',').includes(element.id.toString())
               ) {
-                gisvis.viewer.entities.remove(ele)
+                arrLine.push(ele)
+              }
+            })
+            //每次删除之前的范围设置的圆圈
+            gisvis.viewer.entities.values.forEach((ele) => {
+              let id = ele.id.toString()
+              if (
+                id.split(',').length > 1 &&
+                ele.id.split(',').includes('显示范围') &&
+                ele.id.split(',').includes(val.id.toString())
+              ) {
+                deleteLabelArr.push(ele)
               }
             })
           })
         }
       })
+      arrLine.forEach((item) => {
+        gisvis.viewer.entities.removeById(item.id)
+      })
 
+      deleteLabelArr.forEach((item) => {
+        gisvis.viewer.entities.removeById(item.id)
+      })
       if (gisvis.contextMenu) {
         gisvis.contextMenu.destroy()
         gisvis.contextMenu = null
@@ -369,14 +389,33 @@ export default {
       this.removeEntityBackEnd(val.id)
       gisvis.viewer.entities.removeById(val.id)
       //批量删除存在的关系线
+      let arrLine = []
       gisvis.viewer.entities.values.forEach((ele) => {
         let id = ele.id.toString()
         if (
           id.split(',').length > 1 &&
           ele.id.split(',').includes(val.id.toString())
         ) {
-          gisvis.viewer.entities.remove(ele)
+          arrLine.push(ele)
         }
+      })
+      arrLine.forEach((item) => {
+        gisvis.viewer.entities.removeById(item.id)
+      })
+      //每次删除之前的范围设置的圆圈
+      let deleteLabelArr = []
+      gisvis.viewer.entities.values.forEach((ele) => {
+        let id = ele.id.toString()
+        if (
+          id.split(',').length > 1 &&
+          ele.id.split(',').includes('显示范围') &&
+          ele.id.split(',').includes(val.id.toString())
+        ) {
+          deleteLabelArr.push(ele)
+        }
+      })
+      deleteLabelArr.forEach((item) => {
+        gisvis.viewer.entities.removeById(item.id)
       })
       this.handleLegendDataChange([])
       if (gisvis.contextMenu) {

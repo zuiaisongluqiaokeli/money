@@ -82,7 +82,7 @@
                   :rules="{
                     required: true,
                     message: '名称不能为空',
-                    trigger: 'change',
+                    trigger: 'blur',
                   }"
                 >
                   <el-input v-model="newVerticesData.name" placeholder="请输入名称"></el-input>
@@ -178,7 +178,16 @@
                 }"
                 style="margin-left: 1.1%; margin-bottom: 20px"
               >
-                <el-input v-model="longitude"></el-input>
+                <el-form-item
+                  prop="longitude"
+                  :rules="{
+                    required: true,
+                    message: '经度不能为空',
+                    trigger: 'blur',
+                  }"
+                >
+                  <el-input v-model="newVerticesData.longitude"></el-input>
+                </el-form-item>
               </el-col>
             </el-row>
             <el-row>
@@ -199,7 +208,16 @@
                 }"
                 style="margin-left: 1.1%; margin-bottom: 20px"
               >
-                <el-input v-model="latitude"></el-input>
+                <el-form-item
+                  prop="latitude"
+                  :rules="{
+                    required: true,
+                    message: '纬度不能为空',
+                    trigger: 'blur',
+                  }"
+                >
+                  <el-input v-model="newVerticesData.latitude"></el-input>
+                </el-form-item>
               </el-col>
             </el-row>
 
@@ -525,6 +543,11 @@ export default {
     return {
       rules: {
         name: [{ required: true, validator: validateName, trigger: 'blur' }],
+        longitude: [{ required: true, message: '请输入经度', trigger: 'blur' }],
+        latitude: [{ required: true, message: '请输入纬度', trigger: 'blur' }],
+        categoryName: [
+          { required: true, message: '请选择实体分类', trigger: 'change' },
+        ],
       },
       rules2: {
         name: [{ required: true, message: '请选择实体分类', trigger: 'blur' }],
@@ -550,16 +573,15 @@ export default {
         ],
         labelsList: [], //实体标签（转逗号分割字符串）
         type: '', //实体分类
-        longitude: '',
-        latitude: '',
+        latitude: this.entityInfo.latitude, //纬度
+        longitude: this.entityInfo.longitude, //经度
       },
       imgList: [],
       imgListArr: [],
       avatar: '', //新增的图片url
       imgBigShow: false, //图片放大弹窗
       dialogImageUrl: '',
-      latitude: this.entityInfo.latitude, //纬度
-      longitude: this.entityInfo.longitude, //经度
+
       allPropsList: [], //实体属性下拉框数据
       allLabelsList: [], //实体标签下拉框数据
       allTypeList: [], //实体分类下拉框数据
@@ -1095,12 +1117,12 @@ export default {
           )
           this.newVerticesData.propertiesJson.push({
             name: '经度',
-            value: this.longitude,
+            value: this.newVerticesData.longitude,
             primary: false,
           })
           this.newVerticesData.propertiesJson.push({
             name: '纬度',
-            value: this.latitude,
+            value: this.newVerticesData.latitude,
             primary: false,
           })
           // 在编辑时判断是否有实体分类、名称、name、avatar和docs属性，没有就自动添加
@@ -1383,10 +1405,10 @@ export default {
               this.newVerticesData.categoryName = props[prop]
             }
             if (prop === '经度') {
-              this.longitude = props[prop]
+              this.newVerticesData.longitude = props[prop]
             }
             if (prop === '纬度') {
-              this.latitude = props[prop]
+              this.newVerticesData.latitude = props[prop]
             }
             if (prop === '_实体分类ID') {
               this.categoryId = props[prop]

@@ -11,6 +11,7 @@ import ScreenSpaceEvent from "./ScreenSpaceEvent";
 import ContextMenu from "../views/ContextMenu/index";
 import Popper from "../views/Popper";
 import addHtmlPopper from "../views/addHtmlPopper";
+import addLabelPopper from "../views/labelPopper";
 import Plot from "./Plot";
 import dragPopper from "../views/dragPopper";
 import SelectEntityBox from "../views/selectEntityBox";
@@ -32,6 +33,7 @@ class Main {
   legendData = null;
   popper = null;
   addHtmlPopper = null; //添加动态HTML
+  addLabelPopperArr = []; //标签创建用于显示范围标识
   selectEntityBoxArr = [] //选中的绿框效果
   dragPopperArr = [] //存储动态气泡框对象
   constructor(options = {}) {
@@ -97,6 +99,7 @@ class Main {
     emitter.on(EventType.CREATE_HtmlPopper, this.createHtmlPopper, this); //绘制HTML 弹窗
     emitter.on(EventType.addAllBubbles, this.addAllBubbles, this); //添加所有可拖拽气泡
     emitter.on(EventType.deleteAllBubbles, this.deleteAllBubbles, this); //删除所有可拖拽气泡
+    emitter.on(EventType.deleteOneBubbles, this.deleteOneBubbles, this); //删除单个可拖拽气泡
     emitter.on(EventType.changeBubbleBoxColor, this.changeBubbleBoxColor, this); //拖拽气泡窗颜色更改
     emitter.on(EventType.RENDER_DATA, this.gisRender, this); //地图搜索/扩展等添加实体
     emitter.on(EventType.SCOPE_RENDER, this.gisScopeRender, this); //范围
@@ -119,6 +122,8 @@ class Main {
     emitter.on(EventType.hideSelectEntityBox, this.hideSelectEntityBox, this); //隐藏绿色选中框
     emitter.on(EventType.showSelectEntityBox, this.showSelectEntityBox, this); //显示绿色选中框
     emitter.on(EventType.mergeCircles, this.mergeCircles, this); //显示绿色选中框
+    emitter.on(EventType.LABEL_CREATE, this.labelCreate, this); //标签创建用于显示范围标识
+
   }
   createSelectEntityBox(params) {
     var {
@@ -309,6 +314,26 @@ class Main {
         }
       })
     }
+    if (this.addLabelPopperArr.length) {
+      this.addLabelPopperArr.forEach((item, index) => {
+        let state = arr.filter(ele => item.id === ele.id).length //判断能否找到匹配的，没找到说明该元素给单点删除了
+        if (state) {
+          let cartesian = arr.filter(ele => item.id === ele.id)[0].position.getValue();
+          let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
+          let {
+            x,
+            y
+          } = position;
+          item.instance.position = {
+            top: y + "px",
+            left: x + "px"
+          };
+        } else {
+          item.destroy()
+          this.addLabelPopperArr.splice(index, 1)
+        }
+      })
+    }
     if (!this.store.selectedEntity) {
       return
     }
@@ -387,10 +412,38 @@ class Main {
     })
     this.dragPopperArr = [] //销毁实体就要清除数组内容，不然都是null，旋转的时候报异常
   }
+  deleteOneBubbles(val) {
+    this.dragPopperArr.forEach((item, index) => {
+      if (item.id == val) {
+        item.destroy();
+        this.dragPopperArr.splice(index, 1)
+      }
+    })
+  }
   changeBubbleBoxColor(val) {
     this.dragPopperArr.forEach(item => {
       item.instance.bgColor = val
     })
+  }
+  labelCreate(params) {
+    var {
+      position,
+      name,
+      id
+    } = params;
+    var positions = this.viewer.scene.cartesianToCanvasCoordinates(position);
+    var {
+      x,
+      y
+    } = positions;
+    let obj = new addLabelPopper({});
+    obj.id = id //用于地球旋转的时候比对信息
+    obj.instance.text = name;
+    obj.instance.position = {
+      top: y + "px",
+      left: x + "px"
+    };
+    this.addLabelPopperArr.push(obj) //拖拽面板列表
   }
   /**
    * 显示Popper
@@ -879,7 +932,7 @@ class Main {
     );
   }
   /**
-   * 圆形扩大扫描圈
+   * 圆形扩大扫描圈(扩大500倍与公里范围类似)
    */
   addCircleScan({
     id,
@@ -1039,7 +1092,7 @@ class Main {
         id: ids,
         polyline: {
           positions: this.generateCurve(startPoint, endPoint),
-          width: 2,
+          width: 0.8,
           material: material
         }
       });

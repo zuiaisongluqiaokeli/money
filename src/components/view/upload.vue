@@ -2,18 +2,20 @@
     <div>
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item> <i class="el-icon-lx-calendar"></i> 表单 </el-breadcrumb-item>
+                <el-breadcrumb-item>
+                    <i class="el-icon-lx-calendar"></i> 表单
+                </el-breadcrumb-item>
                 <el-breadcrumb-item>图片上传（批量上传实际一个个掉函数）</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
-        <div class>
-            (导入文件带进度条，导入excel显示表格，导入文件提示，下载模板) https://blog.csdn.net/weixin_36617251/article/details/102738284
-        </div>
+        <div
+            class
+        >(导入文件带进度条，导入excel显示表格，导入文件提示，下载模板) https://blog.csdn.net/weixin_36617251/article/details/102738284</div>
 
         <div class="container">
-            <div class="content-title">
-                手动上传(limit的个数控制on-change(用来显示文件名),auto-upload="false",submit到before-upload再到on-success)
-            </div>
+            <div
+                class="content-title"
+            >手动上传(limit的个数控制on-change(用来显示文件名),auto-upload="false",submit到before-upload再到on-success)</div>
             <el-button
                 size="small"
                 type="primary"
@@ -21,10 +23,19 @@
                     dialogShow = true;
                     uploadForm.fileName = '';
                 "
-                >手动上传</el-button
+            >手动上传</el-button>
+            <el-dialog
+                title="手动上传"
+                :visible.sync="dialogShow"
+                width="40%"
+                :close-on-click-modal="false"
             >
-            <el-dialog title="手动上传" :visible.sync="dialogShow" width="40%" :close-on-click-modal="false">
-                <el-form :model="uploadForm" label-width="180px" :inline="true" style="text-align: center">
+                <el-form
+                    :model="uploadForm"
+                    label-width="180px"
+                    :inline="true"
+                    style="text-align: center"
+                >
                     <el-form-item label="导入文件">
                         <el-input v-model="uploadForm.fileName"></el-input>
                     </el-form-item>
@@ -83,9 +94,20 @@
             <!-- 查看的时候显示这个 -->
             <div>查看的时候返显的</div>
             <div>
-                <img style="width: 100px; height: 100px" @click="blowup" :src="item.url" v-for="(item, index) in imgList" :key="index" />
+                <img
+                    style="width: 100px; height: 100px"
+                    @click="blowup"
+                    :src="item.url"
+                    v-for="(item, index) in imgList"
+                    :key="index"
+                />
             </div>
-            <el-dialog title="图片大图" :visible.sync="dialogImgShow" width="40%" :close-on-click-modal="false">
+            <el-dialog
+                title="图片大图"
+                :visible.sync="dialogImgShow"
+                width="40%"
+                :close-on-click-modal="false"
+            >
                 <div style="text-align: center">
                     <img :src="imgUrl" style="width: 100%; height: 100%" />
                 </div>
@@ -119,17 +141,39 @@
                 :on-limit="2"
             >
                 <i class="el-icon-upload"></i>
-                <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                <div class="el-upload__text">
+                    将文件拖到此处，或
+                    <em>点击上传</em>
+                </div>
                 <div class="el-upload__tip" slot="tip">
                     <el-row class="tip-type">
                         <span>支持格式：</span>
-                        <span v-for="(icon, index) in iconList" :key="index" style="margin-right: 10px">
-                            <div :style="{ 'background-image': 'url(' + icon.bg + ')' }" class="file-icon"></div>
+                        <span
+                            v-for="(icon, index) in iconList"
+                            :key="index"
+                            style="margin-right: 10px"
+                        >
+                            <div
+                                :style="{ 'background-image': 'url(' + icon.bg + ')' }"
+                                class="file-icon"
+                            ></div>
                         </span>
                         <span>
-                            <el-popover placement="right" title="全部格式如下：" width="250" trigger="hover">
-                                <div style="margin-bottom: 10px" v-for="(item, index) in allFormat" :key="index">
-                                    <div class="file-icon" :style="{ 'background-image': 'url(' + item.bg + ')' }"></div>
+                            <el-popover
+                                placement="right"
+                                title="全部格式如下："
+                                width="250"
+                                trigger="hover"
+                            >
+                                <div
+                                    style="margin-bottom: 10px"
+                                    v-for="(item, index) in allFormat"
+                                    :key="index"
+                                >
+                                    <div
+                                        class="file-icon"
+                                        :style="{ 'background-image': 'url(' + item.bg + ')' }"
+                                    ></div>
                                     <span style="padding-left: 10px">{{ item.content }}</span>
                                 </div>
                                 <div slot="reference" class="more-format">...</div>
@@ -138,25 +182,35 @@
                     </el-row>
                 </div>
             </el-upload>
-            <el-table v-if="fileData.length > 0" :data="fileData" style="width: 80%; margin-top: 10px">
+            <el-table
+                v-if="fileData.length > 0"
+                :data="fileData"
+                style="width: 80%; margin-top: 10px"
+            >
                 <el-table-column prop="name" label="文件名" show-overflow-tooltip>
                     <template slot-scope="scope">
-                        <span class="file-icon" :style="{ 'background-image': 'url(' + scope.row.icon + ')' }"></span>
+                        <span
+                            class="file-icon"
+                            :style="{ 'background-image': 'url(' + scope.row.icon + ')' }"
+                        ></span>
                         <span
                             style="margin-left: 10px; cursor: pointer; color: #188cff"
                             :title="scope.row.name"
                             @click="preview(scope.row.url)"
-                            >{{ scope.row.name }}</span
-                        >
+                        >{{ scope.row.name }}</span>
                     </template>
                 </el-table-column>
             </el-table>
-            <el-dialog title="预览文件" :visible.sync="previewDialog" width="60%" :before-close="handleClosePreviewDialog">
+            <el-dialog
+                title="预览文件"
+                :visible.sync="previewDialog"
+                width="60%"
+                :before-close="handleClosePreviewDialog"
+            >
                 <iframe v-if="previewUrl" :src="previewUrl" width="100%" height="700"></iframe>
                 <img v-if="previewImg" :src="previewImg" style="width: 100%; height: 100%" />
                 <video v-if="previewSrc" style="width: 100%; height: 100%" controls autoplay>
-                    <source :src="previewSrc" :type="'video/' + videoType" />
-                    抱歉，您的浏览器不支持html5播放
+                    <source :src="previewSrc" :type="'video/' + videoType" />抱歉，您的浏览器不支持html5播放
                 </video>
                 <audio
                     v-if="previewMusic"
@@ -170,13 +224,22 @@
             <div class="content-title">支持裁剪</div>
             <div class="plugins-tips">
                 vue-cropperjs：一个封装了 cropperjs 的 Vue 组件。 访问地址：
-                <a href="https://github.com/Agontuk/vue-cropperjs" target="_blank">vue-cropperjs</a>
+                <a
+                    href="https://github.com/Agontuk/vue-cropperjs"
+                    target="_blank"
+                >vue-cropperjs</a>
             </div>
             <div class="crop-demo">
                 <img :src="cropImg" class="pre-img" />
                 <div class="crop-demo-btn">
                     选择图片
-                    <input class="crop-input" type="file" name="image" accept="image/*" @change="setImage" />
+                    <input
+                        class="crop-input"
+                        type="file"
+                        name="image"
+                        accept="image/*"
+                        @change="setImage"
+                    />
                 </div>
             </div>
 
@@ -209,11 +272,11 @@ export default {
             imgUrl: '',
             dialogImgShow: false,
             uploadForm: { fileName: '' },
-            defaultSrc: require('../../assets/img/img.jpg'),
+            defaultSrc: require('../../assets/img/img.jpeg'),
             fileList: [],
             fileUrl: '', //发送给后端的路径
-            previewImgList: [require('../../assets/img/img.jpg')],
-            imgList: [{ url: require('../../assets/img/img.jpg') }],
+            previewImgList: [require('../../assets/img/img.jpeg')],
+            imgList: [{ url: require('../../assets/img/img.jpeg') }],
             file: [],
             isConfirm: true,
             imgSrc: '',

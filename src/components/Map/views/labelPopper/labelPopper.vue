@@ -17,7 +17,7 @@ export default {
       },
       text: '',
       defaultText: '未命名',
-      show: true,
+      show: false,
       placement: 'top',
       html: null,
     }

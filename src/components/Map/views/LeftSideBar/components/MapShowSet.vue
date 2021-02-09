@@ -3,7 +3,7 @@
     <div class="body">
       <div class="main-box">
         <div class="tab-content">
-          <el-form ref="form" label-width="120px">
+          <el-form ref="form" label-width="120px" style="max-height: 218px;overflow-y: scroll;">
             <!-- <el-form-item label="融合显示范围">
               <el-switch class="switch" v-model="form.changeRange"></el-switch>
             </el-form-item>-->
@@ -12,21 +12,29 @@
               :key="index"
               :label="index === 0 ? '显示范围' : ''"
             >
-              <el-select
-                v-model="item.key"
-                :popper-append-to-body="false"
-                allow-create
-                filterable
-                placeholder="请选择属性"
-                class="select-input"
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="item.key"
+                placement="top"
+                :disabled="item.key.length<=5"
               >
-                <el-option
-                  v-for="(ele,i) in allProperties"
-                  :key="i"
-                  :label="ele.name"
-                  :value="ele.name"
-                ></el-option>
-              </el-select>
+                <el-select
+                  v-model="item.key"
+                  :popper-append-to-body="false"
+                  allow-create
+                  filterable
+                  placeholder="请选择属性"
+                  class="select-input"
+                >
+                  <el-option
+                    v-for="(ele,i) in allProperties"
+                    :key="i"
+                    :label="ele.name"
+                    :value="ele.name"
+                  ></el-option>
+                </el-select>
+              </el-tooltip>
               <el-color-picker v-model="item.color" show-alpha :predefine="predefineColors"></el-color-picker>
               <el-button
                 type="text"
@@ -125,6 +133,9 @@ export default {
               info: item,
               color: element.color,
               showProperty: element.key,
+              sortOrder: Number(
+                item.properties.properties.getValue()[element.key]
+              ),
             })
           }
         })
@@ -145,6 +156,27 @@ export default {
         gisvis.viewer.entities.removeById(item.id)
       })
 
+      //更新左侧面板的样式状态
+      arr.forEach(({ info: item, color, showProperty }, index) => {
+        this.allEntityBackEnd.forEach((ele) => {
+          if (
+            ele.id == item.id &&
+            item.properties.properties.getValue()[showProperty] &&
+            !isNaN(
+              parseInt(item.properties.properties.getValue()[showProperty])
+            )
+          ) {
+            ele.attackRange = true
+          } else {
+            ele.attackRange = false
+          }
+        })
+      })
+      gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, [])
+      //按照半径从大到小排序展示出来
+      arr.sort((a, b) => {
+        return b.sortOrder - a.sortOrder
+      })
       arr.forEach(({ info: item, color, showProperty }, index) => {
         //伪造ID显示范围圈
         gisvis.viewer.entities.add({
@@ -162,42 +194,45 @@ export default {
             semiMinorAxis: Number(
               item.properties.properties.getValue()[showProperty]
             ),
-            material: Cesium.Color.fromCssColorString(color).withAlpha(0.08),
+            material: Cesium.Color.fromCssColorString(color),
             outline: true,
-            outlineColor: Cesium.Color.fromCssColorString(color).withAlpha(1),
-            height: 0,
+            outlineColor: Cesium.Color.fromCssColorString(color),
+            height: index,
             outlineWidth: 15,
           },
         })
       })
+
+      emitter.emit(EventType.deleteAllLabelPopper) //删除所有的标签
       //创建标签显示半径字段
-      // arr.forEach(({ info: item, showProperty }, index, Arr) => {
-      //   let targetArr = Arr.filter(({ info: ele }) => ele.id == item.id)
-      //   if (targetArr.length > 1) {
-      //     let nameString = targetArr
-      //       .map(
-      //         ({ info: ele, showProperty: eachProperty }) =>
-      //           eachProperty +
-      //           ':' +
-      //           ele.properties.properties.getValue()[eachProperty]
-      //       )
-      //       .join()
-      //     emitter.emit(EventType.LABEL_CREATE, {
-      //       position: item.position.getValue(),
-      //       name: nameString,
-      //       id: targetArr[0].info.id,
-      //     })
-      //   } else {
-      //     emitter.emit(EventType.LABEL_CREATE, {
-      //       position: item.position.getValue(),
-      //       name:
-      //         showProperty +
-      //         ':' +
-      //         item.properties.properties.getValue()[showProperty],
-      //       id: item.info.id,
-      //     })
-      //   }
-      // })
+      arr.forEach(({ info: item, showProperty }, index, Arr) => {
+        let targetArr = Arr.filter(({ info: ele }) => ele.id == item.id)
+        if (targetArr.length > 1) {
+          let nameString = targetArr
+            .map(
+              ({ info: ele, showProperty: eachProperty }) =>
+                eachProperty +
+                ':' +
+                ele.properties.properties.getValue()[eachProperty]
+            )
+            .join()
+          emitter.emit(EventType.LABEL_CREATE, {
+            position: item.position.getValue(),
+            name: nameString,
+            id: targetArr[0].info.id,
+          })
+        } else {
+          emitter.emit(EventType.LABEL_CREATE, {
+            position: item.position.getValue(),
+            name:
+              showProperty +
+              ':' +
+              item.properties.properties.getValue()[showProperty],
+            id: item.id,
+          })
+        }
+      })
+      document.getElementById('mapMap').click()
     },
   },
 }

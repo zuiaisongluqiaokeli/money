@@ -3,7 +3,7 @@
     <div class="body">
       <div class="main-box">
         <div class="tab-content">
-          <el-form ref="form" label-width="50px">
+          <el-form ref="form" label-width="50px" style="max-height: 218px;overflow-y: scroll;">
             <el-form-item label="标签">
               <el-select
                 v-model="verticeFilter.labels"
@@ -375,6 +375,7 @@ export default {
             .getById(e.id)
             .billboard.image.setValue(this.verticeSet.avatar)
       })
+      document.getElementById('mapMap').click()
       //有无范围时切换显示
       // if (this.verticeSet.range.enable) {
       //   let params = {

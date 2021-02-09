@@ -123,7 +123,8 @@ class Main {
     emitter.on(EventType.showSelectEntityBox, this.showSelectEntityBox, this); //显示绿色选中框
     emitter.on(EventType.mergeCircles, this.mergeCircles, this); //显示绿色选中框
     emitter.on(EventType.LABEL_CREATE, this.labelCreate, this); //标签创建用于显示范围标识
-
+    emitter.on(EventType.deleteAllLabelPopper, this.deleteAllLabelPopper, this); //标签删除
+    emitter.on(EventType.ShowLabelPopper, this.showLabelPopper, this); //标签显示
   }
   createSelectEntityBox(params) {
     var {
@@ -169,6 +170,10 @@ class Main {
     this.removeHtmlPopper()
     this.store.setSelectedEntity(null);
     this.viewer.selectedEntity = null;
+    //隐藏全部显示面板设置的属性值
+    this.addLabelPopperArr.forEach(item => {
+      item.instance.show = false
+    })
   }
   removePopper() {
     if (this.popper) {
@@ -265,13 +270,46 @@ class Main {
     this.removePopper(); //删除当前可移动的popper
     emitter.emit(EventType.CLICK_BLANK); //移动的时候避免取消报错
     //selectedEntity.id是传入的实体对象
+    //找到所有关系线中与现在对应的点有连线的
+    let arrLine = []
+    this.viewer.entities.values.forEach((ele) => {
+      let id = ele.id.toString()
+      if (
+        id.split(',').length == 2 &&
+        ele.id.split(',').includes(selectedEntity.id.id.toString())
+      ) {
+        arrLine.push(ele)
+      }
+    })
+    arrLine.forEach((item) => {
+      this.viewer.entities.removeById(item.id)
+    })
+    window.arrLine = arrLine
+
+    //隐藏每个实体圆的
+    let scopeChangeArr = []
+    gisvis.viewer.entities.values.forEach((ele) => {
+      let id = ele.id.toString()
+      if (
+        id.split(',').length == 3 &&
+        ele.id.split(',').includes('显示范围')
+      ) {
+        scopeChangeArr.push(ele)
+      }
+    })
+    scopeChangeArr.forEach((ele) => {
+      if (ele.id.includes(selectedEntity.id.id.toString())) {
+        ele.ellipse.show.setValue(false)
+      }
+    })
+    window.isMove = true
     this.measureTool.movePoint(selectedEntity.id, {}, entity => {
       this.store.setMeasureType(null);
     });
   }
   //旋转调用
   handlePostRender() {
-    let arr = gisvis.viewer.entities.values.filter(item => item.hasOwnProperty('entityId'))
+    let arr = this.viewer.entities.values.filter(item => item.hasOwnProperty('entityId'))
     //追随地球经纬度
     if (this.dragPopperArr.length) {
       this.dragPopperArr.forEach((item, index) => {
@@ -300,14 +338,16 @@ class Main {
         if (state) {
           let cartesian = arr.filter(ele => item.id === ele.id)[0].position.getValue();
           let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
-          let {
-            x,
-            y
-          } = position;
-          item.instance.position = {
-            top: y + "px",
-            left: x + "px"
-          };
+          if (position) {
+            let {
+              x,
+              y
+            } = position;
+            item.instance.position = {
+              top: y + "px",
+              left: x + "px"
+            };
+          }
         } else {
           item.destroy()
           this.selectEntityBoxArr.splice(index, 1)
@@ -320,14 +360,16 @@ class Main {
         if (state) {
           let cartesian = arr.filter(ele => item.id === ele.id)[0].position.getValue();
           let position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
-          let {
-            x,
-            y
-          } = position;
-          item.instance.position = {
-            top: y + "px",
-            left: x + "px"
-          };
+          if (position) {
+            let {
+              x,
+              y
+            } = position;
+            item.instance.position = {
+              top: y + "px",
+              left: x + "px"
+            };
+          }
         } else {
           item.destroy()
           this.addLabelPopperArr.splice(index, 1)
@@ -340,27 +382,29 @@ class Main {
     if (this.store.selectedEntity.id.position) {
       const cartesian = this.store.selectedEntity.id.position.getValue();
       const position = this.viewer.scene.cartesianToCanvasCoordinates(cartesian);
-      const {
-        x,
-        y
-      } = position;
-      if (this.popper) {
-        this.popper.instance.position = {
-          top: y + "px",
-          left: x + "px"
-        };
-      }
-      if (this.contextMenu) {
-        this.contextMenu.instance.position = {
-          top: y + "px",
-          left: x + "px"
-        };
-      }
-      if (this.addHtmlPopper) {
-        this.addHtmlPopper.instance.position = {
-          top: y + "px",
-          left: x + "px"
-        };
+      if (position) {
+        const {
+          x,
+          y
+        } = position;
+        if (this.popper) {
+          this.popper.instance.position = {
+            top: y + "px",
+            left: x + "px"
+          };
+        }
+        if (this.contextMenu) {
+          this.contextMenu.instance.position = {
+            top: y + "px",
+            left: x + "px"
+          };
+        }
+        if (this.addHtmlPopper) {
+          this.addHtmlPopper.instance.position = {
+            top: y + "px",
+            left: x + "px"
+          };
+        }
       }
     }
   }
@@ -372,7 +416,7 @@ class Main {
   }) {
     let arr = []
     if (multiple) {
-      arr = gisvis.viewer.entities.values.filter(item => item.hasOwnProperty('entityId'))
+      arr = this.viewer.entities.values.filter(item => item.hasOwnProperty('entityId'))
     } else {
       arr = oneArr
     }
@@ -444,6 +488,17 @@ class Main {
       left: x + "px"
     };
     this.addLabelPopperArr.push(obj) //拖拽面板列表
+  }
+  deleteAllLabelPopper() {
+    this.addLabelPopperArr.forEach(item => {
+      item.destroy();
+    })
+    this.addLabelPopperArr = [] //销毁实体就要清除数组内容，不然都是null，旋转的时候报异常
+  }
+  showLabelPopper(val) {
+    this.addLabelPopperArr.forEach(item => {
+      if (item.id == val.id) item.instance.show = true
+    })
   }
   /**
    * 显示Popper
@@ -698,7 +753,7 @@ class Main {
    */
   mergeCircles() {
     //找所有实体里面有设置范围的并且颜色相同的融合
-    let arr = gisvis.viewer.entities.values.filter(item => item.ellipse && item.ellipse.show.getValue() == true)
+    let arr = this.viewer.entities.values.filter(item => item.ellipse && item.ellipse.show.getValue() == true)
     let arrGroup = arr.map((item, index, array) => ({
       colorGroup: array.filter(ele => ele.ellipse.color == item.ellipse.color)
     })).filter((item, index, arr) => {
@@ -1092,8 +1147,16 @@ class Main {
         id: ids,
         polyline: {
           positions: this.generateCurve(startPoint, endPoint),
-          width: 0.8,
+          width: 2,
           material: material
+        },
+        startPoint: {
+          lon: center.lon,
+          lat: center.lat
+        },
+        endPoint: {
+          lon: city.lon,
+          lat: city.lat
         }
       });
     });

@@ -149,7 +149,7 @@ export default {
                 item.id
               ).ellipse.material = Cesium.Color.fromCssColorString(
                 ele.color
-              ).withAlpha(0.08)
+              ).withAlpha(1)
               gisvis.viewer.entities.getById(item.id).ellipse.show = true
               // gisvis.viewer.entities.getById(item.id).polyline.material.color.setValue(ele.color.withAlpha(1));
             } else {

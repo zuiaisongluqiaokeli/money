@@ -9,6 +9,7 @@
         @click="handleClick(item)"
       >
         <i class="tip iconfont icon-triangle" v-show="item.tip"></i>
+        <!-- 禁用没组件的 -->
         <div v-if="item.name === 'relationship' || item.name === 'mark'" @click="open(item.name)">
           <i :class="item.icon" class="icon"></i>
         </div>
@@ -164,7 +165,7 @@ export default {
           image: 'images/facility.png',
           labelShow: this.gisLabelShow,
         })
-        this.$message.success('已成功创建标记点')
+        this.$message.success('请在地图上选择位置，右键取消！')
         this.$store.state.map.isCover = true //开启遮罩避免误操作
       }
     },

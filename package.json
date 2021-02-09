@@ -18,7 +18,7 @@
     "driver.js": "^0.9.8",
     "echarts": "^4.8.0",
     "el-tree-transfer": "^2.2.9",
-    "element-ui": "^2.11.0",
+    "element-ui": "^2.15.0",
     "jquery": "^3.5.1",
     "layui-src": "^2.5.7",
     "mavon-editor": "^2.6.17",

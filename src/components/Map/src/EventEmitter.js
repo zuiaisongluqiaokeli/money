@@ -77,6 +77,10 @@ const EventType = {
   POPPER_REMOVE: "popper-remove",
   /** 【Popper】 标签创建用于显示范围标识 */
   LABEL_CREATE: "label-create",
+  /** 【Popper】 删除所有的标签 */
+  deleteAllLabelPopper: 'deleteAllLabelPopper',
+  /** 【Popper】 左键点击显示对应的显示面板中设置的对应属性值 */
+  ShowLabelPopper: 'ShowLabelPopper',
   /** 【Popper】 htmlPoper */
   CREATE_HtmlPopper: 'create_htmlPoper',
   /** 【Popper】 添加所有可拖拽气泡 */

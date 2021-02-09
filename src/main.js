@@ -20,8 +20,8 @@ const i18n = new VueI18n({
 import VueLazyLoad from 'vue-lazyload'
 Vue.use(VueLazyLoad, {
     preLoad: 1,
-    error: require('./assets/img/img.jpg'),
-    loading: require('./assets/img/img.jpg'),
+    error: require('./assets/img/img.jpeg'),
+    loading: require('./assets/img/img.jpeg'),
     attempt: 2,
 })
 //滚动到指定位置

@@ -10,13 +10,21 @@
             <div class="header-user-con">
                 <!-- 全屏显示 -->
                 <div class="btn-fullscreen" @click="handleFullScreen">
-                    <el-tooltip effect="dark" :content="fullscreen ? `取消全屏` : `全屏`" placement="bottom">
+                    <el-tooltip
+                        effect="light"
+                        :content="fullscreen ? `取消全屏` : `全屏`"
+                        placement="bottom"
+                    >
                         <i class="el-icon-rank" :title="fullscreen ? `取消全屏` : `全屏`"></i>
                     </el-tooltip>
                 </div>
                 <!-- 消息中心 -->
                 <div class="btn-bell">
-                    <el-tooltip effect="dark" :content="message ? `有${message}条未读消息` : `消息中心`" placement="bottom">
+                    <el-tooltip
+                        effect="light"
+                        :content="message ? `有${message}条未读消息` : `消息中心`"
+                        placement="bottom"
+                    >
                         <router-link to="/tabs">
                             <i class="el-icon-bell"></i>
                         </router-link>
@@ -25,7 +33,11 @@
                 </div>
                 <!-- 用户头像 -->
                 <div class="user-avator">
-                    <el-image style="width: 40px; height: 40px" :src="imgSrc"  :preview-src-list="srcList"> </el-image>
+                    <el-image
+                        style="width: 40px; height: 40px;border-radius: 50%;"
+                        :src="imgSrc"
+                        :preview-src-list="srcList"
+                    ></el-image>
                 </div>
                 <!-- 用户名下拉菜单 -->
                 <el-dropdown class="user-name" @command="handleCommand" :hide-timeout="500">
@@ -50,7 +62,7 @@ import bus from '../Layout/bus';
 export default {
     data() {
         return {
-            imgSrc:require('../../assets/img/img.jpg'),
+            imgSrc: require('../../assets/img/img.jpeg'),
             srcList: ['https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg'],
             collapse: false,
             fullscreen: false,
@@ -183,6 +195,7 @@ export default {
 }
 .user-avator {
     margin-left: 20px;
+    padding-top: 10px;
 }
 
 .el-dropdown-link {

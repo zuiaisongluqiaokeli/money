@@ -438,34 +438,28 @@ export default {
             break
           //范围切换（有就切换没有就创建重新分组渲染）
           case 'scopeChange':
-            if (
-              gisvis.viewer.entities.getById(this.gisRightSelectedEntity.id)
-                .ellipse
-            ) {
-              let showState = gisvis.viewer.entities
-                .getById(this.gisRightSelectedEntity.id)
-                .ellipse.show.getValue()
-              gisvis.viewer.entities
-                .getById(this.gisRightSelectedEntity.id)
-                .ellipse.show.setValue(!showState)
-              //重新渲染左侧
-              this.setAttackShow({
-                id: this.gisRightSelectedEntity.id,
-                change: !showState,
-              })
-            } else {
-              let params = {
-                entities: [{ id: this.gisRightSelectedEntity.id }],
-                areaProperty: null,
-                radius: 200,
-                color: '#ffcc33',
+            let scopeChangeArr = []
+            gisvis.viewer.entities.values.forEach((ele) => {
+              let id = ele.id.toString()
+              if (
+                id.split(',').length > 1 &&
+                ele.id.split(',').includes('显示范围')
+              ) {
+                scopeChangeArr.push(ele)
               }
-              gisvis.emitter.emit('gis-scope-render', params)
-              this.setAttackShow({
-                id: this.gisRightSelectedEntity.id,
-                change: true,
-              })
-            }
+            })
+            let showState = false
+            scopeChangeArr.forEach((item) => {
+              if (item.id.includes(this.gisRightSelectedEntity.id)) {
+                showState = !item.ellipse.show.getValue()
+                item.ellipse.show.setValue(!item.ellipse.show.getValue())
+              }
+            })
+            //重新渲染左侧
+            this.setAttackShow({
+              id: this.gisRightSelectedEntity.id,
+              change: showState,
+            })
             gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, [])
             break
           //雷达扩散效果

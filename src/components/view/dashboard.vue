@@ -11,12 +11,12 @@
                         </div>
                     </div>
                     <div class="user-info-list">
-                        上次登录时间：
-                        <span>2018-01-01</span>
+                        登录时间：
+                        <span>{{startTime}}</span>
                     </div>
                     <div class="user-info-list">
-                        上次登录地点：
-                        <span>东莞</span>
+                        登录地点：
+                        <span>厦门</span>
                     </div>
                 </el-card>
                 <el-card shadow="hover" style="height:252px;">
@@ -70,10 +70,10 @@
                         <span>待办事项</span>
                         <el-button style="float: right; padding: 3px 0" type="text">添加</el-button>
                     </div>
-                    <!-- <el-table
+                    <el-table
                         :data="todoList"
                         :show-header="false"
-                        height="304"
+                        height="304px"
                         style="width: 100%;font-size:14px;"
                     >
                         <el-table-column width="40">
@@ -95,7 +95,7 @@
                                 <i class="el-icon-delete"></i>
                             </template>
                         </el-table-column>
-                    </el-table>-->
+                    </el-table>
                 </el-card>
             </el-col>
         </el-row>
@@ -150,6 +150,7 @@
 import Schart from 'vue-schart';
 import driverStep from '@/utils/driver';
 import bus from '../Layout/bus';
+import moment from 'moment';
 export default {
     name: 'dashboard',
     data() {
@@ -160,7 +161,8 @@ export default {
             roseType: 'radius'
         };
         return {
-            imgUser:require('../../assets/img/img.jpg'),
+            startTime: moment().format('YYYY/MM/DD'),
+            imgUser: require('../../assets/img/img.jpeg'),
             name: localStorage.getItem('ms_username'),
             chartData: {
                 columns: ['日期', '访问用户', '下单用户'],

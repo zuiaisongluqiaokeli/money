@@ -139,9 +139,9 @@ export default {
         { label: '大于等于', value: 'GE' },
         { label: '小于等于', value: 'LE' },
         { label: '模糊等于', value: 'FUZZY' },
-        { label: '空值', value: 'null' },
-        { label: '存在', value: 'exit' },
-        { label: '不存在', value: 'unexit' },
+        // { label: '空值', value: 'null' },
+        // { label: '存在', value: 'exit' },
+        // { label: '不存在', value: 'unexit' },
       ], // 筛选关系
       allLabelsList: [],
       allPropsList: [],
@@ -327,7 +327,8 @@ export default {
           ],
         })
       })
-      arr = arr.filter((item) => item.moreConditions[0].conditionsEnum != '')
+      arr = arr.filter((item) => item.moreConditions[0].key != '')
+      this.close()
       let res = await graphDetail.gisExpand({
         distance: this.verticeFilter.range,
         graphName: this.graphName,
@@ -335,7 +336,6 @@ export default {
         vertex,
         moreCondition: arr,
       })
-      this.close()
       if (res.data.success) {
         let result = res.data.object
         if (result && result.vertices.length) {

@@ -10,9 +10,9 @@
         </div>
 
         <div class="container">
-            <div style="height: 80px; line-height: 80px; color: #409eff">
-                动态表格（可以拖拽,单点切换选中效果,展示不同的框需要判断,vxe直接点击的时候可以设置）
-            </div>
+            <div
+                style="height: 80px; line-height: 80px; color: #409eff"
+            >动态表格（可以拖拽,单点切换选中效果,展示不同的框需要判断,vxe直接点击的时候可以设置）</div>
             <div style="margin-bottom: 20px">
                 <el-input
                     v-model="addTableColVal"
@@ -50,7 +50,12 @@
                             <span class="approval"></span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="item.label" v-for="(item, index) in tableData.col" :key="index" align="center">
+                    <el-table-column
+                        :label="item.label"
+                        v-for="(item, index) in tableData.col"
+                        :key="index"
+                        align="center"
+                    >
                         <template slot-scope="scope">
                             <!-- 表格验证加红点标题 -->
                             <template slot="header">
@@ -62,7 +67,10 @@
                                 <span>{{scope.row[item.prop]}}</span>
                             </template>-->
                             <template align="center">
-                                <el-form-item :prop="'data.' + scope.$index + '.' + item.prop" :rules="tableDataRules.input">
+                                <el-form-item
+                                    :prop="'data.' + scope.$index + '.' + item.prop"
+                                    :rules="tableDataRules.input"
+                                >
                                     <el-input
                                         v-tooltip="{ content: scope.row[item.prop], color:'#fff', bgColor: 'black',pos: 'top' }"
                                         v-model="scope.row[item.prop]"
@@ -88,23 +96,45 @@
             <div style="color: #409eff">item.prop代表属性名，scope.row[item.prop]代表属性值</div>
             <div style="height: 80px; line-height: 80px">每天都要吃香香</div>
             <el-table :data="daysTable" border style="width: 95%" class="daysClass">
-                <el-table-column align="center" label="餐次/星期" prop="week" :render-header="titleChange"></el-table-column>
-                <el-table-column :label="item.label" v-for="(item, index) in daysColumn" :key="index" align="center">
+                <el-table-column
+                    align="center"
+                    label="餐次/星期"
+                    prop="week"
+                    :render-header="titleChange"
+                ></el-table-column>
+                <el-table-column
+                    :label="item.label"
+                    v-for="(item, index) in daysColumn"
+                    :key="index"
+                    align="center"
+                >
                     <template slot-scope="scope">
                         <div v-if="scope.row[item.prop]">
-                            <el-button type="text" @click="openDialog(scope.$index, item.prop, scope.row[item.prop])">
+                            <el-button
+                                type="text"
+                                @click="openDialog(scope.$index, item.prop, scope.row[item.prop])"
+                            >
                                 {{ scope.row[item.prop] }}
                                 <i class="el-icon-edit el-icon--right"></i>
                             </el-button>
                         </div>
                         <div v-else>
-                            <el-button type="primary" @click="openDialog(scope.$index, item.prop)">选择食物</el-button>
+                            <el-button
+                                type="primary"
+                                @click="openDialog(scope.$index, item.prop)"
+                            >选择食物</el-button>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <el-dialog title="每天都要吃香香" :visible.sync="dialogShow" v-if="dialogShow" width="80%" :close-on-click-modal="false">
+        <el-dialog
+            title="每天都要吃香香"
+            :visible.sync="dialogShow"
+            v-if="dialogShow"
+            width="80%"
+            :close-on-click-modal="false"
+        >
             <el-transfer
                 style="display: flex; justify-content: center"
                 v-if="dialogShow"
@@ -130,7 +160,11 @@
                     <el-table-column label="个数" prop="number" align="center"></el-table-column>
                     <el-table-column label="操作" align="center">
                         <template slot-scope="scope">
-                            <el-button type="primary" icon="el-icon-edit" @click="editToggleTable(scope.$index)">修改个数</el-button>
+                            <el-button
+                                type="primary"
+                                icon="el-icon-edit"
+                                @click="editToggleTable(scope.$index)"
+                            >修改个数</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -142,7 +176,13 @@
                 width="40%"
                 :close-on-click-modal="false"
             >
-                <el-table :data="toggleTable" ref="toggleTable" border style="width: 100%" @selection-change="toggleTableSelection">
+                <el-table
+                    :data="toggleTable"
+                    ref="toggleTable"
+                    border
+                    style="width: 100%"
+                    @selection-change="toggleTableSelection"
+                >
                     <el-table-column type="selection" width="45" align="center"></el-table-column>
                     <el-table-column label="兜兜" prop="doudou" align="center"></el-table-column>
                 </el-table>
@@ -153,9 +193,9 @@
             </el-dialog>
             <div style="width: 40px"></div>
             <div>
-                <div style="color: #409eff">
-                    深度监听表格的研究(1.递归监听报错只有一种情况：一次循环中被设置的元素设置了两次以上不同的值2.修改绑定值的时候不监听3.不用所有行都被监听)
-                </div>
+                <div
+                    style="color: #409eff"
+                >深度监听表格的研究(1.递归监听报错只有一种情况：一次循环中被设置的元素设置了两次以上不同的值2.修改绑定值的时候不监听3.不用所有行都被监听)</div>
                 <el-table :data="watchDeepTable" border ref="watchDeepTable">
                     <el-table-column label="买卖状态" prop="state" align="center"></el-table-column>
                     <el-table-column label="数量" align="center">
@@ -175,7 +215,31 @@
 
         <div class="container">
             <div style="height: 80px; line-height: 80px">表格下拉树结构(自己封装组件)</div>
-            <TreeTable :data="treeTable" :columns="columns" border @emitDetail="emitDetail"></TreeTable>
+            <el-table
+                :data="treeTable"
+                style="width: 100%;margin-bottom: 20px;"
+                row-key="id"
+                border
+                default-expand-all
+                :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+            >
+                <el-table-column prop="date" label="日期" sortable width="180"></el-table-column>
+                <el-table-column prop="name" label="姓名" sortable width="180"></el-table-column>
+                <el-table-column prop="address" label="地址"></el-table-column>
+                <el-table-column prop="address" label="选项框">
+                    <template slot-scope="scope">
+                        <el-popover trigger="hover" placement="left">
+                            <p
+                                v-for="(item,index) in scope.row.checkInfo.info"
+                                :key="index"
+                            >{{index}}:{{item}}</p>
+                            <div slot="reference" class="name-wrapper">
+                                <el-checkbox v-model="scope.row.checkInfo.show">备选项</el-checkbox>
+                            </div>
+                        </el-popover>
+                    </template>
+                </el-table-column>
+            </el-table>
         </div>
 
         <div class="container">
@@ -224,13 +288,9 @@
 <script>
 import { fetchData } from '../../api/index';
 import Sortable from 'sortablejs';
-import TreeTable from './TreeTable';
 import XEUtils from 'xe-utils';
 export default {
     name: 'basetable',
-    components: {
-        TreeTable
-    },
     watch: {
         //选中就高亮
         selectlistRow: {
@@ -477,89 +537,86 @@ export default {
             ],
             treeTable: [
                 {
-                    id: 0,
-                    event: '事件1',
-                    timeLine: 50,
-                    comment: '无'
+                    id: 1,
+                    date: '2016-05-02',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄',
+                    checkInfo: {
+                        show: true,
+                        info: {
+                            你是谁: '我是兜兜',
+                            你呢: '我是臭兜兜'
+                        }
+                    }
                 },
                 {
-                    id: 1,
-                    event: '事件1',
-                    timeLine: 100,
-                    comment: '无',
+                    id: 2,
+                    date: '2016-05-04',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1517 弄',
+                    checkInfo: {
+                        show: true,
+                        info: {
+                            你是谁: '我是兜兜',
+                            你呢: '我是臭兜兜'
+                        }
+                    }
+                },
+                {
+                    id: 3,
+                    date: '2016-05-01',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1519 弄',
+                    checkInfo: {
+                        show: true,
+                        info: {
+                            你是谁: '我是兜兜',
+                            你呢: '我是臭兜兜'
+                        }
+                    },
                     children: [
                         {
-                            id: 2,
-                            event: '事件2',
-                            timeLine: 10,
-                            comment: '无'
+                            id: 31,
+                            date: '2016-05-01',
+                            name: '王小虎',
+                            address: '上海市普陀区金沙江路 1519 弄',
+                            checkInfo: {
+                                show: true,
+                                info: {
+                                    你是谁: '我是兜兜',
+                                    你呢: '我是臭兜兜'
+                                }
+                            }
                         },
                         {
-                            id: 3,
-                            event: '事件3',
-                            timeLine: 90,
-                            comment: '无',
-                            children: [
-                                {
-                                    id: 4,
-                                    event: '事件4',
-                                    timeLine: 5,
-                                    comment: '无'
-                                },
-                                {
-                                    id: 5,
-                                    event: '事件5',
-                                    timeLine: 10,
-                                    comment: '无'
-                                },
-                                {
-                                    id: 6,
-                                    event: '事件6',
-                                    timeLine: 75,
-                                    comment: '无',
-                                    children: [
-                                        {
-                                            id: 7,
-                                            event: '事件7',
-                                            timeLine: 50,
-                                            comment: '无',
-                                            children: [
-                                                {
-                                                    id: 71,
-                                                    event: '事件71',
-                                                    timeLine: 25,
-                                                    comment: 'xx'
-                                                },
-                                                {
-                                                    id: 72,
-                                                    event: '事件72',
-                                                    timeLine: 5,
-                                                    comment: 'xx'
-                                                },
-                                                {
-                                                    id: 73,
-                                                    event: '事件73',
-                                                    timeLine: 20,
-                                                    comment: 'xx'
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            id: 8,
-                                            event: '事件8',
-                                            timeLine: 25,
-                                            comment: '无'
-                                        }
-                                    ]
+                            id: 32,
+                            date: '2016-05-01',
+                            name: '王小虎',
+                            address: '上海市普陀区金沙江路 1519 弄',
+                            checkInfo: {
+                                show: true,
+                                info: {
+                                    你是谁: '我是兜兜',
+                                    你呢: '我是臭兜兜'
                                 }
-                            ]
+                            }
                         }
                     ]
+                },
+                {
+                    id: 4,
+                    date: '2016-05-03',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1516 弄',
+                    checkInfo: {
+                        show: true,
+                        info: {
+                            你是谁: '我是兜兜',
+                            你呢: '我是臭兜兜'
+                        }
+                    }
                 }
             ],
-            hello: [],
-            oldList: [],
-            newList: [],
             selectRow: [],
             sortable: null
         };

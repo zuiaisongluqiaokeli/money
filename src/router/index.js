@@ -152,13 +152,6 @@ export default new Router({
                     }
                 },
                 {
-                    path: '/icon',
-                    component: () => import('../components/view/icon.vue'),
-                    meta: {
-                        title: '自定义图标'
-                    }
-                },
-                {
                     // 富文本编辑器组件
                     path: '/editor',
                     component: () => import('../components/view/vueEditor.vue'),

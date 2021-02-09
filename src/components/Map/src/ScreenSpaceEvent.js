@@ -32,6 +32,7 @@ class ScreenSpaceEvent {
       if (currentEntity && currentEntity.id.hasOwnProperty('entityId')) {
         emitter.emit(EventType.CLICK_ENTITY, currentEntity); //选中实体
         emitter.emit(EventType.MapLegend_Collapse); //展开已知位置面板
+        emitter.emit(EventType.ShowLabelPopper, currentEntity.id); //显示在显示面板中设置的对应属性值
       } else {
         emitter.emit(EventType.CLICK_BLANK);
         return;

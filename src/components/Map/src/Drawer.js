@@ -2,7 +2,6 @@ class Drawer {
   constructor(options) {
     this.store = options.store;
     this.viewer = options.viewer;
-    this.firstTime = true
   }
   /**
    * 渲染实体数据
@@ -31,7 +30,7 @@ class Drawer {
           position: Cesium.Cartesian3.fromDegrees(
             e.properties.longitude,
             e.properties.latitude,
-            10
+            100
           ),
           newAdd: false,
           billboard: {
@@ -77,7 +76,7 @@ class Drawer {
       }
     });
     //只有第一次的时候飞向该店其余不需要
-    if (entityIndex > -1 && this.firstTime) {
+    if (entityIndex > -1) {
       let center = Cesium.Cartesian3.fromDegrees(
         data[entityIndex].properties.longitude,
         data[entityIndex].properties.latitude,
@@ -88,7 +87,6 @@ class Drawer {
         destination: center, // 摄像机的最终位置
         duration: 2
       });
-      this.firstTime = false
     }
     this.viewer.entities.removeById('marsRadarScan')
     // this.viewer.scene.postProcessStages._stages.forEach(i => {
@@ -149,7 +147,7 @@ class Drawer {
           semiMinorAxis: (propertyValue || radius) * 1000,
           material: Cesium.Color.fromCssColorString(
             color || "#00ff00"
-          ).withAlpha(0.08),
+          ).withAlpha(1),
           outline: true,
           outlineColor: Cesium.Color.fromCssColorString(
             color || "#00ff00"

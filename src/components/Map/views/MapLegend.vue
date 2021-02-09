@@ -340,7 +340,7 @@ export default {
             gisvis.viewer.entities.values.forEach((ele) => {
               let id = ele.id.toString()
               if (
-                id.split(',').length > 1 &&
+                id.split(',').length == 2 &&
                 ele.id.split(',').includes(element.id.toString())
               ) {
                 arrLine.push(ele)
@@ -350,7 +350,7 @@ export default {
             gisvis.viewer.entities.values.forEach((ele) => {
               let id = ele.id.toString()
               if (
-                id.split(',').length > 1 &&
+                id.split(',').length == 3 &&
                 ele.id.split(',').includes('显示范围') &&
                 ele.id.split(',').includes(val.id.toString())
               ) {
@@ -393,7 +393,7 @@ export default {
       gisvis.viewer.entities.values.forEach((ele) => {
         let id = ele.id.toString()
         if (
-          id.split(',').length > 1 &&
+          id.split(',').length == 2 &&
           ele.id.split(',').includes(val.id.toString())
         ) {
           arrLine.push(ele)
@@ -403,11 +403,12 @@ export default {
         gisvis.viewer.entities.removeById(item.id)
       })
       //每次删除之前的范围设置的圆圈
+
       let deleteLabelArr = []
       gisvis.viewer.entities.values.forEach((ele) => {
         let id = ele.id.toString()
         if (
-          id.split(',').length > 1 &&
+          id.split(',').length == 3 &&
           ele.id.split(',').includes('显示范围') &&
           ele.id.split(',').includes(val.id.toString())
         ) {
@@ -491,12 +492,45 @@ export default {
           gisvis.viewer.entities.values.forEach((ele) => {
             let id = ele.id.toString()
             if (
-              id.split(',').length > 1 &&
+              id.split(',').length == 2 &&
               ele.id.split(',').includes(item.id.toString())
             ) {
               ele.show = false
             }
           })
+          let scopeChangeArr = []
+          gisvis.viewer.entities.values.forEach((ele) => {
+            let id = ele.id.toString()
+            if (
+              id.split(',').length == 3 &&
+              ele.id.split(',').includes('显示范围')
+            ) {
+              scopeChangeArr.push(ele)
+            }
+          })
+          scopeChangeArr.forEach((ele) => {
+            if (ele.id.includes(item.id)) {
+              ele.ellipse.show.setValue(false)
+            }
+          })
+        } else {
+          if (val.attackRange) {
+            let scopeChangeArr = []
+            gisvis.viewer.entities.values.forEach((ele) => {
+              let id = ele.id.toString()
+              if (
+                id.split(',').length == 3 &&
+                ele.id.split(',').includes('显示范围')
+              ) {
+                scopeChangeArr.push(ele)
+              }
+            })
+            scopeChangeArr.forEach((ele) => {
+              if (ele.id.includes(item.id)) {
+                ele.ellipse.show.setValue(true)
+              }
+            })
+          }
         }
       })
       //只有当两个点都是被选中的点是和边对应的ID吻合时候才显示边
@@ -507,7 +541,7 @@ export default {
         let arrIds = gisvis.viewer.entities.values
           .filter((ele) => {
             let id = ele.id.toString()
-            return id.split(',').length > 1
+            return id.split(',').length == 2
           })
           .map((item) => item.id)
         arrIds.forEach((item) => {
@@ -533,10 +567,26 @@ export default {
         gisvis.viewer.entities.values.forEach((ele) => {
           let id = ele.id.toString()
           if (
-            id.split(',').length > 1 &&
+            id.split(',').length == 2 &&
             ele.id.split(',').includes(val.id.toString())
           ) {
             ele.show = false
+          }
+        })
+        //批量切换范围圆圈
+        let scopeChangeArr = []
+        gisvis.viewer.entities.values.forEach((ele) => {
+          let id = ele.id.toString()
+          if (
+            id.split(',').length == 3 &&
+            ele.id.split(',').includes('显示范围')
+          ) {
+            scopeChangeArr.push(ele)
+          }
+        })
+        scopeChangeArr.forEach((ele) => {
+          if (ele.id.includes(val.id)) {
+            ele.ellipse.show.setValue(false)
           }
         })
       }
@@ -546,7 +596,7 @@ export default {
         let arrIds = gisvis.viewer.entities.values
           .filter((ele) => {
             let id = ele.id.toString()
-            return id.split(',').length > 1
+            return id.split(',').length == 2
           })
           .map((item) => item.id)
         console.log(arrIds)
@@ -560,6 +610,24 @@ export default {
             gisvis.viewer.entities.getById(item).show = true
           }
         })
+        if (val.attackRange) {
+          //批量切换范围圆圈
+          let scopeChangeArr = []
+          gisvis.viewer.entities.values.forEach((ele) => {
+            let id = ele.id.toString()
+            if (
+              id.split(',').length == 3 &&
+              ele.id.split(',').includes('显示范围')
+            ) {
+              scopeChangeArr.push(ele)
+            }
+          })
+          scopeChangeArr.forEach((ele) => {
+            if (ele.id.includes(val.id)) {
+              ele.ellipse.show.setValue(true)
+            }
+          })
+        }
       }
       if (
         this.tableData[index].listInfo.every((item) => item.visible == false) ||
@@ -606,16 +674,51 @@ export default {
       val.attackRange = !val.attackRange
       this.tableData[index].listInfo.forEach((item) => {
         item.attackRange = val.attackRange
-        if (gisvis.viewer.entities.getById(item.id).ellipse) {
-          gisvis.viewer.entities.getById(item.id).ellipse.show = val.attackRange
+        // if (gisvis.viewer.entities.getById(item.id).ellipse) {
+        //   gisvis.viewer.entities.getById(item.id).ellipse.show = val.attackRange
+        // } else {
+        //   let params = {
+        //     entities: [{ id: item.id }],
+        //     radius: 250,
+        //     areaProperty: null,
+        //     color: '#ffcc33',
+        //   }
+        //   gisvis.emitter.emit('gis-scope-render', params)
+        // }
+        if (val.attackRange) {
+          //批量切换范围圆圈
+          let scopeChangeArr = []
+          gisvis.viewer.entities.values.forEach((ele) => {
+            let id = ele.id.toString()
+            if (
+              id.split(',').length == 3 &&
+              ele.id.split(',').includes('显示范围')
+            ) {
+              scopeChangeArr.push(ele)
+            }
+          })
+          scopeChangeArr.forEach((ele) => {
+            if (ele.id.includes(item.id)) {
+              ele.ellipse.show.setValue(true)
+            }
+          })
         } else {
-          let params = {
-            entities: [{ id: item.id }],
-            radius: 250,
-            areaProperty: null,
-            color: '#ffcc33',
-          }
-          gisvis.emitter.emit('gis-scope-render', params)
+          //批量切换范围圆圈
+          let scopeChangeArr = []
+          gisvis.viewer.entities.values.forEach((ele) => {
+            let id = ele.id.toString()
+            if (
+              id.split(',').length == 3 &&
+              ele.id.split(',').includes('显示范围')
+            ) {
+              scopeChangeArr.push(ele)
+            }
+          })
+          scopeChangeArr.forEach((ele) => {
+            if (ele.id.includes(item.id)) {
+              ele.ellipse.show.setValue(false)
+            }
+          })
         }
       })
       this.$set(this.tableData, 0, this.tableData[0])
@@ -633,19 +736,42 @@ export default {
           index
         ].listInfo[0].attackRange
       }
-      if (gisvis.viewer.entities.getById(val.id).ellipse) {
-        gisvis.viewer.entities.getById(val.id).ellipse.show = val.attackRange
+      if (val.attackRange) {
+        //批量切换范围圆圈
+        let scopeChangeArr = []
+        gisvis.viewer.entities.values.forEach((ele) => {
+          let id = ele.id.toString()
+          if (
+            id.split(',').length == 3 &&
+            ele.id.split(',').includes('显示范围')
+          ) {
+            scopeChangeArr.push(ele)
+          }
+        })
+        scopeChangeArr.forEach((ele) => {
+          if (ele.id.includes(val.id)) {
+            ele.ellipse.show.setValue(true)
+          }
+        })
       } else {
-        // this.$message.info("当前选中的时候没有设置攻击范围");
-        //设置一个默认攻击范围
-        let params = {
-          entities: [{ id: val.id }],
-          radius: 250,
-          color: '#ffcc33',
-          areaProperty: null,
-        }
-        gisvis.emitter.emit('gis-scope-render', params)
+        //批量切换范围圆圈
+        let scopeChangeArr = []
+        gisvis.viewer.entities.values.forEach((ele) => {
+          let id = ele.id.toString()
+          if (
+            id.split(',').length == 3 &&
+            ele.id.split(',').includes('显示范围')
+          ) {
+            scopeChangeArr.push(ele)
+          }
+        })
+        scopeChangeArr.forEach((ele) => {
+          if (ele.id.includes(val.id)) {
+            ele.ellipse.show.setValue(false)
+          }
+        })
       }
+
       this.$set(this.tableData, 0, this.tableData[0])
     },
   },

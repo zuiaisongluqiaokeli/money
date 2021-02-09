@@ -276,6 +276,7 @@ export default {
   },
   computed: {
     ...mapState('graphInfo', ['id', 'graphType', 'name']),
+    ...mapState('map', ['allEntityBackEnd']),
     ...mapGetters('map', ['gisEntityIds', 'gisLinesIds']),
     ...mapGetters('graphInfo', ['graphName']),
     ...mapState('map', ['gisEntities']),
@@ -333,6 +334,7 @@ export default {
     ...mapMutations('map', ['setselectedVertices']),
     //记得改标记实体的ID
     async setSelectedEntity(val) {
+      let info = {}
       ;(this.nameShow = true), (this.entityId = val.id.entityId)
       if (val.id.hasOwnProperty('entityId') && val.id.entityId !== '') {
         // 拿之前的数据+现在的经纬度 发送数据
@@ -385,6 +387,12 @@ export default {
             newResult.data.object.properties.实体分类) ||
           '暂未分类'
         gisvis.viewer.entities.getById(val.id.entityId).newAdd = false //标记或者未知位置添加时候的标记
+        //如果点击的是已有的那就读已有的攻击范围
+        this.allEntityBackEnd.forEach((item) => {
+          if (item.id == this.entityId) {
+            newResult.data.object.attackRange = item.attackRange
+          }
+        })
         emitter.emit(EventType.LEGEND_DATA_CHANGE, [newResult.data.object]) //重新分组
         let res = await graphVerticesDetail
           .vertexDetailView(val.id.entityId, this.id)
@@ -401,6 +409,7 @@ export default {
           })
           return
         } else if (res.data.success) {
+          info = res.data.object
           this.setselectedVertices(res.data.object)
           this.newVerticesData.propertiesJson = []
           this.newVerticesData.avatar =
@@ -462,6 +471,81 @@ export default {
           }
           this.newVerticesData.type = res.data.object.type
           this.show = true
+        }
+        //对关系线重新渲染
+        window.isMove
+          ? (window.isMove = window.isMove)
+          : (window.isMove = false)
+        if (window.isMove) {
+          window.arrLine
+            ? (window.arrLine = window.arrLine)
+            : (window.arrLine = [])
+          window.arrLine.forEach((item) => {
+            let [start, end] = item.id.split(',')
+            let center = {},
+              points = {}
+            if (start == this.entityId) {
+              center = {
+                id: start,
+                lon: Number(info.properties.经度),
+                lat: Number(info.properties.纬度),
+                size: 5,
+                color: Cesium.Color.YELLOW,
+              }
+              points = {
+                id: end,
+                lon: Number(item.endPoint.lon),
+                lat: Number(item.endPoint.lat),
+                size: 5,
+                color: Cesium.Color.YELLOW,
+              }
+            }
+            if (end == this.entityId) {
+              center = {
+                id: end,
+                lon: Number(info.properties.经度),
+                lat: Number(info.properties.纬度),
+                size: 5,
+                color: Cesium.Color.YELLOW,
+              }
+              points = {
+                id: start,
+                lon: Number(item.startPoint.lon),
+                lat: Number(item.startPoint.lat),
+                size: 5,
+                color: Cesium.Color.YELLOW,
+              }
+            }
+            console.log(center, points)
+            gisvis.emitter.emit(EventType.CREATE_Fly_LINES_MANY, {
+              center,
+              points: [points],
+            })
+          })
+          //更新每个实体圆的坐标
+          let scopeChangeArr = []
+          gisvis.viewer.entities.values.forEach((ele) => {
+            let id = ele.id.toString()
+            if (
+              id.split(',').length == 3 &&
+              ele.id.split(',').includes('显示范围')
+            ) {
+              scopeChangeArr.push(ele)
+            }
+          })
+          scopeChangeArr.forEach((ele) => {
+            if (ele.id.includes(this.entityId)) {
+              gisvis.viewer.entities.getById(
+                ele.id
+              ).position = Cesium.Cartesian3.fromDegrees(
+                Number(info.properties.经度),
+                Number(info.properties.纬度),
+                10
+              )
+              ele.ellipse.show.setValue(true)
+            }
+          })
+          window.isMove = false
         }
       }
     },

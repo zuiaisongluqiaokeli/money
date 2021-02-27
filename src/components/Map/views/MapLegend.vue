@@ -87,7 +87,7 @@
                     :class="{
                       'is-active': ele.visible,
                     }"
-                    @click="changeVisibleEntity($event, index, ele, key)"
+                    @click="changeVisibleEntity($event, index, ele, key,item)"
                   ></i>
                   <i
                     class="el-icon-delete"
@@ -146,7 +146,31 @@ export default {
       },
     },
   },
-
+  watch: {
+    tableData: {
+      deep: true,
+      handler(val) {
+        val.forEach((item) => {
+          if (
+            item.listInfo.every((item) => item.visible == false) ||
+            item.listInfo.every((item) => item.visible == true)
+          ) {
+            item.visible = item.listInfo[0].visible
+          } else {
+            item.visible = false
+          }
+          if (
+            item.listInfo.every((item) => item.attackRange == false) ||
+            item.listInfo.every((item) => item.attackRange == true)
+          ) {
+            item.attackRange = item.listInfo[0].attackRange
+          } else {
+            item.attackRange = false
+          }
+        })
+      },
+    },
+  },
   data() {
     return {
       collapse: false, //默认展开
@@ -203,6 +227,7 @@ export default {
       active: 1,
       tableData: [],
       arr1: [],
+      lastArr: [],
       arr2: [],
       countArr: [], //用来累计便于关系线的显示
     }
@@ -248,13 +273,25 @@ export default {
               require('@/assets/img/facility.png'),
             name: item.properties.name || item.properties.名称,
             category: item.properties.实体分类,
+            visible: this.lastArr.filter(
+              (ele) => ele.category == item.properties.实体分类
+            )[0]
+              ? this.lastArr.filter(
+                  (ele) => ele.category == item.properties.实体分类
+                )[0].visible
+              : true, //用上一次数据的大类显示状态
             number: this.resultArr.filter(
               (ele) =>
                 ele.properties.实体分类 == item.properties.实体分类 &&
                 ele.properties.latitude
             ).length,
-            visible: true, //切换显示
-            attackRange: false, //切换攻击范围
+            attackRange: this.lastArr.filter(
+              (ele) => ele.category == item.properties.实体分类
+            )[0]
+              ? this.lastArr.filter(
+                  (ele) => ele.category == item.properties.实体分类
+                )[0].attackRange
+              : false, //切换攻击范围
             listInfo: this.resultArr.filter(
               (ele) =>
                 ele.properties.实体分类 == item.properties.实体分类 &&
@@ -266,11 +303,17 @@ export default {
           let arrCategory = arr.map((ele) => ele.category)
           return arrCategory.indexOf(item.category) == index
         })
-      this.arr1.forEach((item) => {
-        item.listInfo.forEach((ele) => {
-          this.countArr.push(ele.id)
-        })
-      })
+      //第一次添加的时候全部显示，以后的依据上次是否有字段来判断
+      // window.firstTime ? (window.firstTime = true) : (window.firstTime = false)
+      // if (!window.firstTime) {
+      //   this.arr1.forEach((item) => {
+      //     item.visible = true
+      //     item.listInfo.forEach((ele) => {
+      //       ele.visible = true
+      //     })
+      //   })
+      // }
+      // window.firstTime = true
       this.arr2 = this.allEntityBackEnd
         .map((item, index, arr) => {
           return {
@@ -298,6 +341,7 @@ export default {
           let arrCategory = arr.map((ele) => ele.category)
           return arrCategory.indexOf(item.category) == index
         })
+      this.lastArr = [...this.arr1]
       this.active == 1
         ? (this.tableData = this.arr1)
         : (this.tableData = this.arr2)
@@ -351,8 +395,8 @@ export default {
               let id = ele.id.toString()
               if (
                 id.split(',').length == 3 &&
-                ele.id.split(',').includes('显示范围') &&
-                ele.id.split(',').includes(val.id.toString())
+                id.split(',').includes('显示范围') &&
+                id.split(',').includes(element.id.toString())
               ) {
                 deleteLabelArr.push(ele)
               }
@@ -363,7 +407,6 @@ export default {
       arrLine.forEach((item) => {
         gisvis.viewer.entities.removeById(item.id)
       })
-
       deleteLabelArr.forEach((item) => {
         gisvis.viewer.entities.removeById(item.id)
       })
@@ -483,9 +526,11 @@ export default {
       event.stopPropagation()
       gisvis.emitter.emit(EventType.CLICK_BLANK)
       val.visible = !val.visible
+      if (!val.visible) val.attackRange = false
       this.tableData[index].listInfo.forEach((item) => {
         item.visible = val.visible
         gisvis.viewer.entities.getById(item.id).show = val.visible
+        if (!val.visible) item.attackRange = false
         //批量隐藏存在的关系线
         if (!val.visible) {
           this.countArr = this.countArr.filter((vv) => vv != item.id)
@@ -556,10 +601,14 @@ export default {
         })
       }
     },
-    changeVisibleEntity(event, index, val, key) {
+    changeVisibleEntity(event, index, val, key, item) {
       event.stopPropagation()
       gisvis.emitter.emit(EventType.CLICK_BLANK)
       this.tableData[index].listInfo[key].visible = !val.visible
+      if (!val.visible) {
+        val.attackRange = false
+        item.attackRange = false
+      }
       gisvis.viewer.entities.getById(val.id).show = val.visible
       //批量隐藏存在的关系线
       if (!val.visible) {
@@ -671,6 +720,7 @@ export default {
     },
     changeEntitiesAttackRange(event, index, val) {
       event.stopPropagation()
+      if (!val.visible) return
       val.attackRange = !val.attackRange
       this.tableData[index].listInfo.forEach((item) => {
         item.attackRange = val.attackRange
@@ -725,6 +775,7 @@ export default {
     },
     changeAttackRange(event, index, val, key) {
       event.stopPropagation()
+      if (!val.visible) return
       this.tableData[index].listInfo[key].attackRange = !val.attackRange
       if (
         this.tableData[index].listInfo.every(

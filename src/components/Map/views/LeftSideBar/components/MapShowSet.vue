@@ -155,8 +155,11 @@ export default {
       deleteArr.forEach((item) => {
         gisvis.viewer.entities.removeById(item.id)
       })
-
-      //更新左侧面板的样式状态
+      //按照半径从大到小排序展示出来
+      arr.sort((a, b) => {
+        return b.sortOrder - a.sortOrder
+      })
+      //更新左侧面板的样式状态 (找到对应的并且有该属性并且值是数字的并且按钮是显示的状态)
       arr.forEach(({ info: item, color, showProperty }, index) => {
         this.allEntityBackEnd.forEach((ele) => {
           if (
@@ -164,45 +167,38 @@ export default {
             item.properties.properties.getValue()[showProperty] &&
             !isNaN(
               parseInt(item.properties.properties.getValue()[showProperty])
-            )
+            ) &&
+            ele.visible
           ) {
             ele.attackRange = true
-          } else {
-            ele.attackRange = false
+            gisvis.viewer.entities.getById(ele.id).show = true
+            //伪造ID显示范围圈
+            gisvis.viewer.entities.add({
+              id: '显示范围' + ',' + item.id + ',' + index,
+              position: Cesium.Cartesian3.fromDegrees(
+                Number(item.properties.properties.getValue().longitude),
+                Number(item.properties.properties.getValue().latitude),
+                10
+              ),
+              ellipse: {
+                show: true,
+                semiMajorAxis: Number(
+                  item.properties.properties.getValue()[showProperty]
+                ),
+                semiMinorAxis: Number(
+                  item.properties.properties.getValue()[showProperty]
+                ),
+                material: Cesium.Color.fromCssColorString(color),
+                outline: true,
+                outlineColor: Cesium.Color.fromCssColorString(color),
+                height: index,
+                outlineWidth: 15,
+              },
+            })
           }
         })
       })
       gisvis.emitter.emit(EventType.LEGEND_DATA_CHANGE, [])
-      //按照半径从大到小排序展示出来
-      arr.sort((a, b) => {
-        return b.sortOrder - a.sortOrder
-      })
-      arr.forEach(({ info: item, color, showProperty }, index) => {
-        //伪造ID显示范围圈
-        gisvis.viewer.entities.add({
-          id: '显示范围' + ',' + item.id + ',' + index,
-          position: Cesium.Cartesian3.fromDegrees(
-            Number(item.properties.properties.getValue().longitude),
-            Number(item.properties.properties.getValue().latitude),
-            10
-          ),
-          ellipse: {
-            show: true,
-            semiMajorAxis: Number(
-              item.properties.properties.getValue()[showProperty]
-            ),
-            semiMinorAxis: Number(
-              item.properties.properties.getValue()[showProperty]
-            ),
-            material: Cesium.Color.fromCssColorString(color),
-            outline: true,
-            outlineColor: Cesium.Color.fromCssColorString(color),
-            height: index,
-            outlineWidth: 15,
-          },
-        })
-      })
-
       emitter.emit(EventType.deleteAllLabelPopper) //删除所有的标签
       //创建标签显示半径字段
       arr.forEach(({ info: item, showProperty }, index, Arr) => {
